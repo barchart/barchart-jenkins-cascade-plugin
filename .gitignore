@@ -1,0 +1,24 @@
+#
+# IDEA meatadata.
+#
+*.iml
+*.ipr
+*.iws
+
+#
+# Eclipse metadata.
+#
+.classpath
+.project
+.settings/
+
+#
+# Eclipse and Maven build results. 
+#
+bin/
+target/
+
+#
+# Jenkins work folder.
+#
+work/
