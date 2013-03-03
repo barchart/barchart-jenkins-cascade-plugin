@@ -1,0 +1,6 @@
+<j:jelly xmlns:j="jelly:core">
+
+	<img width="16" height="16" title="Cascade Layout"
+		src="${rootURL}/plugin/barchart-jenkinis-cascade-plugin/images/16x16/monkey.png" />
+
+</j:jelly>

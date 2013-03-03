@@ -1,0 +1,131 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- Required Jenkins version. -->
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<version>1.503</version>
+		<relativePath />
+	</parent>
+
+	<groupId>com.barchart.jenkins</groupId>
+	<artifactId>barchart-jenkinis-cascade-plugin</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>hpi</packaging>
+
+	<name>Barchart Jenkins Cascade Plugin</name>
+	<description>Perform maven release cascade.</description>
+
+	<!-- Jenkins development dependencies. -->
+	<repositories>
+		<repository>
+			<id>repo.jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>repo.jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<dependencies>
+
+		<!-- https://wiki.jenkins-ci.org/display/JENKINS/Maven+2+Project+Plugin -->
+		<dependency>
+			<groupId>org.jenkins-ci.main</groupId>
+			<artifactId>maven-plugin</artifactId>
+		</dependency>
+
+		<!-- https://wiki.jenkins-ci.org/display/JENKINS/M2+Release+Plugin -->
+		<dependency>
+			<groupId>org.jvnet.hudson.plugins.m2release</groupId>
+			<artifactId>m2release</artifactId>
+			<version>0.9.1</version>
+		</dependency>
+
+		<!-- https://wiki.jenkins-ci.org/display/JENKINS/GitHub+API+Plugin -->
+		<dependency>
+			<groupId>org.kohsuke</groupId>
+			<artifactId>github-api</artifactId>
+			<version>1.35</version>
+		</dependency>
+		
+		<!-- https://wiki.jenkins-ci.org/display/JENKINS/GitHub+Plugin -->
+		<dependency>
+			<groupId>com.coravy.hudson.plugins.github</groupId>
+			<artifactId>github</artifactId>
+			<version>1.5</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<resources>
+		
+			<!-- Store jenkins views with code. -->
+			<resource>
+				<directory>${basedir}/src/main/java</directory>
+				<includes>
+					<include>**/*.png</include>
+					<include>**/*.html</include>
+					<include>**/*.jelly</include>
+				</includes>
+			</resource>
+			
+		</resources>
+
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[0,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+											<goal>display-info</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.gmaven</groupId>
+										<artifactId>gmaven-plugin</artifactId>
+										<versionRange>[0,)</versionRange>
+										<goals>
+											<goal>generateTestStubs</goal>
+											<goal>testCompile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+	</build>
+
+</project>

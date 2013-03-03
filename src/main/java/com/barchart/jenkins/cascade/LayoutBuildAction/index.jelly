@@ -1,0 +1,43 @@
+<!--
+	Displays the form to create/delete cascade projects.
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<l:layout norefresh="true">
+
+		<l:main-panel>
+
+			<f:section>
+
+				<img width="48" height="48" title="Cascade Layout"
+					src="${rootURL}/plugin/barchart-jenkinis-cascade-plugin/images/48x48/monkey.png" />
+
+			</f:section>
+
+			<f:form method="post" action="submit">
+
+				<f:section title="Configure Projects">
+
+					<f:entry field="configAction" title="Choose Action">
+						<select name="configAction">
+							<option value="create">Create Jobs</option>
+							<option value="delete">Delete Jobs</option>
+							<option value="update">Update Jobs</option>
+						</select>
+					</f:entry>
+
+					<tr>
+						<td colspan="4" align="left"><f:submit value="Apply" /></td>
+					</tr>
+
+				</f:section>
+
+			</f:form>
+
+		</l:main-panel>
+
+	</l:layout>
+
+</j:jelly>

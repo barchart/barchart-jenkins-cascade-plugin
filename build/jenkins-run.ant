@@ -1,0 +1,38 @@
+<!--
+
+-->
+<project default="jenkins" basedir="./..">
+
+	<echo message="basedir : ${basedir}" />
+
+	<target name="jenkins">
+
+		<condition property="maven" value="mvn">
+			<os family="unix" />
+		</condition>
+		<condition property="maven" value="mvn.bat">
+			<os family="windows" />
+		</condition>
+
+		<condition property="google" value="google-chrome">
+			<os family="unix" />
+		</condition>
+		<condition property="google" value="google-chrome">
+			<os family="windows" />
+		</condition>
+
+		<exec executable="${maven}">
+
+			<arg value="clean" />
+			<arg value="install" />
+
+			<arg value="--define" />
+			<arg value="skipTests" />
+
+			<arg value="hpi:run" />
+
+		</exec>
+
+	</target>
+
+</project>
