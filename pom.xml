@@ -1,3 +1,12 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -18,6 +27,11 @@
 
 	<name>Barchart Jenkins Cascade Plugin</name>
 	<description>Perform maven release cascade.</description>
+
+	<organization>
+		<name>Barchart, Inc.</name>
+		<url>http://www.barchart.com/</url>
+	</organization>
 
 	<!-- Jenkins development dependencies. -->
 	<repositories>
@@ -54,7 +68,7 @@
 			<artifactId>github-api</artifactId>
 			<version>1.35</version>
 		</dependency>
-		
+
 		<!-- https://wiki.jenkins-ci.org/display/JENKINS/GitHub+Plugin -->
 		<dependency>
 			<groupId>com.coravy.hudson.plugins.github</groupId>
@@ -67,7 +81,7 @@
 	<build>
 
 		<resources>
-		
+
 			<!-- Store jenkins views with code. -->
 			<resource>
 				<directory>${basedir}/src/main/java</directory>
@@ -77,7 +91,7 @@
 					<include>**/*.jelly</include>
 				</includes>
 			</resource>
-			
+
 		</resources>
 
 		<pluginManagement>
@@ -127,5 +141,246 @@
 		</pluginManagement>
 
 	</build>
+
+	<profiles>
+
+		<!-- License editor. -->
+		<profile>
+			<id>license</id>
+			<properties>
+
+				<licenseSource>src/license</licenseSource>
+				<licenseTarget>target/license</licenseTarget>
+				<licenseFile>license-osi-bsd.txt</licenseFile>
+
+				<licenseYear>2013</licenseYear>
+				<licenseName>${project.organization.name}</licenseName>
+				<licenseMail>${project.organization.url}</licenseMail>
+
+				<licenseGroupId>com.barchart.base</licenseGroupId>
+				<licenseArtifactId>barchart-archon-license</licenseArtifactId>
+				<licenseVersion>RELEASE</licenseVersion>
+
+			</properties>
+			<build>
+				<plugins>
+
+					<!-- Unpack licence template. -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>license-unpack</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${licenseGroupId}</groupId>
+											<artifactId>${licenseArtifactId}</artifactId>
+											<version>${licenseVersion}</version>
+											<type>jar</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${licenseTarget}</outputDirectory>
+									<overWriteIfNewer>true</overWriteIfNewer>
+									<overWriteReleases>true</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Apply licence template. -->
+					<plugin>
+						<groupId>com.mycila.maven-license-plugin</groupId>
+						<artifactId>maven-license-plugin</artifactId>
+						<configuration>
+							<header>${licenseTarget}/${licenseFile}</header>
+							<properties>
+								<year>${licenseYear}</year>
+								<name>${licenseName}</name>
+								<mail>${licenseMail}</mail>
+							</properties>
+							<strictCheck>true</strictCheck>
+							<useDefaultMapping>false</useDefaultMapping>
+							<useDefaultExcludes>false</useDefaultExcludes>
+							<mapping>
+								<!-- custom -->
+								<md>XML_STYLE</md>
+								<ant>XML_STYLE</ant>
+								<scala>JAVADOC_STYLE</scala>
+								<gitignore>SCRIPT_STYLE</gitignore>
+								<conf>SCRIPT_STYLE</conf>
+								<cfg>SCRIPT_STYLE</cfg>
+								<properties>SCRIPT_STYLE</properties>
+								<proto>JAVADOC_STYLE</proto>
+								<!-- default -->
+								<java>JAVADOC_STYLE</java>
+								<groovy>JAVADOC_STYLE</groovy>
+								<js>JAVADOC_STYLE</js>
+								<css>JAVADOC_STYLE</css>
+								<xml>XML_STYLE</xml>
+								<dtd>XML_STYLE</dtd>
+								<xsd>XML_STYLE</xsd>
+								<html>XML_STYLE</html>
+								<htm>XML_STYLE</htm>
+								<xsl>XML_STYLE</xsl>
+								<fml>XML_STYLE</fml>
+								<apt>DOUBLETILDE_STYLE</apt>
+								<properties>SCRIPT_STYLE</properties>
+								<sh>SCRIPT_STYLE</sh>
+								<txt>TEXT</txt>
+								<bat>BATCH</bat>
+								<cmd>BATCH</cmd>
+								<sql>DOUBLEDASHES_STYLE</sql>
+								<jsp>DYNASCRIPT_STYLE</jsp>
+								<ftl>FTL</ftl>
+								<xhtml>XML_STYLE</xhtml>
+								<vm>SHARPSTAR_STYLE</vm>
+								<jspx>XML_STYLE</jspx>
+							</mapping>
+							<includes>
+								<entry>**</entry>
+							</includes>
+							<excludes>
+								<!-- custom -->
+								<entry>**/${licenseSource}/**</entry>
+								<entry>**/*.template</entry>
+								<entry>**/*.json</entry>
+								<!-- // Miscellaneous typical temporary files -->
+								<entry>**/*~</entry>
+								<entry>**/#*#</entry>
+								<entry>**/.#*</entry>
+								<entry>**/%*%</entry>
+								<entry>**/._*</entry>
+								<entry>**/.repository/**</entry>
+								<!-- // CVS -->
+								<entry>**/CVS</entry>
+								<entry>**/CVS/**</entry>
+								<entry>**/.cvsignore</entry>
+								<!-- // RCS -->
+								<entry>**/RCS</entry>
+								<entry>**/RCS/**</entry>
+								<!-- // SCCS -->
+								<entry>**/SCCS</entry>
+								<entry>**/SCCS/**</entry>
+								<!-- // Visual SourceSafe -->
+								<entry>**/vssver.scc</entry>
+								<!-- // Subversion -->
+								<entry>**/.svn</entry>
+								<entry>**/.svn/**</entry>
+								<!-- // Arch -->
+								<entry>**/.arch-ids</entry>
+								<entry>**/.arch-ids/**</entry>
+								<!-- // Bazaar -->
+								<entry>**/.bzr</entry>
+								<entry>**/.bzr/**</entry>
+								<!-- // SurroundSCM -->
+								<entry>**/.MySCMServerInfo</entry>
+								<!-- // Mac -->
+								<entry>**/.DS_Store</entry>
+								<!-- // Serena Dimensions Version 10 -->
+								<entry>**/.metadata</entry>
+								<entry>**/.metadata/**</entry>
+								<!-- // Mercurial -->
+								<entry>**/.hg</entry>
+								<entry>**/.hg/**</entry>
+								<!-- // git -->
+								<entry>**/.git</entry>
+								<entry>**/.git/**</entry>
+								<!-- // BitKeeper -->
+								<entry>**/BitKeeper</entry>
+								<entry>**/BitKeeper/**</entry>
+								<entry>**/ChangeSet</entry>
+								<entry>**/ChangeSet/**</entry>
+								<!-- // darcs -->
+								<entry>**/_darcs</entry>
+								<entry>**/_darcs/**</entry>
+								<entry>**/.darcsrepo</entry>
+								<entry>**/.darcsrepo/**</entry>
+								<entry>**/-darcs-backup*</entry>
+								<entry>**/.darcs-temp-mail</entry>
+								<!-- // maven project's temporary files -->
+								<entry>**/target/**</entry>
+								<entry>**/test-output/**</entry>
+								<entry>**/release.properties</entry>
+								<entry>**/pom.xml.*</entry>
+								<entry>**/dependency-reduced-pom.xml</entry>
+								<!-- // code coverage tools -->
+								<entry>**/cobertura.ser</entry>
+								<entry>**/.clover/**</entry>
+								<!-- // eclipse project files -->
+								<entry>**/.classpath</entry>
+								<entry>**/.project</entry>
+								<entry>**/.settings/**</entry>
+								<!-- // IDEA projet files -->
+								<entry>**/*.iml</entry>
+								<entry>**/*.ipr</entry>
+								<entry>**/*.iws</entry>
+								<!-- // descriptors -->
+								<entry>**/MANIFEST.MF</entry>
+								<!-- // binary files - images -->
+								<entry>**/*.jpg</entry>
+								<entry>**/*.png</entry>
+								<entry>**/*.gif</entry>
+								<entry>**/*.ico</entry>
+								<entry>**/*.bmp</entry>
+								<entry>**/*.tiff</entry>
+								<entry>**/*.tif</entry>
+								<entry>**/*.cr2</entry>
+								<entry>**/*.xcf</entry>
+								<!-- // binary files - programs -->
+								<entry>**/*.class</entry>
+								<entry>**/*.exe</entry>
+								<entry>**/*.bin</entry>
+								<!-- // checksum files -->
+								<entry>**/*.md5</entry>
+								<entry>**/*.sha1</entry>
+								<!-- // binary files - archives -->
+								<entry>**/*.jar</entry>
+								<entry>**/*.zip</entry>
+								<entry>**/*.rar</entry>
+								<entry>**/*.tar</entry>
+								<entry>**/*.tar.gz</entry>
+								<entry>**/*.tar.bz2</entry>
+								<entry>**/*.gz</entry>
+								<!-- // binary files - documents -->
+								<entry>**/*.doc</entry>
+								<entry>**/*.xls</entry>
+								<entry>**/*.csv</entry>
+								<entry>**/*.pdf</entry>
+								<entry>**/*.odt</entry>
+								<entry>**/*.ods</entry>
+								<entry>**/*.odp</entry>
+								<entry>**/*.odb</entry>
+								<entry>**/*.odg</entry>
+								<entry>**/*.odf</entry>
+								<entry>**/*.mm</entry>
+								<entry>**/*.dia</entry>
+								<entry>**/*.log</entry>
+								<!-- // ServiceLoader files -->
+								<entry>**/META-INF/services/**</entry>
+							</excludes>
+						</configuration>
+						<executions>
+							<execution>
+								<id>license-format</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>format</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+
+	</profiles>
 
 </project>

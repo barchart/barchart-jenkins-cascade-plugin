@@ -1,3 +1,10 @@
+/**
+ * Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+ *
+ * All rights reserved. Licensed under the OSI BSD License.
+ *
+ * http://www.opensource.org/licenses/bsd-license.php
+ */
 package com.barchart.jenkins.cascade;
 
 import hudson.maven.MavenModule;
@@ -34,11 +41,11 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 	}
 
 	public String getDisplayName() {
-		return "Barchart Cascade";
+		return PluginConstants.LAYOUT_ACTION_NAME;
 	}
 
 	public String getIconFileName() {
-		return "installer.gif";
+		return PluginConstants.LAYOUT_ACTION_ICON;
 	}
 
 	public Collection<MavenModule> getModules() {

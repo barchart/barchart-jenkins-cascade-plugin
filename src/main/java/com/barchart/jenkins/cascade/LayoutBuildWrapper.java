@@ -1,12 +1,19 @@
+/**
+ * Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+ *
+ * All rights reserved. Licensed under the OSI BSD License.
+ *
+ * http://www.opensource.org/licenses/bsd-license.php
+ */
 package com.barchart.jenkins.cascade;
 
+import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.Util;
 import hudson.maven.AbstractMavenProject;
+import hudson.maven.ModuleName;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
-import hudson.maven.ModuleName;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -18,7 +25,6 @@ import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,7 +33,7 @@ import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * Maven build wrapper for layout management.
+ * Maven build wrapper for cascade layout management.
  * <p>
  * Validates maven build and updates project layout.
  */
@@ -80,6 +86,9 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		return new LayoutBuildAction((MavenModuleSet) project);
 	}
 
+	/**
+	 * Jelly field.
+	 */
 	public String getMavenGoals() {
 		return mavenGoals;
 	}
@@ -92,10 +101,11 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			final BuildListener listener //
 	) throws IOException {
 
-		if (PluginUtil.isLayoutBuild(build)) {
+		final PluginLogger log = new PluginLogger(listener);
 
-			listener.getLogger()
-					.println("[CASCADE] Layout: initiate validate.");
+		if (isLayoutBuild(build)) {
+
+			log.text("Initiate maven validation.");
 
 			/** Attach icon in build history. */
 			build.addAction(new LayoutBadgeAction());
@@ -110,18 +120,14 @@ public class LayoutBuildWrapper extends BuildWrapper {
 						final BuildListener listener //
 				) throws IOException {
 
-					listener.getLogger().println(
-							"[CASCADE] Layout: complete validate.");
+					log.text("Maven validation finished.");
 
 					final Result result = build.getResult();
 					if (result.isWorseThan(Result.SUCCESS)) {
-						listener.getLogger().println(
-								"[CASCADE] Layout aborted.");
+						log.text("Maven result is not success, abort.");
 						return false;
 					} else {
-						listener.getLogger().println(
-								"[CASCADE] Layout proceed.");
-
+						log.text("Maven result is success, proceed.");
 						return process(build, listener);
 					}
 
@@ -130,7 +136,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 		} else {
 
-			listener.getLogger().println("[CASCADE] Maven: initiate build.");
+			log.text("Maven build start.");
 
 			return new Environment() {
 				@Override
@@ -138,10 +144,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 						final AbstractBuild build, //
 						final BuildListener listener //
 				) throws IOException {
-
-					listener.getLogger().println(
-							"[CASCADE] Maven: complete build.");
-
+					log.text("Maven build finish.");
 					return true;
 				}
 			};
@@ -150,107 +153,100 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 	}
 
+	public static interface JenkinsTask {
+		void run() throws IOException;
+	}
+
+	/**
+	 * Process layout action.
+	 */
 	public static boolean process(//
 			final AbstractBuild<?, ?> build, //
 			final BuildListener listener //
 	) throws IOException {
 
+		final PluginLogger log = new PluginLogger(listener);
+
 		final Jenkins jenkins = Jenkins.getInstance();
 
-		final MavenModuleSet root = PluginUtil.mavenModuleSet(build);
+		final MavenModuleSet rootProject = mavenProject(build);
 
 		final LayoutArgumentsAction action = build
 				.getAction(LayoutArgumentsAction.class);
 
-		final List<TopLevelItem> itemList = jenkins
-				.getAllItems(TopLevelItem.class);
-
 		/** Existing projects. */
-		final List<MavenModuleSet> projectList = Util.createSubList(itemList,
-				MavenModuleSet.class);
+		final List<MavenModuleSet> projectList = mavenProjectList();
 
 		/** Managed modules. */
-		final Collection<MavenModule> moduleList = root.getModules();
+		final Collection<MavenModule> moduleList = rootProject.getModules();
 
-		final Set<String> nameSet = nameSet(projectList);
+		final Set<String> projectNameSet = moduleNameSet(projectList);
 
 		for (final MavenModule module : moduleList) {
 
 			final ModuleName moduleName = module.getModuleName();
-			final String moduleProject = moduleName.artifactId;
 
-			listener.getLogger().println("[CASCADE] module: " + moduleName);
+			/** Module-to-Project naming convention. */
+			final String projectName = moduleName.artifactId;
+
+			log.text("---");
+			log.text("Module name: " + moduleName);
+			log.text("Project name: " + projectName);
+
+			final JenkinsTask projectCreate = new JenkinsTask() {
+				public void run() throws IOException {
+					if (projectNameSet.contains(projectName)) {
+						log.text("Project exists, create skipped: "
+								+ projectName);
+					} else {
+						log.text("Creating project: " + projectName);
+
+						final TopLevelItem project = jenkins.copy(
+								(TopLevelItem) rootProject, projectName);
+
+						log.text("Project created: " + projectName);
+					}
+				}
+			};
+
+			final JenkinsTask projectDelete = new JenkinsTask() {
+				public void run() throws IOException {
+					if (!projectNameSet.contains(projectName)) {
+						log.text("Project not present, delete skipped: "
+								+ projectName);
+					} else {
+						final TopLevelItem item = jenkins.getItem(projectName);
+						log.text("Deleting project : " + projectName);
+						try {
+							item.delete();
+						} catch (final InterruptedException e) {
+							e.printStackTrace();
+						}
+						log.text("Project deleted: " + projectName);
+					}
+				}
+			};
 
 			switch (action.getConfigAction()) {
-
-			default: {
-
-				listener.getLogger().println("[CASCADE] Unexpected action.");
-
+			default:
+				log.text("Unexpected config action, ignore: "
+						+ action.getConfigAction());
 				break;
-			}
-
-			case CREATE: {
-
-				if (nameSet.contains(moduleProject)) {
-					listener.getLogger().println(
-							"[CASCADE] exists: " + moduleName);
-				} else {
-					listener.getLogger().println(
-							"[CASCADE] create: " + moduleName);
-
-					final TopLevelItem project = jenkins.copy(
-							(TopLevelItem) root, moduleProject);
-				}
-
+			case CREATE:
+				projectCreate.run();
 				break;
-
-			}
-
-			case DELETE: {
-
-				if (!nameSet.contains(moduleProject)) {
-					listener.getLogger().println(
-							"[CASCADE] missing: " + moduleName);
-				} else {
-					listener.getLogger().println(
-							"[CASCADE] delete : " + moduleName);
-
-					final TopLevelItem item = jenkins.getItem(moduleProject);
-
-					try {
-						item.delete();
-					} catch (final InterruptedException e) {
-						e.printStackTrace();
-					}
-
-				}
-
+			case DELETE:
+				projectDelete.run();
 				break;
-
-			}
-
 			case UPDATE:
-				listener.getLogger().println("[CASCADE] TODO.");
+				projectDelete.run();
+				projectCreate.run();
 				break;
 			}
 
 		}
 
 		return true;
-
-	}
-
-	public static Set<String> nameSet(final List<MavenModuleSet> moduleList) {
-
-		final Set<String> set = new HashSet<String>();
-
-		for (final MavenModuleSet module : moduleList) {
-			set.add(module.getName());
-		}
-
-		return set;
-
 	}
 
 }

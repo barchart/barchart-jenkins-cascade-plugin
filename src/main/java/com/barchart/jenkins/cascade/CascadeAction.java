@@ -1,3 +1,10 @@
+/**
+ * Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+ *
+ * All rights reserved. Licensed under the OSI BSD License.
+ *
+ * http://www.opensource.org/licenses/bsd-license.php
+ */
 package com.barchart.jenkins.cascade;
 
 import hudson.maven.MavenModule;
@@ -11,20 +18,51 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jvnet.hudson.plugins.m2release.LastReleasePermalink;
-import org.jvnet.hudson.plugins.m2release.M2ReleaseBuildWrapper;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * The action appears as the link in the side bar that users will click on in
- * order to start the release process.
+ * order to start cascade release process.
  */
 public class CascadeAction implements PermalinkProjectAction {
+
+	private static final List<Permalink> PERMALINKS = Collections
+			.singletonList(LastReleasePermalink.INSTANCE);
 
 	private final MavenModuleSet project;
 
 	public CascadeAction(final MavenModuleSet project) {
 		this.project = project;
+	}
+
+	public void doSubmit(final StaplerRequest req, final StaplerResponse resp)
+			throws Exception {
+
+	}
+
+	public String getDisplayName() {
+		return PluginConstants.CASCADE_ACTION_NAME;
+	}
+
+	public String getIconFileName() {
+		return PluginConstants.CASCADE_ACTION_ICON;
+	}
+
+	public Collection<MavenModule> getModules() {
+		return project.getModules();
+	}
+
+	/**
+	 * Gets the {@link ParameterDefinition} of the given name, if any.
+	 */
+	public ParameterDefinition getParameterDefinition(final String name) {
+		for (final ParameterDefinition pd : getParameterDefinitions()) {
+			if (pd.getName().equals(name)) {
+				return pd;
+			}
+		}
+		return null;
 	}
 
 	public List<ParameterDefinition> getParameterDefinitions() {
@@ -41,47 +79,12 @@ public class CascadeAction implements PermalinkProjectAction {
 		return PERMALINKS;
 	}
 
-	public String getDisplayName() {
-		return "XXX";
-	}
-
-	public String getIconFileName() {
-		if (M2ReleaseBuildWrapper.hasReleasePermission(project)) {
-			return "installer.gif"; //$NON-NLS-1$
-		}
-		// by returning null the link will not be shown.
-		return null;
-	}
-
-	public String getUrlName() {
-		return "m2release"; //$NON-NLS-1$
-	}
-
-	public Collection<MavenModule> getModules() {
-		return project.getModules();
-	}
-
 	public MavenModule getRootModule() {
 		return project.getRootModule();
 	}
 
-	public void doSubmit(final StaplerRequest req, final StaplerResponse resp)
-			throws Exception {
-
+	public String getUrlName() {
+		return PluginConstants.CASCADE_ACTION_URL;
 	}
 
-	/**
-	 * Gets the {@link ParameterDefinition} of the given name, if any.
-	 */
-	public ParameterDefinition getParameterDefinition(final String name) {
-		for (final ParameterDefinition pd : getParameterDefinitions()) {
-			if (pd.getName().equals(name)) {
-				return pd;
-			}
-		}
-		return null;
-	}
-
-	private static final List<Permalink> PERMALINKS = Collections
-			.singletonList(LastReleasePermalink.INSTANCE);
 }

@@ -1,6 +1,7 @@
 <!--
-  This view is used to render the installed plugins page.
+  This view is used to render the plug-in list page.
+  http://localhost:8080/pluginManager/installed
 -->
 <div>
-  Provides cascade maven release.
+	A plug-in that enables you to perform cascade maven releases. 
 </div>

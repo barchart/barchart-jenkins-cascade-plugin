@@ -1,3 +1,10 @@
+/**
+ * Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+ *
+ * All rights reserved. Licensed under the OSI BSD License.
+ *
+ * http://www.opensource.org/licenses/bsd-license.php
+ */
 package com.barchart.jenkins.cascade;
 
 /**
@@ -6,9 +13,13 @@ package com.barchart.jenkins.cascade;
 public class LayoutArgumentsAction extends AdapterAction {
 
 	public enum ConfigAction {
+
+		BUILD("build"), //
+
 		CREATE("create"), //
 		DELETE("delete"), //
 		UPDATE("update"), //
+
 		;
 		public final String name;
 
@@ -22,7 +33,7 @@ public class LayoutArgumentsAction extends AdapterAction {
 					return type;
 				}
 			}
-			return CREATE;
+			return BUILD;
 		}
 
 	}
