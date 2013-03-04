@@ -26,7 +26,7 @@
 	<packaging>hpi</packaging>
 
 	<name>Barchart Jenkins Cascade Plugin</name>
-	<description>Perform maven release cascade.</description>
+	<description>Configure and Perform maven release cascade.</description>
 
 	<organization>
 		<name>Barchart, Inc.</name>
@@ -75,7 +75,14 @@
 			<artifactId>github</artifactId>
 			<version>1.5</version>
 		</dependency>
-
+		
+		<!-- https://code.google.com/p/cloning/ -->
+		<dependency>
+			<groupId>uk.com.robust-it</groupId>
+			<artifactId>cloning</artifactId>
+			<version>1.9.0</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

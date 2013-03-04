@@ -10,7 +10,6 @@ package com.barchart.jenkins.cascade;
 import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.maven.AbstractMavenProject;
 import hudson.maven.ModuleName;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
@@ -20,22 +19,27 @@ import hudson.model.Result;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Descriptor;
+import hudson.plugins.git.GitSCM;
+import hudson.scm.SCM;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
+import hudson.util.DescribableList;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import com.barchart.jenkins.cascade.PluginUtilities.JenkinsTask;
+
 /**
  * Maven build wrapper for cascade layout management.
  * <p>
- * Validates maven build and updates project layout.
+ * Validates maven build and updates cascade projects layout.
  */
 @Extension
 public class LayoutBuildWrapper extends BuildWrapper {
@@ -51,17 +55,47 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 		@Override
 		public String getDisplayName() {
-			return "Configure Cascade";
+			return PluginConstants.LAYOUT_ACTION_NAME;
 		}
 
+		/**
+		 * Interested in top level maven multi-module projects only.
+		 */
 		@Override
 		public boolean isApplicable(final AbstractProject<?, ?> project) {
-			return (project instanceof AbstractMavenProject);
+
+			if (project instanceof MavenModuleSet) {
+
+				final MavenModuleSet mavenProject = (MavenModuleSet) project;
+
+				final MavenModule rootModule = mavenProject.getRootModule();
+
+				if (rootModule == null) {
+					return false;
+				}
+
+				final List<MavenModule> mavenModuleList = rootModule
+						.getChildren();
+
+				if (mavenModuleList != null && !mavenModuleList.isEmpty()) {
+					return true;
+				}
+			}
+
+			return false;
+
 		}
 
 	}
 
+	/** Jelly field. */
 	private String mavenGoals = LayoutBuildWrapperDescriptor.DEFAULT_MAVEN_GOALS;
+
+	/** Jelly field. */
+	private String layoutView;
+
+	/** Jelly field. */
+	private String namePattern;
 
 	public LayoutBuildWrapper() {
 		/** Required for injection. */
@@ -71,8 +105,14 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	 * Injected from jelly.
 	 */
 	@DataBoundConstructor
-	public LayoutBuildWrapper(final String mavenGoals) {
+	public LayoutBuildWrapper( //
+			final String mavenGoals, //
+			final String layoutView, //
+			final String namePattern //
+	) {
 		this.mavenGoals = mavenGoals;
+		this.layoutView = layoutView;
+		this.namePattern = namePattern;
 	}
 
 	@Override
@@ -87,10 +127,26 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	/**
-	 * Jelly field.
+	 * Maven goals to use for layout validation.
 	 */
 	public String getMavenGoals() {
 		return mavenGoals;
+	}
+
+	/**
+	 * Jenkins view name for the cascade layout. This view will contain
+	 * generated projects.
+	 */
+	public String getLayoutView() {
+		return layoutView;
+	}
+
+	/**
+	 * Jenkins generated project naming convention. New project names will use
+	 * this regex rule.
+	 */
+	public String getNamePattern() {
+		return namePattern;
 	}
 
 	@Override
@@ -153,12 +209,8 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 	}
 
-	public static interface JenkinsTask {
-		void run() throws IOException;
-	}
-
 	/**
-	 * Process layout action.
+	 * Process layout build action.
 	 */
 	public static boolean process(//
 			final AbstractBuild<?, ?> build, //
@@ -180,29 +232,41 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		/** Managed modules. */
 		final Collection<MavenModule> moduleList = rootProject.getModules();
 
-		final Set<String> projectNameSet = moduleNameSet(projectList);
-
 		for (final MavenModule module : moduleList) {
 
 			final ModuleName moduleName = module.getModuleName();
 
-			/** Module-to-Project naming convention. */
+			/**
+			 * Module-to-Project naming convention.
+			 * <p>
+			 * TODO expose in UI.
+			 */
 			final String projectName = moduleName.artifactId;
 
 			log.text("---");
 			log.text("Module name: " + moduleName);
 			log.text("Project name: " + projectName);
 
+			if (isSameModuleName(rootProject.getRootModule(), module)) {
+				log.text("This is a root module project, managed by user, skip.");
+				continue;
+			}
+
 			final JenkinsTask projectCreate = new JenkinsTask() {
 				public void run() throws IOException {
-					if (projectNameSet.contains(projectName)) {
+					if (isProjectExists(projectName)) {
 						log.text("Project exists, create skipped: "
 								+ projectName);
 					} else {
 						log.text("Creating project: " + projectName);
 
-						final TopLevelItem project = jenkins.copy(
+						/** Clone project via XML. */
+						final TopLevelItem item = jenkins.copy(
 								(TopLevelItem) rootProject, projectName);
+
+						final MavenModuleSet project = (MavenModuleSet) item;
+
+						process(module, project);
 
 						log.text("Project created: " + projectName);
 					}
@@ -211,7 +275,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 			final JenkinsTask projectDelete = new JenkinsTask() {
 				public void run() throws IOException {
-					if (!projectNameSet.contains(projectName)) {
+					if (!isProjectExists(projectName)) {
 						log.text("Project not present, delete skipped: "
 								+ projectName);
 					} else {
@@ -247,6 +311,50 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Process details of created project.
+	 */
+	public static void process(final MavenModule module,
+			final MavenModuleSet project) throws IOException {
+
+		/** Update SCM paths. */
+		{
+			final SCM scm = project.getScm();
+
+			if (scm instanceof GitSCM) {
+
+				final GitSCM gitScm = (GitSCM) scm;
+
+				final String includedRegions = module.getRelativePath() + "/.*";
+
+				changeField(gitScm, "includedRegions", includedRegions);
+
+			}
+		}
+
+		/** Update Maven paths. */
+		{
+			final String rootPOM = module.getRelativePath() + "/pom.xml";
+
+			project.setRootPOM(rootPOM);
+
+		}
+
+		/** Disable cascade layout. */
+		{
+			final DescribableList<BuildWrapper, Descriptor<BuildWrapper>> buildWrapperList = project
+					.getBuildWrappersList();
+
+			buildWrapperList.remove(LayoutBuildWrapper.class);
+		}
+
+		/** Persist changes. */
+		{
+			project.save();
+		}
+
 	}
 
 }

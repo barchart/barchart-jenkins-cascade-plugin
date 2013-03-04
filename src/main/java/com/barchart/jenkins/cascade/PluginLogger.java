@@ -9,6 +9,9 @@ package com.barchart.jenkins.cascade;
 
 import hudson.model.BuildListener;
 
+/**
+ * Convenience build logger.
+ */
 public class PluginLogger {
 
 	private final BuildListener listener;
@@ -17,6 +20,7 @@ public class PluginLogger {
 		this.listener = listener;
 	}
 
+	/** Log text with plug-in prefix. */
 	public void text(final String text) {
 		listener.getLogger()
 				.println(PluginConstants.LOGGER_PREFIX + " " + text);

@@ -18,13 +18,13 @@
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Configure Projects">
+				<f:section title="Configure Cascade Projects Layout">
 
 					<f:entry field="configAction" title="Choose Action">
 						<select name="configAction">
-							<option value="create">Create Jobs</option>
-							<option value="delete">Delete Jobs</option>
-							<option value="update">Update Jobs</option>
+							<option value="create">Create Projects</option>
+							<option value="delete">Delete Projects</option>
+							<option value="update">Update Projects</option>
 						</select>
 					</f:entry>
 

@@ -83,7 +83,7 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 	}
 
 	public String getUrlName() {
-		return "barchart-cascade";
+		return PluginConstants.LAYOUT_ACTION_URL;
 	}
 
 	/**

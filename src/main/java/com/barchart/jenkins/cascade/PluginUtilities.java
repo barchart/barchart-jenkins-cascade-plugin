@@ -17,7 +17,9 @@ import hudson.model.AbstractBuild;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +30,8 @@ import jenkins.model.Jenkins;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+
+import com.rits.cloning.Cloner;
 
 /**
  * Plugin utilities.
@@ -43,6 +47,16 @@ public class PluginUtilities {
 
 	}
 
+	/**
+	 * Jenkins runner.
+	 */
+	public static interface JenkinsTask {
+		void run() throws IOException;
+	}
+
+	/**
+	 * Snapshot dependency matcher.
+	 */
 	public static final DependencyMatcher MATCH_SNAPSHOT = new DependencyMatcher() {
 
 		public boolean isMatch(final Dependency dependency) {
@@ -50,6 +64,46 @@ public class PluginUtilities {
 		}
 
 	};
+
+	/**
+	 * Check if project exists.
+	 */
+	public static boolean isProjectExists(final String projectName) {
+		return null != Jenkins.getInstance().getItem(projectName);
+	}
+
+	/**
+	 * Change known instance field.
+	 */
+	public static void changeField(final Object instance,
+			final String fieldName, final Object value) throws IOException {
+		try {
+
+			final Field field = instance.getClass().getDeclaredField(fieldName);
+
+			field.setAccessible(true);
+
+			field.set(instance, value);
+
+		} catch (final Throwable e) {
+			throw new IOException(e);
+		}
+	}
+
+	/**
+	 * Perform deep object clone.
+	 */
+	public static <T> T cloneDeep(final T source) {
+
+		final Cloner cloner = new Cloner();
+
+		// cloner.setDumpClonedClasses(true);
+
+		final T target = cloner.deepClone(source);
+
+		return target;
+
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static boolean isLayoutBuild(final AbstractBuild build) {
@@ -201,6 +255,17 @@ public class PluginUtilities {
 
 		return set;
 
+	}
+
+	/**
+	 * Null-safe module name check.
+	 */
+	public static boolean isSameModuleName(final MavenModule one,
+			final MavenModule two) {
+		if (one == null || two == null) {
+			return false;
+		}
+		return one.getModuleName().equals(two.getModuleName());
 	}
 
 	private PluginUtilities() {
