@@ -21,7 +21,7 @@
 	</parent>
 
 	<groupId>com.barchart.jenkins</groupId>
-	<artifactId>barchart-jenkinis-cascade-plugin</artifactId>
+	<artifactId>barchart-jenkins-cascade-plugin</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 
@@ -201,7 +201,7 @@
 						</executions>
 					</plugin>
 
-					<!-- Apply licence template. -->
+					<!-- Apply license template. -->
 					<plugin>
 						<groupId>com.mycila.maven-license-plugin</groupId>
 						<artifactId>maven-license-plugin</artifactId>
