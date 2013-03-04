@@ -12,7 +12,7 @@
 			<f:section>
 
 				<img width="48" height="48" title="Cascade Layout"
-					src="${rootURL}/plugin/barchart-jenkins-cascade-plugin/images/48x48/monkey.png" />
+					src="/plugin/barchart-jenkins-cascade-plugin/images/48x48/monkey.png" />
 
 			</f:section>
 

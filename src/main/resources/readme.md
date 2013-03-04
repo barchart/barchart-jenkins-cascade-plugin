@@ -7,4 +7,4 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
--->
+### Resources included in the plugin webapp.

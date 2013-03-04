@@ -50,10 +50,9 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	public static class LayoutBuildWrapperDescriptor extends
 			BuildWrapperDescriptor {
 
-		/**
-		 * Default maven invocation command for layout management.
-		 */
 		public static final String DEFAULT_MAVEN_GOALS = "clean validate";
+		public static final String DEFAULT_LAYOUT_VIEW = "cascade";
+		public static final String DEFAULT_NAME_PATTERN = "${artifactId}";
 
 		@Override
 		public String getDisplayName() {
@@ -91,7 +90,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	/** Jelly field. */
-	private String mavenGoals = LayoutBuildWrapperDescriptor.DEFAULT_MAVEN_GOALS;
+	private String mavenGoals;
 
 	/** Jelly field. */
 	private String layoutView;
@@ -104,7 +103,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	/**
-	 * Injected from jelly.
+	 * Jelly injected.
 	 */
 	@DataBoundConstructor
 	public LayoutBuildWrapper( //

@@ -1,12 +1,5 @@
-<!--
-
-    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
-
-    All rights reserved. Licensed under the OSI BSD License.
-
-    http://www.opensource.org/licenses/bsd-license.php
-
--->
+<!-- Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/> All rights 
+	reserved. Licensed under the OSI BSD License. http://www.opensource.org/licenses/bsd-license.php -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -75,19 +68,24 @@
 			<artifactId>github</artifactId>
 			<version>1.5</version>
 		</dependency>
-		
+
 		<!-- https://code.google.com/p/cloning/ -->
 		<dependency>
 			<groupId>uk.com.robust-it</groupId>
 			<artifactId>cloning</artifactId>
 			<version>1.9.0</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
 
 		<resources>
+
+			<!-- Default resource folder. -->
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+			</resource>
 
 			<!-- Store jenkins views with code. -->
 			<resource>
@@ -100,6 +98,19 @@
 			</resource>
 
 		</resources>
+		
+		<plugins>
+		
+			<!-- Use default maven resource folder for webapp. -->
+			<plugin>
+				<groupId>org.jenkins-ci.tools</groupId>
+				<artifactId>maven-hpi-plugin</artifactId>
+				<configuration>
+					<warSourceDirectory>${basedir}/src/main/resources</warSourceDirectory>
+				</configuration>
+			</plugin>
+			
+		</plugins>
 
 		<pluginManagement>
 			<plugins>
