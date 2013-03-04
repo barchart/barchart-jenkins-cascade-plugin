@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package com.barchart.jenkins.cascade;
+package design;
 
 import hudson.Extension;
 import hudson.model.Action;
@@ -14,6 +14,7 @@ import hudson.model.AbstractProject;
 
 import java.util.Collection;
 import java.util.Collections;
+
 
 /**
  * Factory to add a view action to each project.

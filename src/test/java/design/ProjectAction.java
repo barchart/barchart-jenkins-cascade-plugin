@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package com.barchart.jenkins.cascade;
+package design;
 
 import hudson.model.Action;
 import hudson.model.AbstractProject;
