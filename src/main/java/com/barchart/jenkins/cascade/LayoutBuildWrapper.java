@@ -22,6 +22,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
 import hudson.plugins.git.GitSCM;
 import hudson.scm.SCM;
+import hudson.scm.SubversionSCM;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.DescribableList;
@@ -185,7 +186,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 						return false;
 					} else {
 						log.text("Maven result is success, proceed.");
-						return process(build, listener);
+						return process(log, build, listener);
 					}
 
 				}
@@ -214,11 +215,10 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	 * Process layout build action.
 	 */
 	public static boolean process(//
+			final PluginLogger log, //
 			final AbstractBuild<?, ?> build, //
 			final BuildListener listener //
 	) throws IOException {
-
-		final PluginLogger log = new PluginLogger(listener);
 
 		final Jenkins jenkins = Jenkins.getInstance();
 
@@ -267,7 +267,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 						final MavenModuleSet project = (MavenModuleSet) item;
 
-						process(module, project);
+						processCreate(log, module, project);
 
 						log.text("Project created: " + projectName);
 					}
@@ -317,11 +317,13 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	/**
 	 * Process details of created project.
 	 */
-	public static void process(final MavenModule module,
-			final MavenModuleSet project) throws IOException {
+	public static void processCreate(final PluginLogger log,
+			final MavenModule module, final MavenModuleSet project)
+			throws IOException {
 
 		/** Update SCM paths. */
-		{
+		SCM: {
+
 			final SCM scm = project.getScm();
 
 			if (scm instanceof GitSCM) {
@@ -332,7 +334,21 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 				changeField(gitScm, "includedRegions", includedRegions);
 
+				break SCM;
+
 			}
+
+			if (scm instanceof SubversionSCM) {
+
+				final SubversionSCM svnScm = (SubversionSCM) scm;
+
+				/** TODO */
+
+			}
+
+			log.text("###################################");
+			log.text("WARNING: YOU ARE USING UNTESTED SCM");
+			log.text("###################################");
 		}
 
 		/** Update Maven paths. */
