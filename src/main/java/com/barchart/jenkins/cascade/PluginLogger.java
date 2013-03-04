@@ -11,6 +11,8 @@ import hudson.model.BuildListener;
 
 /**
  * Convenience build logger.
+ * 
+ * @author Andrei Pozolotin
  */
 public class PluginLogger {
 

@@ -34,7 +34,9 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import com.rits.cloning.Cloner;
 
 /**
- * Plugin utilities.
+ * Plug-in utilities.
+ * 
+ * @author Andrei Pozolotin
  */
 public class PluginUtilities {
 

@@ -25,6 +25,8 @@ import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Peer project to root maven project. Provides cascade state persistence.
+ * 
+ * @author Andrei Pozolotin
  */
 public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 		implements TopLevelItem, FlyweightTask {

@@ -40,6 +40,8 @@ import com.barchart.jenkins.cascade.PluginUtilities.JenkinsTask;
  * Maven build wrapper for cascade layout management.
  * <p>
  * Validates maven build and updates cascade projects layout.
+ * 
+ * @author Andrei Pozolotin
  */
 @Extension
 public class LayoutBuildWrapper extends BuildWrapper {

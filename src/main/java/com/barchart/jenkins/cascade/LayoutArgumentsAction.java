@@ -9,6 +9,8 @@ package com.barchart.jenkins.cascade;
 
 /**
  * Attach action to the build to record arguments.
+ * 
+ * @author Andrei Pozolotin
  */
 public class LayoutArgumentsAction extends AdapterAction {
 

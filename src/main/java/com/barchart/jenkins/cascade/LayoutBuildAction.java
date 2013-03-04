@@ -28,6 +28,8 @@ import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Action to display on project page to start layout build.
+ * 
+ * @author Andrei Pozolotin
  */
 public class LayoutBuildAction implements PermalinkProjectAction {
 

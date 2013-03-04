@@ -17,6 +17,8 @@ import java.util.logging.Logger;
 
 /**
  * Plug-in life cycle manager.
+ * 
+ * @author Andrei Pozolotin
  */
 @Extension
 public class PluginActivator extends Plugin implements

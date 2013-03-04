@@ -11,6 +11,8 @@ import hudson.model.Action;
 
 /**
  * Empty base action.
+ * 
+ * @author Andrei Pozolotin
  */
 public abstract class AdapterAction implements Action {
 

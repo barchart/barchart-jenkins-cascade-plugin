@@ -24,6 +24,8 @@ import org.kohsuke.stapler.StaplerResponse;
 /**
  * The action appears as the link in the side bar that users will click on in
  * order to start cascade release process.
+ * 
+ * @author Andrei Pozolotin
  */
 public class CascadeAction implements PermalinkProjectAction {
 

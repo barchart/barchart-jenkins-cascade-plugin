@@ -7,6 +7,11 @@
  */
 package com.barchart.jenkins.cascade;
 
+/**
+ * Plug-in constants.
+ * 
+ * @author Andrei Pozolotin
+ */
 public interface PluginConstants {
 
 	String PLUGIN_PRONOUN = "Cascade";

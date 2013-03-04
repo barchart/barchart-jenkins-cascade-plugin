@@ -11,6 +11,8 @@ import hudson.model.Cause.UserIdCause;
 
 /**
  * User action cause to signifying a layout build type.
+ * 
+ * @author Andrei Pozolotin
  */
 public class LayoutUserCause extends UserIdCause {
 

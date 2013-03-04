@@ -14,6 +14,8 @@ import java.io.IOException;
 
 /**
  * Cascade build. Provides cascade release logic.
+ * 
+ * @author Andrei Pozolotin
  */
 public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 

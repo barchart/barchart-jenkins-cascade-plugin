@@ -11,6 +11,8 @@ import hudson.model.BuildBadgeAction;
 
 /**
  * Attach action to build to display a layout build icon in build history.
+ * 
+ * @author Andrei Pozolotin
  */
 public class LayoutBadgeAction extends AdapterAction implements
 		BuildBadgeAction {
