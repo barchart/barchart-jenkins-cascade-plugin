@@ -70,13 +70,6 @@ public class PluginUtilities {
 	};
 
 	/**
-	 * Check if project exists.
-	 */
-	public static boolean isProjectExists(final String projectName) {
-		return null != Jenkins.getInstance().getItem(projectName);
-	}
-
-	/**
 	 * Change known instance field.
 	 */
 	public static void changeField(final Object instance,
@@ -109,9 +102,34 @@ public class PluginUtilities {
 
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void ensureProperty(final AbstractProject project,
+			final JobProperty property) throws IOException {
+		project.removeProperty(property.getClass());
+		project.addProperty(property);
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static boolean isLayoutBuild(final AbstractBuild build) {
 		return build.getCause(LayoutUserCause.class) != null;
+	}
+
+	/**
+	 * Check if project exists.
+	 */
+	public static boolean isProjectExists(final String projectName) {
+		return null != Jenkins.getInstance().getItem(projectName);
+	}
+
+	/**
+	 * Null-safe module name check.
+	 */
+	public static boolean isSameModuleName(final MavenModule one,
+			final MavenModule two) {
+		if (one == null || two == null) {
+			return false;
+		}
+		return one.getModuleName().equals(two.getModuleName());
 	}
 
 	/**
@@ -210,9 +228,28 @@ public class PluginUtilities {
 	}
 
 	/**
-	 * Top level jenkins maven project.
+	 * Top level jenkins maven module resolved from the build, or null.
 	 */
-	public static MavenModuleSet mavenProject(final AbstractBuild<?, ?> build) {
+	public static MavenModule mavenModule(final AbstractBuild<?, ?> build) {
+
+		if (build instanceof MavenBuild) {
+			final MavenBuild mavenBuild = (MavenBuild) build;
+			return mavenBuild.getProject();
+		}
+
+		if (build instanceof MavenModuleSetBuild) {
+			final MavenModuleSetBuild mavenBuild = (MavenModuleSetBuild) build;
+			return mavenBuild.getProject().getRootModule();
+		}
+
+		return null;
+
+	}
+
+	/**
+	 * Top level jenkins maven project resolved from the build, or null.
+	 */
+	public static MavenModuleSet mavenModuleSet(final AbstractBuild<?, ?> build) {
 
 		if (build instanceof MavenBuild) {
 			final MavenBuild mavenBuild = (MavenBuild) build;
@@ -261,17 +298,7 @@ public class PluginUtilities {
 
 	}
 
-	/**
-	 * Null-safe module name check.
-	 */
-	public static boolean isSameModuleName(final MavenModule one,
-			final MavenModule two) {
-		if (one == null || two == null) {
-			return false;
-		}
-		return one.getModuleName().equals(two.getModuleName());
-	}
-
+	/** TODO */
 	public static String moduleRelativePath(final MavenModule module) {
 
 		final StringBuilder text = new StringBuilder();
@@ -281,14 +308,14 @@ public class PluginUtilities {
 		return text.toString();
 	}
 
-	private PluginUtilities() {
+	/**
+	 * Produce token variable entry from token name.
+	 */
+	public static String tokenVariable(final String tokenName) {
+		return "${" + tokenName + "}";
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void ensureProperty(final AbstractProject project,
-			final JobProperty property) throws IOException {
-		project.removeProperty(property.getClass());
-		project.addProperty(property);
+	private PluginUtilities() {
 	}
 
 }

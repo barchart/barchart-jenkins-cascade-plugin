@@ -1,21 +1,24 @@
 package com.barchart.jenkins.cascade;
 
+import static com.barchart.jenkins.cascade.MavenTokenMacro.*;
 import static com.barchart.jenkins.cascade.PluginUtilities.*;
+import hudson.Util;
 import hudson.maven.ModuleName;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
-import hudson.model.BuildListener;
 import hudson.model.TopLevelItem;
-import hudson.model.AbstractBuild;
 import hudson.model.Descriptor;
 import hudson.plugins.git.GitSCM;
 import hudson.scm.SCM;
 import hudson.scm.SubversionSCM;
 import hudson.tasks.BuildWrapper;
 import hudson.util.DescribableList;
+import hudson.util.VariableResolver;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import jenkins.model.Jenkins;
 
@@ -31,46 +34,68 @@ public class LayoutBuildLogic {
 	/**
 	 * Provide cascade project name.
 	 */
-	public static String cascadeName(final MavenModuleSet layoutProject) {
+	public static String cascadeName(final BuildContext context,
+			final MavenModuleSet layoutProject) {
 
 		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
 				.get(LayoutBuildWrapper.class);
 
 		final String cascadePattern = wrapper.getCascadePattern();
 
-		return layoutProject.getName() + "_CASCADE";
+		final VariableResolver<String> resolver = context.build()
+				.getBuildVariableResolver();
+
+		final String cascadeName = Util.replaceMacro(cascadePattern, resolver);
+
+		return cascadeName;
 	}
 
 	/** Provide member project name. */
-	public static String memberName(final MavenModuleSet layoutProject,
-			final MavenModule module) {
+	public static String memberName(final BuildContext context,
+			final MavenModuleSet layoutProject, final MavenModule module) {
 
 		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
 				.get(LayoutBuildWrapper.class);
 
+		final ModuleName moduleName = module.getModuleName();
+
+		final Map<String, String> moduleTokens = new HashMap<String, String>();
+		moduleTokens.put(TOKEN_PROJECT_ID, moduleName.toString());
+		moduleTokens.put(TOKEN_GROUP_ID, moduleName.groupId);
+		moduleTokens.put(TOKEN_ARTIFACT_ID, moduleName.artifactId);
+
+		final VariableResolver<String> moduleResolver = new VariableResolver.ByMap<String>(
+				moduleTokens);
+
+		final VariableResolver<String> buildResolver = context.build()
+				.getBuildVariableResolver();
+
+		@SuppressWarnings("unchecked")
+		final VariableResolver<String> resolver = new VariableResolver.Union<String>(
+				moduleResolver, buildResolver);
+
 		final String memberPattern = wrapper.getMemberPattern();
 
-		return module.getModuleName().artifactId;
+		final String memberName = Util.replaceMacro(memberPattern, resolver);
+
+		return memberName;
 
 	}
 
 	/**
 	 * Process layout build action.
 	 */
-	public static boolean process(//
-			final PluginLogger log, //
-			final AbstractBuild<?, ?> build, //
-			final BuildListener listener //
-	) throws IOException {
+	public static boolean process(final BuildContext context)
+			throws IOException {
 
 		final Jenkins jenkins = Jenkins.getInstance();
 
-		final MavenModuleSet layoutProject = mavenProject(build);
+		final MavenModuleSet layoutProject = mavenModuleSet(context.build());
 
-		final LayoutArgumentsAction action = build
-				.getAction(LayoutArgumentsAction.class);
+		final LayoutArgumentsAction action = context.build().getAction(
+				LayoutArgumentsAction.class);
 
-		processCascade(log, layoutProject, action);
+		processCascade(context, layoutProject, action);
 
 		final Collection<MavenModule> moduleList = layoutProject.getModules();
 
@@ -83,24 +108,24 @@ public class LayoutBuildLogic {
 			 * <p>
 			 * TODO expose in UI.
 			 */
-			final String memberName = memberName(layoutProject, module);
+			final String memberName = memberName(context, layoutProject, module);
 
-			log.text("---");
-			log.text("Module name: " + moduleName);
-			log.text("Project name: " + memberName);
+			context.log("---");
+			context.log("Module name: " + moduleName);
+			context.log("Project name: " + memberName);
 
 			if (isSameModuleName(layoutProject.getRootModule(), module)) {
-				log.text("This is a root module project, managed by user, skip.");
+				context.log("This is a root module project, managed by user, skip.");
 				continue;
 			}
 
 			final JenkinsTask projectCreate = new JenkinsTask() {
 				public void run() throws IOException {
 					if (isProjectExists(memberName)) {
-						log.text("Project exists, create skipped: "
+						context.log("Project exists, create skipped: "
 								+ memberName);
 					} else {
-						log.text("Creating project: " + memberName);
+						context.log("Creating project: " + memberName);
 
 						/** Clone project via XML. */
 						final TopLevelItem item = jenkins.copy(
@@ -108,9 +133,10 @@ public class LayoutBuildLogic {
 
 						final MavenModuleSet memberProject = (MavenModuleSet) item;
 
-						processMember(log, module, memberProject, layoutProject);
+						processMember(context, module, memberProject,
+								layoutProject);
 
-						log.text("Project created: " + memberName);
+						context.log("Project created: " + memberName);
 					}
 				}
 			};
@@ -118,24 +144,24 @@ public class LayoutBuildLogic {
 			final JenkinsTask projectDelete = new JenkinsTask() {
 				public void run() throws IOException {
 					if (!isProjectExists(memberName)) {
-						log.text("Project not present, delete skipped: "
+						context.log("Project not present, delete skipped: "
 								+ memberName);
 					} else {
 						final TopLevelItem item = jenkins.getItem(memberName);
-						log.text("Deleting project : " + memberName);
+						context.log("Deleting project : " + memberName);
 						try {
 							item.delete();
 						} catch (final InterruptedException e) {
 							e.printStackTrace();
 						}
-						log.text("Project deleted: " + memberName);
+						context.log("Project deleted: " + memberName);
 					}
 				}
 			};
 
 			switch (action.getConfigAction()) {
 			default:
-				log.text("Unexpected config action, ignore: "
+				context.log("Unexpected config action, ignore: "
 						+ action.getConfigAction());
 				break;
 			case CREATE:
@@ -156,18 +182,18 @@ public class LayoutBuildLogic {
 	}
 
 	/** Handle cascade project. */
-	public static void processCascade(final PluginLogger log,
+	public static void processCascade(final BuildContext context,
 			final MavenModuleSet layoutProject,
 			final LayoutArgumentsAction action) throws IOException {
 
 		final Jenkins jenkins = Jenkins.getInstance();
 
 		final String layoutName = layoutProject.getName();
-		final String cascadeName = cascadeName(layoutProject);
+		final String cascadeName = cascadeName(context, layoutProject);
 
-		log.text("---");
-		log.text("Root project: " + layoutName);
-		log.text("Cascade project: " + cascadeName);
+		context.log("---");
+		context.log("Root project: " + layoutName);
+		context.log("Cascade project: " + cascadeName);
 
 		final MemberProjectProperty layoutProperty = new MemberProjectProperty(
 				ProjectRole.LAYOUT.code(), cascadeName, layoutName);
@@ -175,9 +201,9 @@ public class LayoutBuildLogic {
 		final JenkinsTask projectCreate = new JenkinsTask() {
 			public void run() throws IOException {
 				if (isProjectExists(cascadeName)) {
-					log.text("Cascade project exist, skip create.");
+					context.log("Cascade project exist, skip create.");
 				} else {
-					log.text("Creating cascade project.");
+					context.log("Creating cascade project.");
 					final CascadeProject cascadeProject = jenkins
 							.createProject(CascadeProject.class, cascadeName);
 					ensureProperty(layoutProject, layoutProperty);
@@ -202,16 +228,16 @@ public class LayoutBuildLogic {
 					{
 						cascadeProject.save();
 					}
-					log.text("Cascade project created.");
+					context.log("Cascade project created.");
 				}
 			}
 		};
 		final JenkinsTask projectDelete = new JenkinsTask() {
 			public void run() throws IOException {
 				if (!isProjectExists(cascadeName)) {
-					log.text("Cascade project missing, skip delete.");
+					context.log("Cascade project missing, skip delete.");
 				} else {
-					log.text("Deleting cascade project.");
+					context.log("Deleting cascade project.");
 					final TopLevelItem cascadeProject = jenkins
 							.getItem(cascadeName);
 					try {
@@ -219,14 +245,14 @@ public class LayoutBuildLogic {
 					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
-					log.text("Cascade project deleted.");
+					context.log("Cascade project deleted.");
 				}
 			}
 		};
 
 		switch (action.getConfigAction()) {
 		default:
-			log.text("Unexpected config action, ignore: "
+			context.log("Unexpected config action, ignore: "
 					+ action.getConfigAction());
 			break;
 		case CREATE:
@@ -246,7 +272,7 @@ public class LayoutBuildLogic {
 	/**
 	 * Update details of created member project.
 	 */
-	public static void processMember(final PluginLogger log,
+	public static void processMember(final BuildContext context,
 			final MavenModule module, final MavenModuleSet memberProject,
 			final MavenModuleSet layoutProject) throws IOException {
 
@@ -275,9 +301,9 @@ public class LayoutBuildLogic {
 
 			}
 
-			log.text("###################################");
-			log.text("WARNING: YOU ARE USING UNTESTED SCM");
-			log.text("###################################");
+			context.log("###################################");
+			context.log("WARNING: YOU ARE USING UNTESTED SCM");
+			context.log("###################################");
 		}
 
 		/** Update Maven paths. */
@@ -299,7 +325,7 @@ public class LayoutBuildLogic {
 		/** Enable cascade release action. */
 		{
 
-			final String cascadeName = cascadeName(layoutProject);
+			final String cascadeName = cascadeName(context, layoutProject);
 			final String layoutName = layoutProject.getName();
 
 			final MemberProjectProperty memberProperty = new MemberProjectProperty(

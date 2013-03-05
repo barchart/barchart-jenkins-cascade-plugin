@@ -41,9 +41,13 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	public static class TheDescriptor extends BuildWrapperDescriptor {
 
 		public static final String DEFAULT_LAYOUT_VIEW = "cascade";
+
 		public static final String DEFAULT_MAVEN_GOALS = "clean validate";
-		public static final String DEFAULT_MEMBER_PATTERN = "${artifactId}";
-		public static final String DEFAULT_CASCADE_PATTERN = "${artifactId}_CASCADE";
+
+		public static final String DEFAULT_MEMBER_PATTERN = tokenVariable(MavenTokenMacro.TOKEN_ARTIFACT_ID);
+
+		public static final String DEFAULT_CASCADE_PATTERN = tokenVariable(MavenTokenMacro.TOKEN_ARTIFACT_ID)
+				+ "_CASCADE";
 
 		@Override
 		public String getDisplayName() {
@@ -158,11 +162,11 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			final BuildListener listener //
 	) throws IOException {
 
-		final PluginLogger log = new PluginLogger(listener);
+		final BuildContext context = new BuildContext(build, launcher, listener);
 
 		if (isLayoutBuild(build)) {
 
-			log.text("Initiate maven validation.");
+			context.log("Initiate maven validation.");
 
 			/** Attach icon in build history. */
 			build.addAction(new LayoutBadgeAction());
@@ -177,15 +181,15 @@ public class LayoutBuildWrapper extends BuildWrapper {
 						final BuildListener listener //
 				) throws IOException {
 
-					log.text("Maven validation finished.");
+					context.log("Maven validation finished.");
 
 					final Result result = build.getResult();
 					if (result.isWorseThan(Result.SUCCESS)) {
-						log.text("Maven result is not success, abort.");
+						context.log("Maven result is not success, abort.");
 						return false;
 					} else {
-						log.text("Maven result is success, proceed.");
-						return LayoutBuildLogic.process(log, build, listener);
+						context.log("Maven result is success, proceed.");
+						return LayoutBuildLogic.process(context);
 					}
 
 				}
@@ -193,7 +197,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 		} else {
 
-			log.text("Maven build start.");
+			context.log("Maven build start.");
 
 			return new Environment() {
 				@Override
@@ -201,7 +205,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 						final AbstractBuild build, //
 						final BuildListener listener //
 				) throws IOException {
-					log.text("Maven build finish.");
+					context.log("Maven build finish.");
 					return true;
 				}
 			};
