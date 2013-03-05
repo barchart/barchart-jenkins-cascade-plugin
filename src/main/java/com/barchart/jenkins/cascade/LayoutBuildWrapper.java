@@ -179,7 +179,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			build.addAction(new LayoutBadgeAction());
 
 			/** Override maven build goals for validation. */
-			build.addAction(new LayoutInterceptorAction(getMavenGoals()));
+			build.addAction(new MavenInterceptorAction(getMavenGoals()));
 
 			return new Environment() {
 				@Override

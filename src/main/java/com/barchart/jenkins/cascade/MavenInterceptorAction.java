@@ -12,17 +12,16 @@ import hudson.maven.MavenModuleSetBuild;
 import hudson.util.ArgumentListBuilder;
 
 /**
- * Provides replacement arguments for maven verification during the layout
- * build.
+ * Provides replacement arguments for maven builds.
  * 
  * @author Andrei Pozolotin
  */
-public class LayoutInterceptorAction extends AdapterAction implements
+public class MavenInterceptorAction extends AdapterAction implements
 		MavenArgumentInterceptorAction {
 
 	private final String goalsAndOptions;
 
-	public LayoutInterceptorAction(final String goalsAndOptions) {
+	public MavenInterceptorAction(final String goalsAndOptions) {
 		this.goalsAndOptions = goalsAndOptions;
 	}
 

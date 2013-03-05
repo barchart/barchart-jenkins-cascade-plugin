@@ -56,7 +56,10 @@ public class MemberBuildAction implements Action {
 
 		final CascadeProject cascadeProject = (CascadeProject) cascadeItem;
 
-		cascadeProject.scheduleBuild(0, new MemberUserCause(), this);
+		final MemberUserCause cause = new MemberUserCause();
+		final MemberBadgeAction badge = new MemberBadgeAction();
+
+		cascadeProject.scheduleBuild(0, cause, this, badge);
 
 		response.sendRedirect(request.getContextPath() + '/'
 				+ cascadeProject.getUrl());

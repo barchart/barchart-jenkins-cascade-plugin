@@ -7,12 +7,16 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.maven.MavenModuleSet;
+import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 
 import java.io.File;
 import java.io.IOException;
+
+import jenkins.model.Jenkins;
 
 /**
  * Orchestration build.
@@ -53,6 +57,8 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 
 			log.text("RUN");
 
+			final Jenkins jenkins = Jenkins.getInstance();
+
 			final MemberUserCause cause = getCause(MemberUserCause.class);
 
 			final MemberBuildAction action = getAction(MemberBuildAction.class);
@@ -60,9 +66,30 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 			if (cause == null) {
 				log.text("Empty cause.");
 			} else {
+
+				final String memberName = action.getMemberName();
+
 				log.text("Member cause.");
-				log.text("Cascade Project:" + action.getCascadeName());
-				log.text("Member Project:" + action.getMemberName());
+				log.text("Cascade Project: " + action.getCascadeName());
+				log.text("Layout Project:  " + action.getMemberName());
+				log.text("Member Project:  " + action.getMemberName());
+
+				log.text("Starging build.");
+
+				final MavenModuleSet memberProject = (MavenModuleSet) jenkins
+						.getItem(memberName);
+
+				final MavenInterceptorAction goals = new MavenInterceptorAction(
+						"clean package");
+
+				final MemberBadgeAction badge = new MemberBadgeAction();
+
+				final MavenModuleSetBuild build = memberProject.scheduleBuild2(
+						0, cause, action, goals, badge).get();
+
+				log.text("Build: " + build);
+				log.text("Result: " + build.getResult());
+
 			}
 
 			return Result.SUCCESS;
