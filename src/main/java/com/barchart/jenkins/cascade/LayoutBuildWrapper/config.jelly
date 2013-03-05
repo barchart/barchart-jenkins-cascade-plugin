@@ -5,8 +5,9 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="help"
-		value="/plugin/barchart-jenkins-cascade-plugin/help/LayoutBuildWrapper" />
+	<j:set var="plugin" value="/plugin/barchart-jenkins-cascade-plugin" />
+	<j:set var="help" value="${plugin}/help/LayoutBuildWrapper" />
+	<j:set var="images" value="${plugin}/images" />
 
 	<f:entry title="Validation goals" field="mavenGoals"
 		help="${help}/mavenGoals.jelly">
@@ -14,16 +15,22 @@
 			value="${h.defaulted(instance.mavenGoals,descriptor.DEFAULT_MAVEN_GOALS)}" />
 	</f:entry>
 
-	<f:entry title="Layout View Name" field="layoutView"
+	<f:entry title="Layout View" field="layoutView"
 		help="${help}/layoutView.jelly">
 		<f:textbox
 			value="${h.defaulted(instance.layoutView,descriptor.DEFAULT_LAYOUT_VIEW)}" />
 	</f:entry>
 
-	<f:entry title="Project Naming" field="namePattern"
-		help="${help}/namePattern.jelly">
+	<f:entry title="Member Naming" field="memberPattern"
+		help="${help}/memberPattern.jelly">
 		<f:textbox
-			value="${h.defaulted(instance.namePattern,descriptor.DEFAULT_NAME_PATTERN)}" />
+			value="${h.defaulted(instance.namePattern,descriptor.DEFAULT_MEMBER_PATTERN)}" />
+	</f:entry>
+
+	<f:entry title="Cascade Naming" field="cascadePattern"
+		help="${help}/cascadePattern.jelly">
+		<f:textbox
+			value="${h.defaulted(instance.namePattern,descriptor.DEFAULT_CASCADE_PATTERN)}" />
 	</f:entry>
 
 </j:jelly>

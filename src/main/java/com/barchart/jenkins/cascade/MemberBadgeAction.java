@@ -10,10 +10,13 @@ package com.barchart.jenkins.cascade;
 import hudson.model.BuildBadgeAction;
 
 /**
+ * Member project badge.
+ * <p>
  * Attach action to build to display a release build icon in build history.
  * 
  * @author Andrei Pozolotin
  */
-public class CascadeBadgeAction extends AdapterAction implements BuildBadgeAction {
+public class MemberBadgeAction extends AdapterAction implements
+		BuildBadgeAction {
 
 }

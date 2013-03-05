@@ -5,11 +5,9 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="help"
-		value="/plugin/barchart-jenkins-cascade-plugin/help/CascadeBuildAction" />
-
-	<j:set var="images"
-		value="/plugin/barchart-jenkins-cascade-plugin/images" />
+	<j:set var="plugin" value="/plugin/barchart-jenkins-cascade-plugin" />
+	<j:set var="help" value="${plugin}/help/MemberBuildAction" />
+	<j:set var="images" value="${plugin}/images" />
 
 	<l:layout norefresh="true">
 

@@ -10,37 +10,27 @@ package com.barchart.jenkins.cascade;
 import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.maven.ModuleName;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
-import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Descriptor;
-import hudson.plugins.git.GitSCM;
-import hudson.scm.SCM;
-import hudson.scm.SubversionSCM;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
-import hudson.util.DescribableList;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
-
-import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import com.barchart.jenkins.cascade.PluginUtilities.JenkinsTask;
-
 /**
+ * Layout project.
+ * <p>
  * Maven build wrapper for cascade layout management.
  * <p>
- * Validates maven build and updates cascade projects layout.
+ * Validates maven build and updates cascade member projects layout.
  * 
  * @author Andrei Pozolotin
  */
@@ -50,9 +40,10 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	@Extension
 	public static class TheDescriptor extends BuildWrapperDescriptor {
 
-		public static final String DEFAULT_MAVEN_GOALS = "clean validate";
 		public static final String DEFAULT_LAYOUT_VIEW = "cascade";
-		public static final String DEFAULT_NAME_PATTERN = "${artifactId}";
+		public static final String DEFAULT_MAVEN_GOALS = "clean validate";
+		public static final String DEFAULT_MEMBER_PATTERN = "${artifactId}";
+		public static final String DEFAULT_CASCADE_PATTERN = "${artifactId}_CASCADE";
 
 		@Override
 		public String getDisplayName() {
@@ -90,13 +81,16 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	/** Jelly field. */
-	private String mavenGoals;
-
-	/** Jelly field. */
 	private String layoutView;
 
 	/** Jelly field. */
-	private String namePattern;
+	private String mavenGoals;
+
+	/** Jelly field. */
+	private String memberPattern;
+
+	/** Jelly field. */
+	private String cascadePattern;
 
 	public LayoutBuildWrapper() {
 		/** Required for injection. */
@@ -113,25 +107,12 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	) {
 		this.mavenGoals = mavenGoals;
 		this.layoutView = layoutView;
-		this.namePattern = namePattern;
+		this.memberPattern = namePattern;
 	}
 
 	@Override
 	public TheDescriptor getDescriptor() {
 		return (TheDescriptor) super.getDescriptor();
-	}
-
-	@Override
-	@SuppressWarnings("rawtypes")
-	public Action getProjectAction(final AbstractProject project) {
-		return new LayoutBuildAction((MavenModuleSet) project);
-	}
-
-	/**
-	 * Maven goals to use for layout validation.
-	 */
-	public String getMavenGoals() {
-		return mavenGoals;
 	}
 
 	/**
@@ -143,11 +124,30 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	/**
-	 * Jenkins generated project naming convention. New project names will use
-	 * this regex rule.
+	 * Maven goals to use for layout validation.
 	 */
-	public String getNamePattern() {
-		return namePattern;
+	public String getMavenGoals() {
+		return mavenGoals;
+	}
+
+	/**
+	 * Jenkins generated member project naming convention.
+	 */
+	public String getMemberPattern() {
+		return memberPattern;
+	}
+
+	/**
+	 * Jenkins generated cascade project naming convention.
+	 */
+	public String getCascadePattern() {
+		return cascadePattern;
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public Action getProjectAction(final AbstractProject project) {
+		return new LayoutBuildAction((MavenModuleSet) project);
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 						return false;
 					} else {
 						log.text("Maven result is success, proceed.");
-						return process(log, build, listener);
+						return LayoutBuildLogic.process(log, build, listener);
 					}
 
 				}
@@ -206,183 +206,6 @@ public class LayoutBuildWrapper extends BuildWrapper {
 				}
 			};
 
-		}
-
-	}
-
-	/**
-	 * Process layout build action.
-	 */
-	public static boolean process(//
-			final PluginLogger log, //
-			final AbstractBuild<?, ?> build, //
-			final BuildListener listener //
-	) throws IOException {
-
-		final Jenkins jenkins = Jenkins.getInstance();
-
-		final MavenModuleSet rootProject = mavenProject(build);
-
-		final LayoutArgumentsAction action = build
-				.getAction(LayoutArgumentsAction.class);
-
-		/** Existing projects. */
-		final List<MavenModuleSet> projectList = mavenProjectList();
-
-		/** Managed modules. */
-		final Collection<MavenModule> moduleList = rootProject.getModules();
-
-		for (final MavenModule module : moduleList) {
-
-			final ModuleName moduleName = module.getModuleName();
-
-			/**
-			 * Module-to-Project naming convention.
-			 * <p>
-			 * TODO expose in UI.
-			 */
-			final String projectName = moduleName.artifactId;
-
-			log.text("---");
-			log.text("Module name: " + moduleName);
-			log.text("Project name: " + projectName);
-
-			if (isSameModuleName(rootProject.getRootModule(), module)) {
-				log.text("This is a root module project, managed by user, skip.");
-				continue;
-			}
-
-			final JenkinsTask projectCreate = new JenkinsTask() {
-				public void run() throws IOException {
-					if (isProjectExists(projectName)) {
-						log.text("Project exists, create skipped: "
-								+ projectName);
-					} else {
-						log.text("Creating project: " + projectName);
-
-						/** Clone project via XML. */
-						final TopLevelItem item = jenkins.copy(
-								(TopLevelItem) rootProject, projectName);
-
-						final MavenModuleSet project = (MavenModuleSet) item;
-
-						processCreate(log, module, project);
-
-						log.text("Project created: " + projectName);
-					}
-				}
-			};
-
-			final JenkinsTask projectDelete = new JenkinsTask() {
-				public void run() throws IOException {
-					if (!isProjectExists(projectName)) {
-						log.text("Project not present, delete skipped: "
-								+ projectName);
-					} else {
-						final TopLevelItem item = jenkins.getItem(projectName);
-						log.text("Deleting project : " + projectName);
-						try {
-							item.delete();
-						} catch (final InterruptedException e) {
-							e.printStackTrace();
-						}
-						log.text("Project deleted: " + projectName);
-					}
-				}
-			};
-
-			switch (action.getConfigAction()) {
-			default:
-				log.text("Unexpected config action, ignore: "
-						+ action.getConfigAction());
-				break;
-			case CREATE:
-				projectCreate.run();
-				break;
-			case DELETE:
-				projectDelete.run();
-				break;
-			case UPDATE:
-				projectDelete.run();
-				projectCreate.run();
-				break;
-			}
-
-		}
-
-		return true;
-	}
-
-	/**
-	 * Process details of created project.
-	 */
-	public static void processCreate(final PluginLogger log,
-			final MavenModule module, final MavenModuleSet project)
-			throws IOException {
-
-		/** Update SCM paths. */
-		SCM: {
-
-			final SCM scm = project.getScm();
-
-			if (scm instanceof GitSCM) {
-
-				final GitSCM gitScm = (GitSCM) scm;
-
-				final String includedRegions = module.getRelativePath() + "/.*";
-
-				changeField(gitScm, "includedRegions", includedRegions);
-
-				break SCM;
-
-			}
-
-			if (scm instanceof SubversionSCM) {
-
-				final SubversionSCM svnScm = (SubversionSCM) scm;
-
-				/** TODO */
-
-			}
-
-			log.text("###################################");
-			log.text("WARNING: YOU ARE USING UNTESTED SCM");
-			log.text("###################################");
-		}
-
-		/** Update Maven paths. */
-		{
-			final String rootPOM = module.getRelativePath() + "/pom.xml";
-
-			project.setRootPOM(rootPOM);
-
-		}
-
-		/** Disable cascade layout action. */
-		{
-			final DescribableList<BuildWrapper, Descriptor<BuildWrapper>> buildWrapperList = project
-					.getBuildWrappersList();
-
-			buildWrapperList.remove(LayoutBuildWrapper.class);
-		}
-
-		/** Enable cascade release action. */
-		{
-
-			final String projectName = "ABC";
-
-			project.removeProperty(CascadeProjectProperty.class);
-
-			final CascadeProjectProperty property = new CascadeProjectProperty(
-					projectName);
-
-			project.addProperty(property);
-
-		}
-
-		/** Persist changes. */
-		{
-			project.save();
 		}
 
 	}

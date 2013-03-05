@@ -20,18 +20,18 @@ import java.util.Collections;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * Orchestration project properties for cascade layout member projects.
+ * Orchestration properties for cascade member projects.
  * 
  * @author Andrei Pozolotin
  */
-public class CascadeProjectProperty extends JobProperty<MavenModuleSet> {
+public class MemberProjectProperty extends JobProperty<MavenModuleSet> {
 
 	@Extension
 	public static class TheDescriptor extends JobPropertyDescriptor {
 
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.CASCADE_ACTION_NAME;
+			return PluginConstants.MEMBER_ACTION_NAME;
 		}
 
 		@Override
@@ -41,16 +41,35 @@ public class CascadeProjectProperty extends JobProperty<MavenModuleSet> {
 
 	}
 
-	private final String projectName;
+	private final String projectRole;
+	private final String cascadeProject;
+	private final String layoutProject;
 
 	/** Jelly injected. */
 	@DataBoundConstructor
-	public CascadeProjectProperty(final String projectName) {
-		this.projectName = projectName;
+	public MemberProjectProperty( //
+			final String projectRole, //
+			final String cascadeName, //
+			final String layoutName //
+	) {
+		this.projectRole = projectRole;
+		this.cascadeProject = cascadeName;
+		this.layoutProject = layoutName;
 	}
 
-	public String getProjectName() {
-		return projectName;
+	/** Cascade project name. */
+	public String getCascadeProject() {
+		return cascadeProject;
+	}
+
+	/** Layout project name. */
+	public String getLayoutProject() {
+		return layoutProject;
+	}
+
+	/** Project role in the cascade. */
+	public String getProjectRole() {
+		return projectRole;
 	}
 
 	@Override

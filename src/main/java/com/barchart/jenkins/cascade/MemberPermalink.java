@@ -13,13 +13,13 @@ import hudson.model.PermalinkProjectAction.Permalink;
 import hudson.model.Run;
 
 /**
- * Layout build history link.
+ * Member build history link.
  * 
  * @author Andrei Pozolotin
  */
-public class CascadePermalink extends Permalink {
+public class MemberPermalink extends Permalink {
 
-	public static final Permalink INSTANCE = new CascadePermalink();
+	public static final Permalink INSTANCE = new MemberPermalink();
 
 	@Override
 	public String getDisplayName() {

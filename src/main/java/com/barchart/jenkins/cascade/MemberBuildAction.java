@@ -5,22 +5,23 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package design_0;
+package com.barchart.jenkins.cascade;
 
 import hudson.model.Action;
-import hudson.model.AbstractProject;
-
-import com.barchart.jenkins.cascade.PluginConstants;
 
 /**
- * Cascade build action link on project page.
+ * Cascade build action link on member project page.
+ * 
+ * @author Andrei Pozolotin
  */
-public class CascadeBuildAction implements Action {
+public class MemberBuildAction implements Action {
 
-	final private AbstractProject<?, ?> project;
+	final private String cascadeName;
+	final private String memberName;
 
-	public CascadeBuildAction(final AbstractProject<?, ?> project) {
-		this.project = project;
+	public MemberBuildAction(final String cascadeName, final String memberName) {
+		this.cascadeName = cascadeName;
+		this.memberName = memberName;
 	}
 
 	public String getDisplayName() {

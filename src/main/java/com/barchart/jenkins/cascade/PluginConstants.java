@@ -14,17 +14,26 @@ package com.barchart.jenkins.cascade;
  */
 public interface PluginConstants {
 
-	String PLUGIN_PRONOUN = "Cascade";
+	/* Plugin */
+
 	String PLUGIN_NAME = "Barchart Cascade Release Plugin";
 	String PLUGIN_URL = "/plugin/barchart-jenkins-cascade-plugin";
 
-	String CASCADE_ACTION_NAME = "Cascade Release";
-	String CASCADE_ACTION_URL = "barchart-cascade-release";
-	String CASCADE_ACTION_ICON = PLUGIN_URL + "/images/48x48/dragon.png";
+	/* Cascade project. */
+	String CASCADE_PROJECT_PRONOUN = "Cascade";
+	String CASCADE_PROJECT_NAME = "Cascade Project";
+
+	/* Layout project. */
 
 	String LAYOUT_ACTION_NAME = "Cascade Layout";
 	String LAYOUT_ACTION_URL = "barchart-cascade-layout";
 	String LAYOUT_ACTION_ICON = PLUGIN_URL + "/images/48x48/monkey.png";
+
+	/* Member projects. */
+
+	String MEMBER_ACTION_NAME = "Cascade Release";
+	String MEMBER_ACTION_URL = "barchart-cascade-release";
+	String MEMBER_ACTION_ICON = PLUGIN_URL + "/images/48x48/dragon.png";
 
 	String LOGGER_PREFIX = "[CASCADE]";
 

@@ -17,14 +17,14 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Factory to add a view action to each project.
+ * Factory provides cascade build action for member projects.
  * 
  * @author Andrei Pozolotin
  */
 @Extension
-public class CascadeBuildActionFactory extends TransientProjectActionFactory {
+public class MemberBuildActionFactory extends TransientProjectActionFactory {
 
-	/** Interested on in cascade layout projects. */
+	/** Interested on in cascade member projects. */
 	@Override
 	public Collection<? extends Action> createFor(final AbstractProject project) {
 
@@ -32,22 +32,34 @@ public class CascadeBuildActionFactory extends TransientProjectActionFactory {
 			return Collections.emptyList();
 		}
 
-		final MavenModuleSet mavenProject = (MavenModuleSet) project;
+		final MavenModuleSet memberProject = (MavenModuleSet) project;
 
-		final CascadeProjectProperty property = mavenProject
-				.getProperty(CascadeProjectProperty.class);
+		final MemberProjectProperty property = memberProject
+				.getProperty(MemberProjectProperty.class);
 
 		if (property == null) {
 			return Collections.emptyList();
 		}
 
-		final String projectName = property.getProjectName();
+		final String cascadeName = property.getCascadeProject();
 
-		if (projectName == null || projectName.isEmpty()) {
+		if (cascadeName == null || cascadeName.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		final CascadeBuildAction action = new CascadeBuildAction(mavenProject);
+		final ProjectRole role = ProjectRole.from(property.getProjectRole());
+
+		switch (role) {
+		case MEMBER:
+			break;
+		default:
+			return Collections.emptyList();
+		}
+
+		final String memberName = memberProject.getName();
+
+		final MemberBuildAction action = new MemberBuildAction(cascadeName,
+				memberName);
 
 		return Collections.singleton(action);
 

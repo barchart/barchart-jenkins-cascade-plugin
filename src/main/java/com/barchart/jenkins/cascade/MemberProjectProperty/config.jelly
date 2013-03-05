@@ -1,0 +1,34 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/barchart-jenkins-cascade-plugin" />
+	<j:set var="help" value="${plugin}/help/MemberProjectProperty" />
+	<j:set var="images" value="${plugin}/images" />
+
+	<f:section title="Cascade Release">
+
+		<f:advanced>
+
+			<f:entry title="This Project Role" field="projectRole"
+				help="${help}/projectRole.jelly">
+				<f:textbox disabled="true"/>
+			</f:entry>
+			
+			<f:entry title="Cascade Project" field="cascadeProject"
+				help="${help}/cascadeProject.jelly">
+				<f:textbox disabled="true" />
+			</f:entry>
+			
+			<f:entry title="Layout Project" field="layoutProject"
+				help="${help}/layoutProject.jelly">
+				<f:textbox disabled="true" />
+			</f:entry>
+			
+			<st:include page="configure-advanced.jelly" optional="true" />
+
+		</f:advanced>
+
+	</f:section>
+
+</j:jelly>

@@ -20,7 +20,7 @@ import java.util.List;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import com.barchart.jenkins.cascade.CascadePermalink;
+import com.barchart.jenkins.cascade.MemberPermalink;
 import com.barchart.jenkins.cascade.PluginConstants;
 
 /**
@@ -32,7 +32,7 @@ import com.barchart.jenkins.cascade.PluginConstants;
 public class CascadeBuildAction implements PermalinkProjectAction {
 
 	private static final List<Permalink> PERMALINKS = Collections
-			.singletonList(CascadePermalink.INSTANCE);
+			.singletonList(MemberPermalink.INSTANCE);
 
 	private final MavenModuleSet project;
 
@@ -46,11 +46,11 @@ public class CascadeBuildAction implements PermalinkProjectAction {
 	}
 
 	public String getDisplayName() {
-		return PluginConstants.CASCADE_ACTION_NAME;
+		return PluginConstants.MEMBER_ACTION_NAME;
 	}
 
 	public String getIconFileName() {
-		return PluginConstants.CASCADE_ACTION_ICON;
+		return PluginConstants.MEMBER_ACTION_ICON;
 	}
 
 	public Collection<MavenModule> getModules() {
@@ -88,7 +88,7 @@ public class CascadeBuildAction implements PermalinkProjectAction {
 	}
 
 	public String getUrlName() {
-		return PluginConstants.CASCADE_ACTION_URL;
+		return PluginConstants.MEMBER_ACTION_URL;
 	}
 
 }

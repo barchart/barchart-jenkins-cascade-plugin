@@ -3,25 +3,28 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
-	
+
+	<j:set var="plugin" value="/plugin/barchart-jenkins-cascade-plugin" />
+	<j:set var="help" value="${plugin}/help/CascadeProject" />
+	<j:set var="images" value="${plugin}/images" />
+
 	<l:layout title="${it.displayName}">
-	
+
 		<st:include page="sidepanel.jelly" />
-		
+
 		<l:main-panel>
-		
+
 			<h1>
-				<img
-					src="${rootURL}/plugin/barchart-jenkins-cascade-plugin/images/24x24/plugin.png" />
+				<img src="${images}/48x48/dragon.png" /> 
 				${it.pronoun} ${it.displayName}
 			</h1>
 
 			<st:include page="main.jelly" />
-			
+
 			<st:include page="permalinks.jelly" />
-			
+
 		</l:main-panel>
-		
+
 	</l:layout>
-	
+
 </j:jelly>

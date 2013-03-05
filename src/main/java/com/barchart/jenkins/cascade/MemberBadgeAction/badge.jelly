@@ -3,7 +3,7 @@
 	<j:set var="plugin" value="/plugin/barchart-jenkins-cascade-plugin" />
 	<j:set var="images" value="${plugin}/images" />
 
-	<img title="Cascade Layout" width="16" height="16"
-		src="${images}/16x16/monkey.png" />
+	<img title="Cascade Release" width="16" height="16"
+		src="/${images}/16x16/dragon.png" />
 
 </j:jelly>

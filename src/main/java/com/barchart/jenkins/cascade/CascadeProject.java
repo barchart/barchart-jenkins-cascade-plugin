@@ -24,7 +24,9 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 /**
- * Peer project to root maven project. Provides cascade state persistence.
+ * Orchestration project.
+ * <p>
+ * Peer project to the layout project. Provides cascade state persistence.
  * 
  * @author Andrei Pozolotin
  */
@@ -35,7 +37,7 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.CASCADE_ACTION_NAME;
+			return PluginConstants.CASCADE_PROJECT_NAME;
 		}
 
 		@Override
@@ -64,7 +66,7 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 
 	@Override
 	public String getPronoun() {
-		return PluginConstants.PLUGIN_PRONOUN;
+		return PluginConstants.CASCADE_PROJECT_PRONOUN;
 	}
 
 	@Override

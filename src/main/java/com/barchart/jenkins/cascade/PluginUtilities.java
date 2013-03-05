@@ -12,8 +12,10 @@ import hudson.maven.MavenBuild;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.maven.MavenModuleSetBuild;
+import hudson.model.JobProperty;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 
 import java.io.File;
 import java.io.FileReader;
@@ -280,6 +282,13 @@ public class PluginUtilities {
 	}
 
 	private PluginUtilities() {
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void ensureProperty(final AbstractProject project,
+			final JobProperty property) throws IOException {
+		project.removeProperty(property.getClass());
+		project.addProperty(property);
 	}
 
 }
