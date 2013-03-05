@@ -196,7 +196,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 						return false;
 					} else {
 						context.log("Maven result is success, proceed.");
-						return LayoutBuildLogic.process(context);
+						return LayoutLogic.process(context);
 					}
 
 				}
