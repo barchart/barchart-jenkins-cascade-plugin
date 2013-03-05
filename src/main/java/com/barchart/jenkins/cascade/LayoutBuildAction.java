@@ -53,9 +53,6 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 		return project.getModules();
 	}
 
-	/**
-	 * Gets the {@link ParameterDefinition} of the given name, if any.
-	 */
 	public ParameterDefinition getParameterDefinition(final String name) {
 		for (final ParameterDefinition definition : getParameterDefinitions()) {
 			if (definition.getName().equals(name)) {
@@ -89,29 +86,25 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 
 	/**
 	 * Jelly form submit.
+	 * <p>
+	 * Start layout build.
 	 */
 	public void doSubmit(final StaplerRequest request,
 			final StaplerResponse response) throws Exception {
-
-		final LayoutBuildWrapper wrapper = project.getBuildWrappersList().get(
-				LayoutBuildWrapper.class);
 
 		final Map<?, ?> params = request.getParameterMap();
 
 		final List<ParameterValue> values = new ArrayList<ParameterValue>();
 		final Action parameters = new ParametersAction(values);
 
-		final String configAction = getString("configAction", params);
+		final String configAction = PluginUtilities.httpStringParam(
+				"configAction", params);
 		final Action arguments = new LayoutArgumentsAction(configAction);
 
 		project.scheduleBuild(0, new LayoutUserCause(), parameters, arguments);
 
 		response.sendRedirect(request.getContextPath() + '/' + project.getUrl());
 
-	}
-
-	public static String getString(final String key, final Map<?, ?> params) {
-		return (String) (((Object[]) params.get(key))[0]);
 	}
 
 }

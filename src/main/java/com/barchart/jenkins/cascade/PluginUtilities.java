@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import jenkins.model.Jenkins;
@@ -102,6 +103,9 @@ public class PluginUtilities {
 
 	}
 
+	/**
+	 * Replace project job property.
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void ensureProperty(final AbstractProject project,
 			final JobProperty property) throws IOException {
@@ -109,9 +113,28 @@ public class PluginUtilities {
 		project.addProperty(property);
 	}
 
+	/**
+	 * Extract HTTP string parameter.
+	 */
+	public static String httpStringParam(final String key,
+			final Map<?, ?> params) {
+		return (String) (((Object[]) params.get(key))[0]);
+	}
+
+	/**
+	 * Build originated by layout action.
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static boolean isLayoutBuild(final AbstractBuild build) {
 		return build.getCause(LayoutUserCause.class) != null;
+	}
+
+	/**
+	 * Build originated by cascade action.
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static boolean isMemberBuild(final AbstractBuild build) {
+		return build.getCause(MemberUserCause.class) != null;
 	}
 
 	/**

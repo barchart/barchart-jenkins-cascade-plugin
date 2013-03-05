@@ -33,12 +33,8 @@
 
 				<f:section title="Perform Cascade Project Release">
 
-					<f:entry title="Release Version">
-						<f:textbox name="releaseVersion" value="aaa" />
-					</f:entry>
-
-					<f:entry title="Use Release Plugin">
-						<f:textbox name="releaseVersion" value="aaa" />
+					<f:entry title="Test">
+						<f:textbox name="test" value="test" />
 					</f:entry>
 
 				</f:section>

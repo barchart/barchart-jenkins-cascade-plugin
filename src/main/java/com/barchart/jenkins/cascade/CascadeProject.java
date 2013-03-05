@@ -26,7 +26,7 @@ import org.kohsuke.stapler.StaplerResponse;
 /**
  * Orchestration project.
  * <p>
- * Peer project to the layout project. Provides cascade state persistence.
+ * Peer project to the layout project. Provides cascade workflow.
  * 
  * @author Andrei Pozolotin
  */

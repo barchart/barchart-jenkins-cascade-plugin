@@ -7,15 +7,13 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.model.Cause.UserIdCause;
+
 /**
- * Release logic.
+ * User action cause to signifying a cascade build type.
  * 
  * @author Andrei Pozolotin
  */
-public class CascadeLogic {
-
-	private CascadeLogic() {
-
-	}
+public class MemberUserCause extends UserIdCause {
 
 }

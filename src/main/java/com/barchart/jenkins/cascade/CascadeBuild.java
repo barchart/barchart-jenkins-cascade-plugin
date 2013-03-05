@@ -29,7 +29,7 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		setup(project);
 	}
 
-	/** Old Build from file. */
+	/** Old Build from history file. */
 	public CascadeBuild(final CascadeProject project, final File buildDir)
 			throws IOException {
 		super(project, buildDir);
@@ -47,12 +47,23 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 	protected class CascadeExecution extends RunExecution {
 
 		@Override
-		public Result run(final BuildListener listener) throws Exception,
-				hudson.model.Run.RunnerAbortedException {
+		public Result run(final BuildListener listener) throws Exception {
 
 			final PluginLogger log = new PluginLogger(listener);
 
 			log.text("RUN");
+
+			final MemberUserCause cause = getCause(MemberUserCause.class);
+
+			final MemberBuildAction action = getAction(MemberBuildAction.class);
+
+			if (cause == null) {
+				log.text("Empty cause.");
+			} else {
+				log.text("Member cause.");
+				log.text("Cascade Project:" + action.getCascadeName());
+				log.text("Member Project:" + action.getMemberName());
+			}
 
 			return Result.SUCCESS;
 		}
@@ -71,7 +82,7 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 
 			final PluginLogger log = new PluginLogger(listener);
 
-			log.text("CLEAN");
+			log.text("DONE");
 
 		}
 
