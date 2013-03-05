@@ -31,8 +31,7 @@ import org.kohsuke.stapler.StaplerResponse;
 public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 		implements TopLevelItem, FlyweightTask {
 
-	public static class CascadeProjectDescriptor extends
-			AbstractProjectDescriptor {
+	public static class TheDescriptor extends AbstractProjectDescriptor {
 
 		@Override
 		public String getDisplayName() {
@@ -48,7 +47,7 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 	}
 
 	@Extension
-	public static final CascadeProjectDescriptor DESCRIPTOR = new CascadeProjectDescriptor();
+	public static final TheDescriptor DESCRIPTOR = new TheDescriptor();
 
 	public CascadeProject(final ItemGroup parent, final String name) {
 		super(parent, name);
@@ -59,7 +58,7 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 		return CascadeBuild.class;
 	}
 
-	public CascadeProjectDescriptor getDescriptor() {
+	public TheDescriptor getDescriptor() {
 		return DESCRIPTOR;
 	}
 

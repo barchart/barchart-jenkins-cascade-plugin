@@ -1,0 +1,6 @@
+<j:jelly xmlns:j="jelly:core">
+
+	<img title="Cascade Release" width="16" height="16"
+		src="/plugin/barchart-jenkins-cascade-plugin/images/16x16/dragon.png" />
+
+</j:jelly>

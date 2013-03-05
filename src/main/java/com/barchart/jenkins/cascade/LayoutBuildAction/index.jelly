@@ -5,14 +5,18 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
+	<j:set var="plugin" value="/plugin/barchart-jenkins-cascade-plugin" />
+	<j:set var="help" value="${plugin}/help/LayoutBuildAction" />
+	<j:set var="images" value="${plugin}/images" />
+
 	<l:layout norefresh="true">
 
 		<l:main-panel>
 
 			<f:section>
 
-				<img width="48" height="48" title="Cascade Layout"
-					src="/plugin/barchart-jenkins-cascade-plugin/images/48x48/monkey.png" />
+				<img title="Cascade Layout" width="48" height="48"
+					src="${images}/48x48/monkey.png" />
 
 			</f:section>
 
@@ -20,7 +24,8 @@
 
 				<f:section title="Configure Cascade Projects Layout">
 
-					<f:entry field="configAction" title="Choose Action">
+					<f:entry title="Choose Action" field="configAction"
+						help="${help}/configAction.jelly">
 						<select name="configAction">
 							<option value="create">Create Projects</option>
 							<option value="delete">Delete Projects</option>
@@ -29,7 +34,7 @@
 					</f:entry>
 
 					<tr>
-						<td colspan="4" align="left"><f:submit value="Apply" /></td>
+						<td colspan="4" align="left"><f:submit value="Submit" /></td>
 					</tr>
 
 				</f:section>

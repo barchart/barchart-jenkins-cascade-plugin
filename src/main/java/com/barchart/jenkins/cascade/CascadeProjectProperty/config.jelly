@@ -1,0 +1,26 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/barchart-jenkins-cascade-plugin" />
+	<j:set var="help" value="${plugin}/help/CascadeProjectProperty" />
+	<j:set var="images" value="${plugin}/images" />
+
+	<f:section title="Cascade Release">
+
+		<f:advanced>
+
+			<f:entry title="Orchestration Project Name" field="projectName"
+				help="${help}/projectName.jelly">
+
+				<f:textbox readonly="true"/>
+
+			</f:entry>
+			
+			<st:include page="configure-advanced.jelly" optional="true" />
+
+		</f:advanced>
+
+	</f:section>
+
+</j:jelly>

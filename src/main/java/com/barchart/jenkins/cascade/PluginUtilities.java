@@ -270,6 +270,15 @@ public class PluginUtilities {
 		return one.getModuleName().equals(two.getModuleName());
 	}
 
+	public static String moduleRelativePath(final MavenModule module) {
+
+		final StringBuilder text = new StringBuilder();
+
+		final MavenModuleSet parent = module.getParent();
+
+		return text.toString();
+	}
+
 	private PluginUtilities() {
 	}
 

@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package com.barchart.jenkins.cascade;
+package design_1;
 
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
@@ -17,9 +17,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jvnet.hudson.plugins.m2release.LastReleasePermalink;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+
+import com.barchart.jenkins.cascade.CascadePermalink;
+import com.barchart.jenkins.cascade.PluginConstants;
 
 /**
  * The action appears as the link in the side bar that users will click on in
@@ -27,14 +29,14 @@ import org.kohsuke.stapler.StaplerResponse;
  * 
  * @author Andrei Pozolotin
  */
-public class CascadeAction implements PermalinkProjectAction {
+public class CascadeBuildAction implements PermalinkProjectAction {
 
 	private static final List<Permalink> PERMALINKS = Collections
-			.singletonList(LastReleasePermalink.INSTANCE);
+			.singletonList(CascadePermalink.INSTANCE);
 
 	private final MavenModuleSet project;
 
-	public CascadeAction(final MavenModuleSet project) {
+	public CascadeBuildAction(final MavenModuleSet project) {
 		this.project = project;
 	}
 

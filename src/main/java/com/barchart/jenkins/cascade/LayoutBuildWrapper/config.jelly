@@ -5,17 +5,23 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<f:entry title="Validation goals" field="mavenGoals">
+	<j:set var="help"
+		value="/plugin/barchart-jenkins-cascade-plugin/help/LayoutBuildWrapper" />
+
+	<f:entry title="Validation goals" field="mavenGoals"
+		help="${help}/mavenGoals.jelly">
 		<f:textbox
 			value="${h.defaulted(instance.mavenGoals,descriptor.DEFAULT_MAVEN_GOALS)}" />
 	</f:entry>
 
-	<f:entry title="Layout View Name" field="layoutView">
+	<f:entry title="Layout View Name" field="layoutView"
+		help="${help}/layoutView.jelly">
 		<f:textbox
 			value="${h.defaulted(instance.layoutView,descriptor.DEFAULT_LAYOUT_VIEW)}" />
 	</f:entry>
 
-	<f:entry title="Project Naming" field="namePattern">
+	<f:entry title="Project Naming" field="namePattern"
+		help="${help}/namePattern.jelly">
 		<f:textbox
 			value="${h.defaulted(instance.namePattern,descriptor.DEFAULT_NAME_PATTERN)}" />
 	</f:entry>

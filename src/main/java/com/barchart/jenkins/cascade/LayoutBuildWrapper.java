@@ -48,8 +48,7 @@ import com.barchart.jenkins.cascade.PluginUtilities.JenkinsTask;
 public class LayoutBuildWrapper extends BuildWrapper {
 
 	@Extension
-	public static class LayoutBuildWrapperDescriptor extends
-			BuildWrapperDescriptor {
+	public static class TheDescriptor extends BuildWrapperDescriptor {
 
 		public static final String DEFAULT_MAVEN_GOALS = "clean validate";
 		public static final String DEFAULT_LAYOUT_VIEW = "cascade";
@@ -118,8 +117,8 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	@Override
-	public LayoutBuildWrapperDescriptor getDescriptor() {
-		return (LayoutBuildWrapperDescriptor) super.getDescriptor();
+	public TheDescriptor getDescriptor() {
+		return (TheDescriptor) super.getDescriptor();
 	}
 
 	@Override
@@ -359,12 +358,26 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 		}
 
-		/** Disable cascade layout. */
+		/** Disable cascade layout action. */
 		{
 			final DescribableList<BuildWrapper, Descriptor<BuildWrapper>> buildWrapperList = project
 					.getBuildWrappersList();
 
 			buildWrapperList.remove(LayoutBuildWrapper.class);
+		}
+
+		/** Enable cascade release action. */
+		{
+
+			final String projectName = "ABC";
+
+			project.removeProperty(CascadeProjectProperty.class);
+
+			final CascadeProjectProperty property = new CascadeProjectProperty(
+					projectName);
+
+			project.addProperty(property);
+
 		}
 
 		/** Persist changes. */

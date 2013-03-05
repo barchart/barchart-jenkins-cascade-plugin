@@ -13,8 +13,6 @@ import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 
-import java.util.logging.Logger;
-
 /**
  * Plug-in life cycle manager.
  * 
@@ -24,37 +22,32 @@ import java.util.logging.Logger;
 public class PluginActivator extends Plugin implements
 		Describable<PluginActivator> {
 
-	@Extension
-	public static final class PluginDescriptor extends
-			Descriptor<PluginActivator> {
+	public static final class TheDescriptor extends Descriptor<PluginActivator> {
 		@Override
 		public String getDisplayName() {
 			return PluginConstants.PLUGIN_NAME;
 		}
 	}
 
-	private final static Logger log = Logger.getLogger(PluginActivator.class
-			.getName());
+	@Extension
+	public static final TheDescriptor DESCRIPTOR = new TheDescriptor();
 
 	public static PluginActivator get() {
 		return Hudson.getInstance().getPlugin(PluginActivator.class);
 	}
 
-	public PluginDescriptor getDescriptor() {
-		return (PluginDescriptor) Hudson.getInstance().getDescriptorOrDie(
-				getClass());
+	public TheDescriptor getDescriptor() {
+		return DESCRIPTOR;
 	}
 
 	@Override
 	public void start() throws Exception {
-		log.info("Starting: " + new PluginDescriptor().getDisplayName());
 		super.start();
 		load();
 	}
 
 	@Override
 	public void stop() throws Exception {
-		log.info("Stopping: " + new PluginDescriptor().getDisplayName());
 		save();
 		super.stop();
 	}

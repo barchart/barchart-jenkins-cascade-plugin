@@ -8,6 +8,8 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.model.Build;
+import hudson.model.BuildListener;
+import hudson.model.Result;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,22 +21,58 @@ import java.io.IOException;
  */
 public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 
+	/** New build form UI. */
 	public CascadeBuild(final CascadeProject project) throws IOException {
 		super(project);
 		setup(project);
 	}
 
+	/** Old Build from file. */
 	public CascadeBuild(final CascadeProject project, final File buildDir)
 			throws IOException {
 		super(project, buildDir);
 		setup(project);
 	}
 
-	@Override
-	public void run() {
+	private void setup(final CascadeProject project) {
 	}
 
-	private void setup(final CascadeProject job) {
+	@Override
+	public void run() {
+		execute(new CascadeExecution());
+	}
+
+	protected class CascadeExecution extends RunExecution {
+
+		@Override
+		public Result run(final BuildListener listener) throws Exception,
+				hudson.model.Run.RunnerAbortedException {
+
+			final PluginLogger log = new PluginLogger(listener);
+
+			log.text("RUN");
+
+			return Result.SUCCESS;
+		}
+
+		@Override
+		public void post(final BuildListener listener) throws Exception {
+
+			final PluginLogger log = new PluginLogger(listener);
+
+			log.text("POST");
+
+		}
+
+		@Override
+		public void cleanUp(final BuildListener listener) throws Exception {
+
+			final PluginLogger log = new PluginLogger(listener);
+
+			log.text("CLEAN");
+
+		}
+
 	}
 
 }

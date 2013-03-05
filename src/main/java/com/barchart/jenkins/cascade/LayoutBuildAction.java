@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jvnet.hudson.plugins.m2release.LastReleasePermalink;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -34,7 +33,7 @@ import org.kohsuke.stapler.StaplerResponse;
 public class LayoutBuildAction implements PermalinkProjectAction {
 
 	public static final List<Permalink> PERMALINKS = Collections
-			.singletonList(LastReleasePermalink.INSTANCE);
+			.singletonList(LayoutPermalink.INSTANCE);
 
 	private final MavenModuleSet project;
 
