@@ -40,13 +40,23 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	@Extension
 	public static class TheDescriptor extends BuildWrapperDescriptor {
 
+		/** Jelly field. */
 		public static final String DEFAULT_LAYOUT_VIEW = "cascade";
 
+		/** Jelly field. */
 		public static final String DEFAULT_MAVEN_GOALS = "clean validate";
 
+		/** Jelly field. */
 		public static final String DEFAULT_MEMBER_PATTERN = tokenVariable(MavenTokenMacro.TOKEN_ARTIFACT_ID);
 
-		public static final String DEFAULT_CASCADE_PATTERN = tokenVariable(MavenTokenMacro.TOKEN_ARTIFACT_ID)
+		/**
+		 * Jelly field.
+		 * <p>
+		 * <a href=
+		 * "https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables"
+		 * >Jenkins Build Environment Variables</a>
+		 */
+		public static final String DEFAULT_CASCADE_PATTERN = tokenVariable("JOB_NAME")
 				+ "_CASCADE";
 
 		@Override
@@ -107,21 +117,18 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	public LayoutBuildWrapper( //
 			final String mavenGoals, //
 			final String layoutView, //
-			final String namePattern //
+			final String memberPattern, //
+			final String cascadePattern //
 	) {
 		this.mavenGoals = mavenGoals;
 		this.layoutView = layoutView;
-		this.memberPattern = namePattern;
-	}
-
-	@Override
-	public TheDescriptor getDescriptor() {
-		return (TheDescriptor) super.getDescriptor();
+		this.memberPattern = memberPattern;
+		this.cascadePattern = cascadePattern;
 	}
 
 	/**
 	 * Jenkins view name for the cascade layout. This view will contain
-	 * generated projects.
+	 * generated cascade and member projects.
 	 */
 	public String getLayoutView() {
 		return layoutView;
@@ -135,14 +142,14 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	/**
-	 * Jenkins generated member project naming convention.
+	 * Member project naming convention.
 	 */
 	public String getMemberPattern() {
 		return memberPattern;
 	}
 
 	/**
-	 * Jenkins generated cascade project naming convention.
+	 * Cascade project naming convention.
 	 */
 	public String getCascadePattern() {
 		return cascadePattern;

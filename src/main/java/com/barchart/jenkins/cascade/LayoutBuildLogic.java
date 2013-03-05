@@ -22,6 +22,7 @@ import java.util.Map;
 
 import jenkins.model.Jenkins;
 
+import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.joda.time.DateTime;
 
 import com.barchart.jenkins.cascade.PluginUtilities.JenkinsTask;
@@ -35,24 +36,32 @@ public class LayoutBuildLogic {
 	 * Provide cascade project name.
 	 */
 	public static String cascadeName(final BuildContext context,
-			final MavenModuleSet layoutProject) {
+			final MavenModuleSet layoutProject) throws IOException {
 
 		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
 				.get(LayoutBuildWrapper.class);
 
 		final String cascadePattern = wrapper.getCascadePattern();
 
-		final VariableResolver<String> resolver = context.build()
-				.getBuildVariableResolver();
+		try {
 
-		final String cascadeName = Util.replaceMacro(cascadePattern, resolver);
+			final String cascadeName = TokenMacro.expandAll(context.build(),
+					context.listener(), cascadePattern);
 
-		return cascadeName;
+			return cascadeName;
+
+		} catch (final Exception e) {
+			throw new IOException(e);
+		}
+
 	}
 
-	/** Provide member project name. */
+	/**
+	 * Provide member project name.
+	 */
 	public static String memberName(final BuildContext context,
-			final MavenModuleSet layoutProject, final MavenModule module) {
+			final MavenModuleSet layoutProject, final MavenModule module)
+			throws IOException {
 
 		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
 				.get(LayoutBuildWrapper.class);
@@ -105,8 +114,6 @@ public class LayoutBuildLogic {
 
 			/**
 			 * Module-to-Project naming convention.
-			 * <p>
-			 * TODO expose in UI.
 			 */
 			final String memberName = memberName(context, layoutProject, module);
 

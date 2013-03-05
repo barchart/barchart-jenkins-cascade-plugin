@@ -1,3 +1,10 @@
 <div>
 	HELLO HELP. 
+	
+	https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables
+
+	MAVEN_PROJECT_ID
+	MAVEN_GROUP_ID
+	MAVEN_ARTIFACT_ID
+	
 </div>

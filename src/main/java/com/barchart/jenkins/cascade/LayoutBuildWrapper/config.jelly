@@ -24,13 +24,13 @@
 	<f:entry title="Member Naming" field="memberPattern"
 		help="${help}/memberPattern.jelly">
 		<f:textbox
-			value="${h.defaulted(instance.namePattern,descriptor.DEFAULT_MEMBER_PATTERN)}" />
+			value="${h.defaulted(instance.memberPattern,descriptor.DEFAULT_MEMBER_PATTERN)}" />
 	</f:entry>
 
 	<f:entry title="Cascade Naming" field="cascadePattern"
 		help="${help}/cascadePattern.jelly">
 		<f:textbox
-			value="${h.defaulted(instance.namePattern,descriptor.DEFAULT_CASCADE_PATTERN)}" />
+			value="${h.defaulted(instance.cascadePattern,descriptor.DEFAULT_CASCADE_PATTERN)}" />
 	</f:entry>
 
 </j:jelly>

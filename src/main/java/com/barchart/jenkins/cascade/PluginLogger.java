@@ -7,7 +7,7 @@
  */
 package com.barchart.jenkins.cascade;
 
-import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 
 /**
  * Convenience build logger.
@@ -16,9 +16,9 @@ import hudson.model.BuildListener;
  */
 public class PluginLogger {
 
-	private final BuildListener listener;
+	private final TaskListener listener;
 
-	public PluginLogger(final BuildListener listener) {
+	public PluginLogger(final TaskListener listener) {
 		this.listener = listener;
 	}
 
