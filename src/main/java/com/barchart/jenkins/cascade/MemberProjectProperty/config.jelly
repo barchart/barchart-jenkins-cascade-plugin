@@ -24,13 +24,18 @@
 				<f:textbox disabled="true"/>
 			</f:entry>
 			
-			<f:entry title="Cascade Project" field="cascadeProject"
-				help="${help}/cascadeProject.jelly">
+			<f:entry title="Cascade Project" field="cascadeName"
+				help="${help}/cascadeName.jelly">
 				<f:textbox disabled="true" />
 			</f:entry>
 			
-			<f:entry title="Layout Project" field="layoutProject"
-				help="${help}/layoutProject.jelly">
+			<f:entry title="Layout Project" field="layoutName"
+				help="${help}/layoutName.jelly">
+				<f:textbox disabled="true" />
+			</f:entry>
+
+			<f:entry title="Member Project" field="memberName"
+				help="${help}/memberName.jelly">
 				<f:textbox disabled="true" />
 			</f:entry>
 			

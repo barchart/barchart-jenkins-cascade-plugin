@@ -18,28 +18,61 @@
 	<j:set var="help" value="${plugin}/help/LayoutBuildWrapper" />
 	<j:set var="images" value="${plugin}/images" />
 
-	<f:entry title="Validation goals" field="mavenGoals"
-		help="${help}/mavenGoals.jelly">
-		<f:textbox
-			value="${h.defaulted(instance.mavenGoals,descriptor.DEFAULT_MAVEN_GOALS)}" />
-	</f:entry>
+	<f:advanced title="Cascade Layout Options" align="left">
 
-	<f:entry title="Layout View" field="layoutView"
-		help="${help}/layoutView.jelly">
-		<f:textbox
-			value="${h.defaulted(instance.layoutView,descriptor.DEFAULT_LAYOUT_VIEW)}" />
-	</f:entry>
+		<f:entry title="Validation goals" field="mavenGoals"
+			help="${help}/mavenGoals.jelly">
+			<f:textbox
+				value="${h.defaulted(instance.mavenGoals,descriptor.DEFAULT_MAVEN_GOALS)}" />
+		</f:entry>
 
-	<f:entry title="Member Naming" field="memberPattern"
-		help="${help}/memberPattern.jelly">
-		<f:textbox
-			value="${h.defaulted(instance.memberPattern,descriptor.DEFAULT_MEMBER_PATTERN)}" />
-	</f:entry>
+		<f:entry title="Layout View" field="layoutView"
+			help="${help}/layoutView.jelly">
+			<f:textbox
+				value="${h.defaulted(instance.layoutView,descriptor.DEFAULT_LAYOUT_VIEW)}" />
+		</f:entry>
 
-	<f:entry title="Cascade Naming" field="cascadePattern"
-		help="${help}/cascadePattern.jelly">
-		<f:textbox
-			value="${h.defaulted(instance.cascadePattern,descriptor.DEFAULT_CASCADE_PATTERN)}" />
-	</f:entry>
+		<f:entry title="Member Naming" field="memberPattern"
+			help="${help}/memberPattern.jelly">
+			<f:textbox
+				value="${h.defaulted(instance.memberPattern,descriptor.DEFAULT_MEMBER_PATTERN)}" />
+		</f:entry>
+
+		<f:entry title="Cascade Naming" field="cascadePattern"
+			help="${help}/cascadePattern.jelly">
+			<f:textbox
+				value="${h.defaulted(instance.cascadePattern,descriptor.DEFAULT_CASCADE_PATTERN)}" />
+		</f:entry>
+
+	</f:advanced>
+
+	<f:advanced title="Cascade Release Options" align="left">
+
+		<f:entry title="Release Goals" field="cascadeReleaseGoals"
+			help="${help}/cascadeReleaseGoals.jelly">
+			<f:textbox
+				value="${h.defaulted(instance.cascadeReleaseGoals,descriptor.CASCADE_RELEASE_GOALS)}" />
+		</f:entry>
+
+		<f:entry title="Parent Update Goals" field="cascadeParentGoals"
+			help="${help}/cascadeParentGoals.jelly">
+			<f:textbox
+				value="${h.defaulted(instance.cascadeParentGoals,descriptor.CASCADE_PARENT_GOALS)}" />
+		</f:entry>
+
+		<f:entry title="Dependency Update Goals"
+			field="cascadeDependencyGoals"
+			help="${help}/cascadeDependencyGoals.jelly">
+			<f:textbox
+				value="${h.defaulted(instance.cascadeDependencyGoals,descriptor.CASCADE_DEPENDENCY_GOALS)}" />
+		</f:entry>
+
+		<f:entry title="SCM Commit Goals" field="cascadeCommitGoals"
+			help="${help}/cascadeCommitGoals.jelly">
+			<f:textbox
+				value="${h.defaulted(instance.cascadeCommitGoals,descriptor.CASCADE_COMMIT_GOALS)}" />
+		</f:entry>
+
+	</f:advanced>
 
 </j:jelly>

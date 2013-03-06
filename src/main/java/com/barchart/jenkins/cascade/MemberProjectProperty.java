@@ -42,29 +42,37 @@ public class MemberProjectProperty extends JobProperty<MavenModuleSet> {
 	}
 
 	private final String projectRole;
-	private final String cascadeProject;
-	private final String layoutProject;
+	private final String cascadeName;
+	private final String layoutName;
+	private final String memberName;
 
 	/** Jelly injected. */
 	@DataBoundConstructor
 	public MemberProjectProperty( //
 			final String projectRole, //
 			final String cascadeName, //
-			final String layoutName //
+			final String layoutName, //
+			final String memberName //
 	) {
 		this.projectRole = projectRole;
-		this.cascadeProject = cascadeName;
-		this.layoutProject = layoutName;
+		this.cascadeName = cascadeName;
+		this.layoutName = layoutName;
+		this.memberName = memberName;
 	}
 
 	/** Cascade project name. */
-	public String getCascadeProject() {
-		return cascadeProject;
+	public String getCascadeName() {
+		return cascadeName;
 	}
 
 	/** Layout project name. */
-	public String getLayoutProject() {
-		return layoutProject;
+	public String getLayoutName() {
+		return layoutName;
+	}
+
+	/** Member project name. */
+	public String getMemberName() {
+		return memberName;
 	}
 
 	/** Project role in the cascade. */

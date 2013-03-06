@@ -23,10 +23,16 @@ import org.kohsuke.stapler.StaplerResponse;
 public class MemberBuildAction implements Action {
 
 	final private String cascadeName;
+	final private String layoutName;
 	final private String memberName;
 
-	public MemberBuildAction(final String cascadeName, final String memberName) {
+	public MemberBuildAction( //
+			final String cascadeName, //
+			final String layoutName, //
+			final String memberName //
+	) {
 		this.cascadeName = cascadeName;
+		this.layoutName = layoutName;
 		this.memberName = memberName;
 	}
 
@@ -76,6 +82,10 @@ public class MemberBuildAction implements Action {
 
 	public String getIconFileName() {
 		return PluginConstants.MEMBER_ACTION_ICON;
+	}
+
+	public String getLayoutName() {
+		return layoutName;
 	}
 
 	public String getMemberName() {

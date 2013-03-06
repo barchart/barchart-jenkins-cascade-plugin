@@ -212,7 +212,11 @@ public class LayoutLogic {
 		context.log("Cascade project: " + cascadeName);
 
 		final MemberProjectProperty layoutProperty = new MemberProjectProperty(
-				ProjectRole.LAYOUT.code(), cascadeName, layoutName);
+				ProjectRole.LAYOUT.code(), //
+				cascadeName, //
+				layoutName, //
+				"" //
+		);
 
 		final JenkinsTask projectCreate = new JenkinsTask() {
 			public void run() throws IOException {
@@ -341,11 +345,12 @@ public class LayoutLogic {
 		/** Enable cascade release action. */
 		{
 
-			final String cascadeName = cascadeName(context, layoutProject);
-			final String layoutName = layoutProject.getName();
-
 			final MemberProjectProperty memberProperty = new MemberProjectProperty(
-					ProjectRole.MEMBER.code(), cascadeName, layoutName);
+					ProjectRole.MEMBER.code(), //
+					cascadeName(context, layoutProject), //
+					layoutProject.getName(), //
+					memberProject.getName() //
+			);
 
 			ensureProperty(memberProject, memberProperty);
 

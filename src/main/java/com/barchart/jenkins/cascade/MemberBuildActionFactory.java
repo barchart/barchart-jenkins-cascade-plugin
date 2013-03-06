@@ -41,12 +41,6 @@ public class MemberBuildActionFactory extends TransientProjectActionFactory {
 			return Collections.emptyList();
 		}
 
-		final String cascadeName = property.getCascadeProject();
-
-		if (cascadeName == null || cascadeName.isEmpty()) {
-			return Collections.emptyList();
-		}
-
 		final ProjectRole role = ProjectRole.from(property.getProjectRole());
 
 		switch (role) {
@@ -56,10 +50,11 @@ public class MemberBuildActionFactory extends TransientProjectActionFactory {
 			return Collections.emptyList();
 		}
 
-		final String memberName = memberProject.getName();
-
-		final MemberBuildAction action = new MemberBuildAction(cascadeName,
-				memberName);
+		final MemberBuildAction action = new MemberBuildAction( //
+				property.getCascadeName(), //
+				property.getLayoutName(), //
+				property.getMemberName() //
+		);
 
 		return Collections.singleton(action);
 

@@ -180,15 +180,16 @@ public class PluginUtilities {
 	/**
 	 * Maven model version looks like snapshot.
 	 */
-	public static boolean isSnapshot(final Model model) throws Exception {
+	public static boolean isSnapshot(final Model model) {
 		return isSnapshot(model.getVersion());
 	}
 
 	/**
 	 * Maven job version looks like snapshot.
 	 */
-	public static boolean isSnapshot(final MavenModuleSet job) throws Exception {
-		return isSnapshot(job.getRootModule());
+	public static boolean isSnapshot(final MavenModuleSet project)
+			throws Exception {
+		return isSnapshot(project.getRootModule());
 	}
 
 	/**
@@ -196,6 +197,14 @@ public class PluginUtilities {
 	 */
 	public static boolean isSnapshot(final Parent parent) {
 		return isSnapshot(parent.getVersion());
+	}
+
+	public static boolean isRelease(final Parent parent) {
+		return !isSnapshot(parent);
+	}
+
+	public static boolean isRelease(final Model model) {
+		return !isSnapshot(model);
 	}
 
 	/**
@@ -322,6 +331,20 @@ public class PluginUtilities {
 	public static Parent mavenParent(final File pomFile) throws Exception {
 
 		final Model model = mavenModel(pomFile);
+
+		final Parent parent = model.getParent();
+
+		return parent;
+
+	}
+
+	/**
+	 * Find maven parent for a jenkins maven job.
+	 */
+	public static Parent mavenParent(final MavenModuleSet project)
+			throws Exception {
+
+		final Model model = mavenModel(project);
 
 		final Parent parent = model.getParent();
 

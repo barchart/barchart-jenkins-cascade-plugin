@@ -15,10 +15,7 @@ import hudson.model.Result;
 
 import java.util.List;
 
-import jenkins.model.Jenkins;
-
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 
 /**
@@ -28,40 +25,94 @@ import org.apache.maven.model.Parent;
  */
 public class CascadeLogic {
 
+	static final String RELEASE = "release:prepare release:perform --define localCheckout=true --define pushChanges=true --define resume=false";
+
+	static final String SCM_CHECKIN = "scm:checkin --define includes=pom.xml --define message=cascade-release";
+
+	static final String VERSION_PARENT = "versions:update-parent";
+
+	static final String VERSION_DEPENDENCY = "versions:use-releases";
+
+	public static String cascadeProjectName(
+			final BuildContext<CascadeBuild> context) {
+		final CascadeBuild build = context.build();
+		final MemberBuildAction action = build
+				.getAction(MemberBuildAction.class);
+		return action.getCascadeName();
+	}
+
+	public static String layoutProjectName(
+			final BuildContext<CascadeBuild> context) {
+		final CascadeBuild build = context.build();
+		final MemberBuildAction action = build
+				.getAction(MemberBuildAction.class);
+		return action.getLayoutName();
+	}
+
+	public static String memberProjectName(
+			final BuildContext<CascadeBuild> context) {
+		final CascadeBuild build = context.build();
+		final MemberBuildAction action = build
+				.getAction(MemberBuildAction.class);
+		return action.getMemberName();
+	}
+
+	public static MavenModuleSet memberProjectOfCascade(
+			final BuildContext<CascadeBuild> context,
+			final ModuleName moudleName) {
+
+		for (final MavenModuleSet project : mavenProjectList()) {
+
+			final MemberProjectProperty property = project
+					.getProperty(MemberProjectProperty.class);
+
+			if (property == null) {
+				continue;
+			}
+
+			final boolean isCascadeMatch = context.build().getProject()
+					.getName().equals(property.getCascadeName());
+
+			final boolean isModuleMatch = project.getRootModule()
+					.getModuleName().equals(moudleName);
+
+			if (isCascadeMatch && isModuleMatch) {
+				return project;
+			}
+
+		}
+
+		return null;
+	}
+
+	public static boolean hasProperCause(
+			final BuildContext<CascadeBuild> context) {
+		final CascadeBuild build = context.build();
+		final MemberUserCause cause = build.getCause(MemberUserCause.class);
+		return cause != null;
+	}
+
 	public static Result process(final BuildContext<CascadeBuild> context)
 			throws Exception {
 
 		context.log("Build started.");
 
-		final Jenkins jenkins = Jenkins.getInstance();
-		final CascadeBuild build = context.build();
-		final CascadeProject project = build.getProject();
-
-		final MemberUserCause cause = build.getCause(MemberUserCause.class);
-
-		if (cause == null) {
+		if (!hasProperCause(context)) {
 			context.log("Unknown build cause.");
 			context.log("Cascade builds expect invocation form member projects.");
 			context.log("Build finished.");
 			return Result.NOT_BUILT;
 		}
 
-		final MemberBuildAction action = build
-				.getAction(MemberBuildAction.class);
-
-		final String memberName = action.getMemberName();
-
-		context.log("Member build cause.");
-
-		context.log("---");
-		context.log("Member Project: " + action.getMemberName());
-
-		context.log("Build: " + build);
-		context.log("Result: " + build.getResult());
+		context.log("Member build cause, proceed.");
 
 		context.log("Build finished.");
 		return Result.SUCCESS;
 
+	}
+
+	public static boolean isFailure(final Result result) {
+		return Result.SUCCESS != result;
 	}
 
 	/**
@@ -72,55 +123,135 @@ public class CascadeLogic {
 			final ModuleName memberName) throws Exception {
 
 		context.log("---");
-		context.log("Release Project: " + memberName);
+		context.log("Release module: " + memberName);
 
-		final MavenModuleSet memberProject = mavenProject(memberName);
+		final MavenModuleSet memberProject = memberProjectOfCascade(context,
+				memberName);
 
 		if (memberProject == null) {
 			context.err("Project not found.");
 			return Result.FAILURE;
 		}
 
-		final Model model = mavenModel(memberProject);
-
-		if (!isSnapshot(model)) {
+		if (isRelease(mavenModel(memberProject))) {
 			context.err("Project is a release.");
 			return Result.FAILURE;
 		}
 
-		final Parent parent = model.getParent();
+		/** Process parent. */
+		PARENT: {
 
-		if (isSnapshot(parent)) {
+			/** Parent update on a member. */
+			{
+				final Parent parent = mavenParent(memberProject);
+				if (isRelease(parent)) {
+					break PARENT;
+				}
+				context.log("Parent needs an update: " + parent);
+				if (isFailure(updateParent(context, memberName))) {
+					return Result.FAILURE;
+				}
+			}
 
-			context.log("Parent needs release: " + parent);
+			/** Member release on a parent. */
+			{
+				final Parent parent = mavenParent(memberProject);
+				if (isRelease(parent)) {
+					break PARENT;
+				}
+				context.log("Parent needs a release: " + parent);
+				final ModuleName parentName = moduleName(parent);
+				if (isFailure(processRelease(context, parentName))) {
+					return Result.FAILURE;
+				}
+			}
 
-			final ModuleName parentName = moduleName(parent);
+			/** Parent refresh on a member. */
+			{
+				final Parent parent = mavenParent(memberProject);
+				if (isRelease(parent)) {
+					break PARENT;
+				}
+				context.log("Parent needs a refresh: " + parent);
+				if (isFailure(updateParent(context, memberName))) {
+					return Result.FAILURE;
+				}
+			}
 
-			final Result result = processRelease(context, parentName);
-
-			if (result != Result.SUCCESS) {
+			/** Verify parent. */
+			{
+				final Parent parent = mavenParent(memberProject);
+				if (isRelease(parent)) {
+					break PARENT;
+				}
+				context.err("Can not release parent.");
 				return Result.FAILURE;
 			}
 
 		}
 
-		final List<Dependency> snapshots = mavenDependencies(memberProject,
-				MATCH_SNAPSHOT);
+		/** Process dependencies. */
+		DEPENDENCY: {
 
-		for (final Dependency dependency : snapshots) {
+			/** Dependency update. */
+			{
+				final List<Dependency> snapshots = mavenDependencies(
+						memberProject, MATCH_SNAPSHOT);
+				if (snapshots.isEmpty()) {
+					break DEPENDENCY;
+				}
+				context.log("Dependency needs an update: " + snapshots.size());
+				if (isFailure(updateDependency(context, memberName))) {
+					return Result.FAILURE;
+				}
+			}
 
-			context.log("Dependency needs release: " + dependency);
+			/** Dependency release. */
+			{
+				final List<Dependency> snapshots = mavenDependencies(
+						memberProject, MATCH_SNAPSHOT);
+				if (snapshots.isEmpty()) {
+					break DEPENDENCY;
+				}
+				for (final Dependency dependency : snapshots) {
+					context.log("Dependency needs a release: " + dependency);
+					final ModuleName dependencyName = moduleName(dependency);
+					if (isFailure(processRelease(context, dependencyName))) {
+						return Result.FAILURE;
+					}
+				}
+			}
 
-			final ModuleName dependencyName = moduleName(dependency);
+			/** Dependency refresh. */
+			{
+				final List<Dependency> snapshots = mavenDependencies(
+						memberProject, MATCH_SNAPSHOT);
+				if (snapshots.isEmpty()) {
+					break DEPENDENCY;
+				}
+				context.log("Dependency needs a refresh: " + snapshots.size());
+				if (isFailure(updateDependency(context, memberName))) {
+					return Result.FAILURE;
+				}
+			}
 
-			final Result result = processRelease(context, dependencyName);
-
-			if (result != Result.SUCCESS) {
+			/** Verify dependency. */
+			{
+				final List<Dependency> snapshots = mavenDependencies(
+						memberProject, MATCH_SNAPSHOT);
+				if (snapshots.isEmpty()) {
+					break DEPENDENCY;
+				}
+				context.err("Failed to release dependency.");
+				for (final Dependency dependency : snapshots) {
+					context.err("\t" + dependency);
+				}
 				return Result.FAILURE;
 			}
 
 		}
 
+		/** Process artifact. */
 		{
 
 			final CascadeBuild build = context.build();
@@ -138,27 +269,33 @@ public class CascadeLogic {
 			final MavenModuleSetBuild memberBuild = memberProject
 					.scheduleBuild2(0, cause, action, goals, badge).get();
 
+			if (isFailure(memberBuild.getResult())) {
+				return Result.FAILURE;
+			}
+
+			context.log("Project released: " + memberName);
+
+			return Result.SUCCESS;
+
 		}
 
-		context.log("Project released: " + memberName);
+	}
+
+	/**
+	 * Update project version of a dependency.
+	 */
+	public static Result updateDependency(
+			final BuildContext<CascadeBuild> context,
+			final ModuleName memberName) throws Exception {
 
 		return Result.SUCCESS;
 
 	}
 
-	static final String RELEASE = "release:prepare release:perform --define localCheckout=true --define pushChanges=true --define resume=false";
-
-	static final String UPDATE_PARENT = "versions:update-parent";
-
-	static final String USE_RELEASES = "versions:use-releases";
-
-	static final String SCM_CHECKING = "scm:checkin --define includes=pom.xml --define message=cascade-release";
-
 	/**
-	 * Update project versions.
+	 * Update project version of a parent.
 	 */
-	public static Result processUpdate(
-			final BuildContext<CascadeBuild> context,
+	public static Result updateParent(final BuildContext<CascadeBuild> context,
 			final ModuleName memberName) throws Exception {
 
 		context.log("---");
@@ -172,7 +309,7 @@ public class CascadeLogic {
 		}
 
 		final MavenInterceptorAction goals = new MavenInterceptorAction(
-				USE_RELEASES + " " + SCM_CHECKING);
+				VERSION_DEPENDENCY + " " + SCM_CHECKIN);
 
 		final MemberUserCause cause = new MemberUserCause();
 
