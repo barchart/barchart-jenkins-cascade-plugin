@@ -241,12 +241,13 @@ public class PluginUtilities {
 	/**
 	 * Maven nested module immediate dependencies.
 	 */
-	public static List<Dependency> mavenDependencies(final MavenModule module,
-			final DependencyMatcher matcher) throws Exception {
-
-		return mavenDependencies(mavenPomFile(module), matcher);
-
-	}
+	// public static List<Dependency> mavenDependencies(final MavenModule
+	// module,
+	// final DependencyMatcher matcher) throws Exception {
+	//
+	// return mavenDependencies(mavenPomFile(module), matcher);
+	//
+	// }
 
 	/**
 	 * Maven top level project immediate dependencies.
@@ -281,11 +282,12 @@ public class PluginUtilities {
 
 	}
 
-	public static Model mavenModel(final MavenModule module) throws Exception {
-
-		return mavenModel(mavenPomFile(module));
-
-	}
+	// public static Model mavenModel(final MavenModule module) throws Exception
+	// {
+	//
+	// return mavenModel(mavenPomFile(module));
+	//
+	// }
 
 	/**
 	 * Top level jenkins maven module resolved from the build, or null.
@@ -355,26 +357,29 @@ public class PluginUtilities {
 	/**
 	 * Module pom.xml file.
 	 */
-	public static File mavenPomFile(final MavenModule module) {
-
-		final File rootDir = module.getParent().getRootDir();
-
-		final File projectDir = new File(rootDir, module.getRelativePath());
-
-		final File pomFile = new File(projectDir, "pom.xml");
-
-		return pomFile;
-
-	}
+	// public static File mavenPomFile(final MavenModule module) {
+	//
+	// final File rootDir = module.getParent().getRootDir();
+	//
+	// final File projectDir = new File(rootDir, module.getRelativePath());
+	//
+	// final File pomFile = new File(projectDir, "pom.xml");
+	//
+	// return pomFile;
+	//
+	// }
 
 	/**
 	 * Project pom.xml file.
 	 */
 	public static File mavenPomFile(final MavenModuleSet project) {
 
-		final String pomPath = project.getRootPOM(null);
+		final String relativePath = project.getRootPOM(null);
 
-		final File pomFile = new File(pomPath);
+		final String absolutePath = project.getWorkspace().child(relativePath)
+				.getRemote();
+
+		final File pomFile = new File(absolutePath);
 
 		return pomFile;
 	}

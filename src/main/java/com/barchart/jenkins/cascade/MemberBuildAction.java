@@ -53,6 +53,12 @@ public class MemberBuildAction implements Action {
 					+ cascadeName);
 		}
 
+		final TopLevelItem layoutItem = jenkins.getItem(layoutName);
+		if (!(layoutItem instanceof MavenModuleSet)) {
+			throw new IllegalStateException("Layout project is invalid: "
+					+ layoutName);
+		}
+
 		final TopLevelItem memberItem = jenkins.getItem(memberName);
 
 		if (!(memberItem instanceof MavenModuleSet)) {
