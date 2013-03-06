@@ -18,11 +18,13 @@ import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
+import hudson.model.queue.QueueTaskFuture;
 import hudson.scm.SCM;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
@@ -36,9 +38,10 @@ public class CascadeLogic {
 
 	static final String RELEASE = "release:prepare release:perform --define localCheckout=true --define resume=false";
 
-	static final String SCM_CHECKIN = "scm:checkin --define includes=**/pom.xml --define message=cascade-release";
+	static final String SCM_CHECKIN = "scm:checkin --define includes=**/pom.xml --define message=cascade";
 
 	static final String SCM_CHECKOUT = "scm:checkout";
+
 	static final String SNAPSHOT = "-SNAPSHOT";
 
 	static final String VALIDATE = "validate";
@@ -258,6 +261,9 @@ public class CascadeLogic {
 			/** Update to next release, if present. */
 			{
 				final Parent parent = mavenParent(memberProject);
+				if (parent == null) {
+					break PARENT;
+				}
 				if (isRelease(parent)) {
 					break PARENT;
 				}
@@ -406,8 +412,20 @@ public class CascadeLogic {
 
 		final MemberUserCause cause = cascadeCause(context);
 
-		final MavenModuleSetBuild memberBuild = memberProject.scheduleBuild2(0,
-				cause, goals).get();
+		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = memberProject
+				.scheduleBuild2(0, cause, goals);
+
+		final Future<MavenModuleSetBuild> startFuture = buildFuture
+				.getStartCondition();
+
+		/** Block till build started. */
+		final MavenModuleSetBuild memberBuild = startFuture.get();
+
+		context.log("Jenkins console: " + memberBuild.getAbsoluteUrl()
+				+ "console");
+
+		/** Block till build complete. */
+		buildFuture.get();
 
 		final Result result = memberBuild.getResult();
 

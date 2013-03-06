@@ -342,6 +342,8 @@ public class PluginUtilities {
 
 	/**
 	 * Find maven parent for a jenkins maven job.
+	 * 
+	 * @return null, when no parent.
 	 */
 	public static Parent mavenParent(final MavenModuleSet project)
 			throws Exception {
