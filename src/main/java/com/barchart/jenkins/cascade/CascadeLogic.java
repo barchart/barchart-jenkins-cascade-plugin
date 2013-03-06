@@ -243,16 +243,17 @@ public class CascadeLogic {
 			return Result.FAILURE;
 		}
 
-		context.log("Jenkins project: " + memberProject.getName());
-
-		if (isRelease(mavenModel(memberProject))) {
-			context.err("Project is a release.");
-			return Result.FAILURE;
-		}
+		context.log("Jenkins project: " + memberProject.getAbsoluteUrl());
 
 		/** Update jenkins/maven module state. */
 		CHECKOUT: {
 			process(context, memberName, mavenValidateGoals());
+		}
+
+		if (isRelease(mavenModel(memberProject))) {
+			context.err("Project is a release.");
+			context.err("Please update project version to a snapshot.");
+			return Result.FAILURE;
 		}
 
 		/** Process parent. */
@@ -407,8 +408,6 @@ public class CascadeLogic {
 			context.err("Jenkins project not found.");
 			return Result.FAILURE;
 		}
-
-		context.log("Jenkins project: " + memberProject.getAbsoluteUrl());
 
 		final MemberUserCause cause = cascadeCause(context);
 
