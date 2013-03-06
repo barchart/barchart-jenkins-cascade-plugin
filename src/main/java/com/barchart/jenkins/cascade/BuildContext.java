@@ -7,7 +7,6 @@
  */
 package com.barchart.jenkins.cascade;
 
-import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
@@ -16,28 +15,21 @@ import hudson.model.AbstractBuild;
  * 
  * @author Andrei Pozolotin
  */
-public class BuildContext {
+public class BuildContext<B extends AbstractBuild> {
 
-	private final AbstractBuild<?, ?> build;
-	private final Launcher launcher;
+	private final AbstractBuild build;
 	private final BuildListener listener;
 
 	public BuildContext(//
-			final AbstractBuild<?, ?> build, //
-			final Launcher launcher, //
+			final AbstractBuild build, //
 			final BuildListener listener //
 	) {
 		this.build = build;
-		this.launcher = launcher;
 		this.listener = listener;
 	}
 
-	public AbstractBuild<?, ?> build() {
-		return build;
-	}
-
-	public Launcher launcher() {
-		return launcher;
+	public B build() {
+		return (B) build;
 	}
 
 	public BuildListener listener() {
@@ -48,6 +40,11 @@ public class BuildContext {
 	public void log(final String text) {
 		listener.getLogger()
 				.println(PluginConstants.LOGGER_PREFIX + " " + text);
+	}
+
+	/** Log error with plug-in prefix. */
+	public void err(final String text) {
+		listener.error(PluginConstants.LOGGER_PREFIX + " " + text);
 	}
 
 }

@@ -7,8 +7,6 @@
  */
 package com.barchart.jenkins.cascade;
 
-import hudson.maven.MavenModuleSet;
-import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -16,12 +14,10 @@ import hudson.model.Result;
 import java.io.File;
 import java.io.IOException;
 
-import jenkins.model.Jenkins;
-
 /**
  * Orchestration build.
  * <p>
- * Cascade build. Provides cascade release logic.
+ * Cascade build. Manages cascade release logic.
  * 
  * @author Andrei Pozolotin
  */
@@ -53,46 +49,10 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		@Override
 		public Result run(final BuildListener listener) throws Exception {
 
-			final PluginLogger log = new PluginLogger(listener);
+			final BuildContext<CascadeBuild> context = new BuildContext<CascadeBuild>(
+					CascadeBuild.this, listener);
 
-			log.text("RUN");
-
-			final Jenkins jenkins = Jenkins.getInstance();
-
-			final MemberUserCause cause = getCause(MemberUserCause.class);
-
-			final MemberBuildAction action = getAction(MemberBuildAction.class);
-
-			if (cause == null) {
-				log.text("Empty cause.");
-			} else {
-
-				final String memberName = action.getMemberName();
-
-				log.text("Member cause.");
-				log.text("Cascade Project: " + action.getCascadeName());
-				log.text("Layout Project:  " + action.getMemberName());
-				log.text("Member Project:  " + action.getMemberName());
-
-				log.text("Starging build.");
-
-				final MavenModuleSet memberProject = (MavenModuleSet) jenkins
-						.getItem(memberName);
-
-				final MavenInterceptorAction goals = new MavenInterceptorAction(
-						"clean package");
-
-				final MemberBadgeAction badge = new MemberBadgeAction();
-
-				final MavenModuleSetBuild build = memberProject.scheduleBuild2(
-						0, cause, action, goals, badge).get();
-
-				log.text("Build: " + build);
-				log.text("Result: " + build.getResult());
-
-			}
-
-			return Result.SUCCESS;
+			return CascadeLogic.process(context);
 		}
 
 		@Override

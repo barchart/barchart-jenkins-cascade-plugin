@@ -8,6 +8,7 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.Util;
+import hudson.maven.ModuleName;
 import hudson.maven.MavenBuild;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
@@ -32,6 +33,7 @@ import jenkins.model.Jenkins;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 
 import com.rits.cloning.Cloner;
@@ -47,9 +49,7 @@ public class PluginUtilities {
 	 * Dependency filter.
 	 */
 	public static interface DependencyMatcher {
-
 		boolean isMatch(Dependency dependency);
-
 	}
 
 	/**
@@ -122,6 +122,13 @@ public class PluginUtilities {
 	}
 
 	/**
+	 * Version contains some ${expression}.
+	 */
+	public static boolean isExpression(final String version) {
+		return version.contains("${") && version.contains("}");
+	}
+
+	/**
 	 * Build originated by layout action.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -165,8 +172,16 @@ public class PluginUtilities {
 	/**
 	 * Maven job version looks like snapshot.
 	 */
-	public static boolean isSnapshot(final MavenModule job) throws Exception {
-		return isSnapshot(job.getVersion());
+	public static boolean isSnapshot(final MavenModule project)
+			throws Exception {
+		return isSnapshot(project.getVersion());
+	}
+
+	/**
+	 * Maven model version looks like snapshot.
+	 */
+	public static boolean isSnapshot(final Model model) throws Exception {
+		return isSnapshot(model.getVersion());
 	}
 
 	/**
@@ -177,12 +192,22 @@ public class PluginUtilities {
 	}
 
 	/**
+	 * Parent version looks like snapshot.
+	 */
+	public static boolean isSnapshot(final Parent parent) {
+		return isSnapshot(parent.getVersion());
+	}
+
+	/**
 	 * Version looks like snapshot.
 	 */
 	public static boolean isSnapshot(final String version) {
 		return version.endsWith("SNAPSHOT");
 	}
 
+	/**
+	 * Collect matching dependencies form a pom.xml file.
+	 */
 	public static List<Dependency> mavenDependencies(final File pomFile,
 			final DependencyMatcher matcher) throws Exception {
 
@@ -210,13 +235,7 @@ public class PluginUtilities {
 	public static List<Dependency> mavenDependencies(final MavenModule module,
 			final DependencyMatcher matcher) throws Exception {
 
-		final File rootDir = module.getParent().getRootDir();
-
-		final File projectDir = new File(rootDir, module.getRelativePath());
-
-		final File pomFile = new File(projectDir, "pom.xml");
-
-		return mavenDependencies(pomFile, matcher);
+		return mavenDependencies(mavenPomFile(module), matcher);
 
 	}
 
@@ -227,11 +246,7 @@ public class PluginUtilities {
 			final MavenModuleSet project, final DependencyMatcher matcher)
 			throws Exception {
 
-		final String pomPath = project.getRootPOM(null);
-
-		final File pomFile = new File(pomPath);
-
-		return mavenDependencies(pomFile, matcher);
+		return mavenDependencies(mavenPomFile(project), matcher);
 
 	}
 
@@ -247,6 +262,19 @@ public class PluginUtilities {
 		final Model model = xmlReader.read(fileReader);
 
 		return model;
+
+	}
+
+	public static Model mavenModel(final MavenModuleSet project)
+			throws Exception {
+
+		return mavenModel(mavenPomFile(project));
+
+	}
+
+	public static Model mavenModel(final MavenModule module) throws Exception {
+
+		return mavenModel(mavenPomFile(module));
 
 	}
 
@@ -289,6 +317,46 @@ public class PluginUtilities {
 	}
 
 	/**
+	 * Extract maven parent form a pom.xml file.
+	 */
+	public static Parent mavenParent(final File pomFile) throws Exception {
+
+		final Model model = mavenModel(pomFile);
+
+		final Parent parent = model.getParent();
+
+		return parent;
+
+	}
+
+	/**
+	 * Module pom.xml file.
+	 */
+	public static File mavenPomFile(final MavenModule module) {
+
+		final File rootDir = module.getParent().getRootDir();
+
+		final File projectDir = new File(rootDir, module.getRelativePath());
+
+		final File pomFile = new File(projectDir, "pom.xml");
+
+		return pomFile;
+
+	}
+
+	/**
+	 * Project pom.xml file.
+	 */
+	public static File mavenPomFile(final MavenModuleSet project) {
+
+		final String pomPath = project.getRootPOM(null);
+
+		final File pomFile = new File(pomPath);
+
+		return pomFile;
+	}
+
+	/**
 	 * Find all top level maven jenkins jobs.
 	 */
 	public static List<MavenModuleSet> mavenProjectList() {
@@ -303,6 +371,29 @@ public class PluginUtilities {
 
 		return projectList;
 
+	}
+
+	/**
+	 * Find top level maven jenkins job with a module name.
+	 */
+	public static MavenModuleSet mavenProject(final ModuleName moduleName) {
+		for (final MavenModuleSet project : mavenProjectList()) {
+			if (project.getRootModule().getModuleName().equals(moduleName)) {
+				return project;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Find top level maven jenkins job with a project name.
+	 */
+	public static MavenModuleSet mavenProject(final String projectName) {
+		final TopLevelItem item = Jenkins.getInstance().getItem(projectName);
+		if (item instanceof MavenModuleSet) {
+			return (MavenModuleSet) item;
+		}
+		return null;
 	}
 
 	/**
@@ -339,6 +430,15 @@ public class PluginUtilities {
 	}
 
 	private PluginUtilities() {
+	}
+
+	public static ModuleName moduleName(final Parent parent) {
+		return new ModuleName(parent.getGroupId(), parent.getArtifactId());
+	}
+
+	public static ModuleName moduleName(final Dependency dependency) {
+		return new ModuleName(dependency.getGroupId(),
+				dependency.getArtifactId());
 	}
 
 }

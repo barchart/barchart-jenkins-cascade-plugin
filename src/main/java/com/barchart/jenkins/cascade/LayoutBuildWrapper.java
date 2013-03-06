@@ -169,7 +169,8 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			final BuildListener listener //
 	) throws IOException {
 
-		final BuildContext context = new BuildContext(build, launcher, listener);
+		final BuildContext<AbstractBuild> context = new BuildContext<AbstractBuild>(
+				build, listener);
 
 		if (isLayoutBuild(build)) {
 
