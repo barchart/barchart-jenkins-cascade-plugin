@@ -19,19 +19,40 @@ import hudson.util.ArgumentListBuilder;
 public class MavenInterceptorAction extends AdapterAction implements
 		MavenArgumentInterceptorAction {
 
-	private final String goalsAndOptions;
+	private final StringBuilder text = new StringBuilder();
 
-	public MavenInterceptorAction(final String goalsAndOptions) {
-		this.goalsAndOptions = goalsAndOptions;
+	public MavenInterceptorAction() {
+	}
+
+	public MavenInterceptorAction(final String goals) {
+		text.append(goals);
 	}
 
 	public String getGoalsAndOptions(final MavenModuleSetBuild build) {
-		return goalsAndOptions;
+		return text.toString();
+	}
+
+	/** Append a goal with separators. */
+	public void append(final String goal) {
+		text.append(" ");
+		text.append(goal);
+		text.append(" ");
+	}
+
+	public void append(final String... goalArray) {
+		for (final String goal : goalArray) {
+			append(goal);
+		}
 	}
 
 	public ArgumentListBuilder intercept(final ArgumentListBuilder mavenargs,
 			final MavenModuleSetBuild build) {
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return MavenInterceptorAction.class.getName() + " " + text.toString();
 	}
 
 }
