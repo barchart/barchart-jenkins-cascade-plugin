@@ -9,6 +9,7 @@ package com.barchart.jenkins.cascade;
 
 import hudson.maven.MavenArgumentInterceptorAction;
 import hudson.maven.MavenModuleSetBuild;
+import hudson.model.InvisibleAction;
 import hudson.util.ArgumentListBuilder;
 
 /**
@@ -16,15 +17,15 @@ import hudson.util.ArgumentListBuilder;
  * 
  * @author Andrei Pozolotin
  */
-public class MavenInterceptorAction extends AdapterAction implements
+public class MavenGoalsAction extends InvisibleAction implements
 		MavenArgumentInterceptorAction {
 
 	private final StringBuilder text = new StringBuilder();
 
-	public MavenInterceptorAction() {
+	public MavenGoalsAction() {
 	}
 
-	public MavenInterceptorAction(final String goals) {
+	public MavenGoalsAction(final String goals) {
 		text.append(goals);
 	}
 
@@ -34,7 +35,6 @@ public class MavenInterceptorAction extends AdapterAction implements
 
 	/** Append a goal with separators. */
 	public void append(final String goal) {
-		text.append(" ");
 		text.append(goal);
 		text.append(" ");
 	}
@@ -52,7 +52,7 @@ public class MavenInterceptorAction extends AdapterAction implements
 
 	@Override
 	public String toString() {
-		return MavenInterceptorAction.class.getName() + " " + text.toString();
+		return text.toString();
 	}
 
 }

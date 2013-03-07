@@ -60,8 +60,6 @@ public class MavenTokenMacro extends DataBoundTokenMacro {
 			final TaskListener listener, final String macroName)
 			throws MacroEvaluationException, IOException, InterruptedException {
 
-		final PluginLogger log = new PluginLogger(listener);
-
 		final MavenModule module = PluginUtilities.mavenModule(build);
 
 		if (module == null) {

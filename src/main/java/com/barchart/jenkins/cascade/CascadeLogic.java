@@ -19,6 +19,7 @@ import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.queue.QueueTaskFuture;
+import hudson.plugins.git.GitSCM;
 import hudson.scm.SCM;
 
 import java.io.File;
@@ -90,6 +91,23 @@ public class CascadeLogic {
 		return action.getCascadeName();
 	}
 
+	public static boolean checkin(final BuildContext context,
+			final MavenModuleSet project) throws Exception {
+
+		final SCM scm = project.getScm();
+
+		if (scm instanceof GitSCM) {
+
+			final GitSCM gitScm = (GitSCM) scm;
+
+			final String gitExe = gitScm.getGitExe(
+					context.build().getBuiltOn(), context.listener());
+
+		}
+
+		return false;
+	}
+
 	public static boolean checkout(final BuildContext context,
 			final MavenModuleSet project) throws Exception {
 
@@ -130,7 +148,13 @@ public class CascadeLogic {
 	public static void logActions(final BuildContext<CascadeBuild> context,
 			final List<Action> actionList) {
 		for (final Action action : actionList) {
-			context.log("\t" + action);
+			final String text = action.toString();
+			context.log("\t" + action.getClass().getName());
+			context.log("\t\t" + action.toString());
+			// final String[] termArray = text.split("\\s+");
+			// for (final String term : termArray) {
+			// context.log("\t\t" + term.trim());
+			// }
 		}
 	}
 
@@ -143,7 +167,7 @@ public class CascadeLogic {
 
 	public static List<Action> mavenAnyGoals(final String... options) {
 		final List<Action> list = new ArrayList<Action>();
-		final MavenInterceptorAction goals = new MavenInterceptorAction();
+		final MavenGoalsAction goals = new MavenGoalsAction();
 		goals.append(options);
 		list.add(goals);
 		return list;
@@ -151,69 +175,13 @@ public class CascadeLogic {
 	}
 
 	public static List<Action> mavenCheckinGoals(final String... options) {
-		final List<Action> list = new ArrayList<Action>();
-		final MavenInterceptorAction goals = new MavenInterceptorAction();
+		final MavenGoalsAction goals = new MavenGoalsAction();
 		goals.append(SCM_CHECKIN);
 		goals.append(options);
-		list.add(goals);
-		return list;
-	}
-
-	public static List<Action> mavenDependencyGoals(final String... options) {
 		final List<Action> list = new ArrayList<Action>();
-		final MavenInterceptorAction goals = new MavenInterceptorAction();
-		goals.append(VERSION_DEPENDENCY);
-		goals.append(options);
+		list.add(new CheckoutSkipAction());
 		list.add(goals);
 		return list;
-	}
-
-	public static List<Action> mavenParentGoals(final String... options) {
-		final List<Action> list = new ArrayList<Action>();
-		final MavenInterceptorAction goals = new MavenInterceptorAction();
-		goals.append(VERSION_PARENT);
-		goals.append(options);
-		list.add(goals);
-		return list;
-	}
-
-	public static List<Action> mavenReleaseGoals(final String... options) {
-		final List<Action> list = new ArrayList<Action>();
-		final MavenInterceptorAction goals = new MavenInterceptorAction();
-		goals.append(RELEASE);
-		goals.append(options);
-		list.add(goals);
-		return list;
-	}
-
-	public static List<Action> mavenValidateGoals(final String... options) {
-		final List<Action> list = new ArrayList<Action>();
-		final MavenInterceptorAction goals = new MavenInterceptorAction();
-		goals.append(VALIDATE);
-		goals.append(options);
-		list.add(goals);
-		return list;
-	}
-
-	public static String memberProjectName(
-			final BuildContext<CascadeBuild> context) {
-		final CascadeBuild build = context.build();
-		final MemberBuildAction action = build
-				.getAction(MemberBuildAction.class);
-		return action.getMemberName();
-	}
-
-	/**
-	 * Update parent version only up from snapshot.
-	 * 
-	 * See <a href=
-	 * "http://mojo.codehaus.org/versions-maven-plugin/update-parent-mojo.html#parentVersion"
-	 * >parentVersion</a>
-	 */
-	public static String mavenParentFilter(final Parent item) {
-		String version = item.getVersion();
-		version = version.replaceAll(SNAPSHOT, "");
-		return "--define parentVersion=[" + version + ",)";
 	}
 
 	/**
@@ -253,6 +221,65 @@ public class CascadeLogic {
 		return "--define includes=" + text;
 	}
 
+	public static List<Action> mavenDependencyGoals(final String... options) {
+		final MavenGoalsAction goals = new MavenGoalsAction();
+		goals.append(VERSION_DEPENDENCY);
+		goals.append(options);
+		final List<Action> list = new ArrayList<Action>();
+		list.add(new CheckoutSkipAction());
+		list.add(goals);
+		return list;
+	}
+
+	/**
+	 * Update parent version only up from snapshot.
+	 * 
+	 * See <a href=
+	 * "http://mojo.codehaus.org/versions-maven-plugin/update-parent-mojo.html#parentVersion"
+	 * >parentVersion</a>
+	 */
+	public static String mavenParentFilter(final Parent item) {
+		String version = item.getVersion();
+		version = version.replaceAll(SNAPSHOT, "");
+		return "--define parentVersion=[" + version + ",)";
+	}
+
+	public static List<Action> mavenParentGoals(final String... options) {
+		final MavenGoalsAction goals = new MavenGoalsAction();
+		goals.append(VERSION_PARENT);
+		goals.append(options);
+		final List<Action> list = new ArrayList<Action>();
+		list.add(new CheckoutSkipAction());
+		list.add(goals);
+		return list;
+	}
+
+	public static List<Action> mavenReleaseGoals(final String... options) {
+		final List<Action> list = new ArrayList<Action>();
+		final MavenGoalsAction goals = new MavenGoalsAction();
+		goals.append(RELEASE);
+		goals.append(options);
+		list.add(goals);
+		return list;
+	}
+
+	public static List<Action> mavenValidateGoals(final String... options) {
+		final List<Action> list = new ArrayList<Action>();
+		final MavenGoalsAction goals = new MavenGoalsAction();
+		goals.append(VALIDATE);
+		goals.append(options);
+		list.add(goals);
+		return list;
+	}
+
+	public static String memberProjectName(
+			final BuildContext<CascadeBuild> context) {
+		final CascadeBuild build = context.build();
+		final MemberBuildAction action = build
+				.getAction(MemberBuildAction.class);
+		return action.getMemberName();
+	}
+
 	/**
 	 * Cascade entry point.
 	 */
@@ -281,7 +308,7 @@ public class CascadeLogic {
 
 		final ModuleName memberName = rootModule.getModuleName();
 
-		final Result result = process(context, memberName);
+		final Result result = process(0, context, memberName);
 
 		context.log("Cascade finished: " + result);
 
@@ -292,10 +319,12 @@ public class CascadeLogic {
 	/**
 	 * Recursively release projects.
 	 */
-	public static Result process(final BuildContext<CascadeBuild> context,
+	public static Result process(final int level,
+			final BuildContext<CascadeBuild> context,
 			final ModuleName memberName) throws Exception {
 
-		context.log("---");
+		context.log("");
+		context.log("Level: " + level);
 		context.log("Maven Module: " + memberName);
 
 		final MavenModuleSet memberProject = project(context, memberName);
@@ -343,7 +372,7 @@ public class CascadeLogic {
 				}
 				context.log("Parent needs a release: " + parent);
 				final ModuleName parentName = moduleName(parent);
-				if (isFailure(process(context, parentName))) {
+				if (isFailure(process(level + 1, context, parentName))) {
 					return Result.FAILURE;
 				}
 			}
@@ -401,7 +430,7 @@ public class CascadeLogic {
 				for (final Dependency dependency : snapshots) {
 					context.log("Dependency needs a release: " + dependency);
 					final ModuleName dependencyName = moduleName(dependency);
-					if (isFailure(process(context, dependencyName))) {
+					if (isFailure(process(level + 1, context, dependencyName))) {
 						return Result.FAILURE;
 					}
 				}
@@ -455,26 +484,26 @@ public class CascadeLogic {
 	}
 
 	/**
-	 * Invoke maven build.
+	 * Invoke module maven build, wait for completion.
 	 */
 	public static Result process(final BuildContext<CascadeBuild> context,
-			final ModuleName memberName, final List<Action> goals)
+			final ModuleName moduleName, final List<Action> goals)
 			throws Exception {
 
-		context.log("===");
-		context.log("Maven module build: " + memberName);
+		context.log("");
+		context.log("Module name: " + moduleName);
 		logActions(context, goals);
 
-		final MavenModuleSet memberProject = project(context, memberName);
+		final MavenModuleSet project = project(context, moduleName);
 
-		if (memberProject == null) {
+		if (project == null) {
 			context.err("Jenkins project not found.");
 			return Result.FAILURE;
 		}
 
 		final MemberUserCause cause = cascadeCause(context);
 
-		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = memberProject
+		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = project
 				.scheduleBuild2(0, cause, goals);
 
 		final Future<MavenModuleSetBuild> startFuture = buildFuture
@@ -483,7 +512,7 @@ public class CascadeLogic {
 		/** Block till build started. */
 		final MavenModuleSetBuild memberBuild = startFuture.get();
 
-		context.log("Jenkins console: " + memberBuild.getAbsoluteUrl()
+		context.log("Module console: " + memberBuild.getAbsoluteUrl()
 				+ "console");
 
 		/** Block till build complete. */
@@ -491,7 +520,7 @@ public class CascadeLogic {
 
 		final Result result = memberBuild.getResult();
 
-		context.log("Maven module result: " + result);
+		context.log("Module result: " + result);
 
 		return result;
 

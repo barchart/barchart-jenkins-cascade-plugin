@@ -7,12 +7,14 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.model.InvisibleAction;
+
 /**
  * Attach action to the build to record arguments.
  * 
  * @author Andrei Pozolotin
  */
-public class LayoutArgumentsAction extends AdapterAction {
+public class LayoutArgumentsAction extends InvisibleAction {
 
 	public enum ConfigAction {
 

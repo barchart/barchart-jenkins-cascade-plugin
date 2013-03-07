@@ -58,18 +58,10 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		@Override
 		public void post(final BuildListener listener) throws Exception {
 
-			final PluginLogger log = new PluginLogger(listener);
-
-			log.text("POST");
-
 		}
 
 		@Override
 		public void cleanUp(final BuildListener listener) throws Exception {
-
-			final PluginLogger log = new PluginLogger(listener);
-
-			log.text("DONE");
 
 		}
 

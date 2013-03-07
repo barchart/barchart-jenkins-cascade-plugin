@@ -8,6 +8,7 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.model.BuildBadgeAction;
+import hudson.model.InvisibleAction;
 
 /**
  * Member project badge.
@@ -16,7 +17,7 @@ import hudson.model.BuildBadgeAction;
  * 
  * @author Andrei Pozolotin
  */
-public class MemberBadgeAction extends AdapterAction implements
+public class MemberBadgeAction extends InvisibleAction implements
 		BuildBadgeAction {
 
 }

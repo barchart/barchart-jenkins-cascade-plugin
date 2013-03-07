@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jenkins.model.Jenkins;
+import jenkins.scm.SCMCheckoutStrategy;
 
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.joda.time.DateTime;
@@ -321,9 +322,9 @@ public class LayoutLogic {
 
 			}
 
-			context.log("###################################");
-			context.log("WARNING: YOU ARE USING UNTESTED SCM");
-			context.log("###################################");
+			context.err("###################################");
+			context.err("WARNING: YOU ARE USING UNTESTED SCM");
+			context.err("###################################");
 		}
 
 		/** Update Maven paths. */
@@ -378,6 +379,12 @@ public class LayoutLogic {
 			text.append("</b>");
 			text.append("<p>\n");
 			memberProject.setDescription(text.toString());
+		}
+
+		/** Use custom checkout. */
+		{
+			final SCMCheckoutStrategy strategy = new CheckoutStrategySCM();
+			memberProject.setScmCheckoutStrategy(strategy);
 		}
 
 		/** Persist changes. */
