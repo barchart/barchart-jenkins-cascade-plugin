@@ -61,7 +61,7 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 			context.log("Normal checkout.");
 			super.checkout(execution);
 		} else {
-			context.log("Ingoring checkout.");
+			context.log("Ignore checkout.");
 		}
 
 	}

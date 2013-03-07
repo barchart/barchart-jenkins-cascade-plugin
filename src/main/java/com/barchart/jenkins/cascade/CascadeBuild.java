@@ -15,8 +15,6 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Orchestration build.
- * <p>
  * Cascade build. Manages cascade release logic.
  * 
  * @author Andrei Pozolotin
