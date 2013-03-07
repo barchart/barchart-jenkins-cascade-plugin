@@ -7,6 +7,7 @@
  */
 package com.barchart.jenkins.cascade;
 
+
 import hudson.model.Result;
 import hudson.model.Job;
 import hudson.model.PermalinkProjectAction.Permalink;

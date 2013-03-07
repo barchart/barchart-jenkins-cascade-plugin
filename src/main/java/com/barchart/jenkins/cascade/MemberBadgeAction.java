@@ -8,7 +8,6 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.model.BuildBadgeAction;
-import hudson.model.InvisibleAction;
 
 /**
  * Member project badge.
@@ -17,7 +16,12 @@ import hudson.model.InvisibleAction;
  * 
  * @author Andrei Pozolotin
  */
-public class MemberBadgeAction extends InvisibleAction implements
+public class MemberBadgeAction extends AbstractBadgeAction implements
 		BuildBadgeAction {
+
+	@Override
+	public String getIconFileName() {
+		return "game-spades.png";
+	}
 
 }

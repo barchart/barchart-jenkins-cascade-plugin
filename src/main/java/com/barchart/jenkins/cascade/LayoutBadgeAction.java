@@ -8,14 +8,18 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.model.BuildBadgeAction;
-import hudson.model.InvisibleAction;
 
 /**
  * Attach action to build to display a layout build icon in build history.
  * 
  * @author Andrei Pozolotin
  */
-public class LayoutBadgeAction extends InvisibleAction implements
+public class LayoutBadgeAction extends AbstractBadgeAction implements
 		BuildBadgeAction {
+
+	@Override
+	public String getIconFileName() {
+		return "game-hearts.png";
+	}
 
 }
