@@ -38,7 +38,11 @@ public class CascadeLogic {
 
 	static final String RELEASE = "release:prepare release:perform --define localCheckout=true --define resume=false";
 
-	static final String SCM_CHECKIN = "scm:checkin --define includes=**/pom.xml --define message=cascade";
+	/**
+	 * <p>
+	 * Do not use wildcards.
+	 */
+	static final String SCM_CHECKIN = "scm:checkin --define includes=pom.xml --define message=cascade";
 
 	static final String SCM_CHECKOUT = "scm:checkout";
 
@@ -46,10 +50,15 @@ public class CascadeLogic {
 
 	static final String VALIDATE = "validate";
 
+	/**
+	 * needs include filter
+	 */
 	static final String VERSION_DEPENDENCY = "versions:use-latest-versions "
-			+ " --define  excludeReactor=false";
-	// "versions:use-releases"
-	// " --define allowMajorUpdates=false --define allowMinorUpdates=false --define allowIncrementalUpdates=true";
+			+ "--define generateBackupPoms=false "
+			+ "--define excludeReactor=false "
+			+ "--define allowMajorUpdates=false "
+			+ "--define allowMinorUpdates=false "
+			+ "--define allowIncrementalUpdates=true ";
 
 	/**
 	 * <pre>
@@ -63,7 +72,8 @@ public class CascadeLogic {
 	 * will either use 1.0.26+ or will keep SNAPSHOT
 	 * </pre>
 	 */
-	static final String VERSION_PARENT = "versions:update-parent";
+	static final String VERSION_PARENT = "versions:update-parent"
+			+ "--define generateBackupPoms=false ";
 
 	public static MemberUserCause cascadeCause(
 			final BuildContext<CascadeBuild> context) {
@@ -135,16 +145,26 @@ public class CascadeLogic {
 		final List<Action> list = new ArrayList<Action>();
 		final MavenInterceptorAction goals = new MavenInterceptorAction();
 		goals.append(options);
+		list.add(goals);
 		return list;
 
+	}
+
+	public static List<Action> mavenCheckinGoals(final String... options) {
+		final List<Action> list = new ArrayList<Action>();
+		final MavenInterceptorAction goals = new MavenInterceptorAction();
+		goals.append(SCM_CHECKIN);
+		goals.append(options);
+		list.add(goals);
+		return list;
 	}
 
 	public static List<Action> mavenDependencyGoals(final String... options) {
 		final List<Action> list = new ArrayList<Action>();
 		final MavenInterceptorAction goals = new MavenInterceptorAction();
 		goals.append(VERSION_DEPENDENCY);
-		goals.append(SCM_CHECKIN);
 		goals.append(options);
+		list.add(goals);
 		return list;
 	}
 
@@ -152,11 +172,9 @@ public class CascadeLogic {
 		final List<Action> list = new ArrayList<Action>();
 		final MavenInterceptorAction goals = new MavenInterceptorAction();
 		goals.append(VERSION_PARENT);
-		goals.append(SCM_CHECKIN);
 		goals.append(options);
 		list.add(goals);
 		return list;
-
 	}
 
 	public static List<Action> mavenReleaseGoals(final String... options) {
@@ -185,10 +203,54 @@ public class CascadeLogic {
 		return action.getMemberName();
 	}
 
-	public static String parentVersion(final Parent parent) {
-		String version = parent.getVersion();
+	/**
+	 * Update parent version only up from snapshot.
+	 * 
+	 * See <a href=
+	 * "http://mojo.codehaus.org/versions-maven-plugin/update-parent-mojo.html#parentVersion"
+	 * >parentVersion</a>
+	 */
+	public static String mavenParentFilter(final Parent item) {
+		String version = item.getVersion();
 		version = version.replaceAll(SNAPSHOT, "");
 		return "--define parentVersion=[" + version + ",)";
+	}
+
+	/**
+	 * Update selected dependency only.
+	 * 
+	 * See <a href=
+	 * "http://mojo.codehaus.org/versions-maven-plugin/use-latest-versions-mojo.html#includesList"
+	 * >includesList</a>
+	 */
+	public static String mavenDependencyFilter(final Dependency item) {
+		final String groupId = item.getGroupId();
+		final String artifactId = item.getArtifactId();
+		final String expression = groupId + ":" + artifactId;
+		return "--define includes=" + expression;
+	}
+
+	/**
+	 * Update selected dependency only.
+	 * 
+	 * See <a href=
+	 * "http://mojo.codehaus.org/versions-maven-plugin/use-latest-versions-mojo.html#includesList"
+	 * >includesList</a>
+	 */
+	public static String mavenDependencyFilter(final List<Dependency> list) {
+		final StringBuilder text = new StringBuilder();
+		for (final Dependency item : list) {
+			final String groupId = item.getGroupId();
+			final String artifactId = item.getArtifactId();
+			final String expression = groupId + ":" + artifactId;
+			if (text.length() == 0) {
+				text.append(expression);
+			} else {
+				text.append(",");
+				text.append(expression);
+			}
+		}
+		return "--define includes=" + text;
 	}
 
 	/**
@@ -245,10 +307,8 @@ public class CascadeLogic {
 
 		context.log("Jenkins project: " + memberProject.getAbsoluteUrl());
 
-		/** Update jenkins/maven module state. */
-		CHECKOUT: {
-			process(context, memberName, mavenValidateGoals());
-		}
+		/** Update jenkins/maven module metadata. */
+		process(context, memberName, mavenValidateGoals());
 
 		if (isRelease(mavenModel(memberProject))) {
 			context.err("Project is a release.");
@@ -270,7 +330,7 @@ public class CascadeLogic {
 				}
 				context.log("Parent needs an update: " + parent);
 				if (isFailure(process(context, memberName,
-						mavenParentGoals(parentVersion(parent))))) {
+						mavenParentGoals(mavenParentFilter(parent))))) {
 					return Result.FAILURE;
 				}
 			}
@@ -296,7 +356,7 @@ public class CascadeLogic {
 				}
 				context.log("Parent needs a refresh: " + parent);
 				if (isFailure(process(context, memberName,
-						mavenParentGoals(parentVersion(parent))))) {
+						mavenParentGoals(mavenParentFilter(parent))))) {
 					return Result.FAILURE;
 				}
 			}
@@ -326,7 +386,7 @@ public class CascadeLogic {
 				context.log("Dependency needs an update: " + snapshots.size());
 				logDependency(context, snapshots);
 				if (isFailure(process(context, memberName,
-						mavenDependencyGoals()))) {
+						mavenDependencyGoals(mavenDependencyFilter(snapshots))))) {
 					return Result.FAILURE;
 				}
 			}
@@ -357,7 +417,7 @@ public class CascadeLogic {
 				context.log("Dependency needs a refresh: " + snapshots.size());
 				logDependency(context, snapshots);
 				if (isFailure(process(context, memberName,
-						mavenDependencyGoals()))) {
+						mavenDependencyGoals(mavenDependencyFilter(snapshots))))) {
 					return Result.FAILURE;
 				}
 			}
@@ -375,6 +435,9 @@ public class CascadeLogic {
 			}
 
 		}
+
+		/** Publish pom.xml changes, if any. */
+		process(context, memberName, mavenCheckinGoals());
 
 		/** Process artifact. */
 		{
