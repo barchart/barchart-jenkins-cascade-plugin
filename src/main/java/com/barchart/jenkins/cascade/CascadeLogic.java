@@ -498,7 +498,7 @@ public class CascadeLogic {
 
 		}
 
-		context.log("Commit project pom.xml changes.");
+		context.log("Commit pom.xml changes.");
 		if (isFailure(process(context, moduleName, mavenCommitGoals()))) {
 			return Result.FAILURE;
 		}
