@@ -84,7 +84,7 @@ public class CascadeLogic {
 	/**
 	 * Maven parent version update goals.
 	 */
-	static final String VERSION_PARENT = "versions:update-parent"
+	static final String VERSION_PARENT = "versions:update-parent "
 			+ "--define generateBackupPoms=false ";
 
 	public static MemberUserCause cascadeCause(
