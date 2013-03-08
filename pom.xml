@@ -21,12 +21,13 @@
 	</parent>
 
 	<groupId>com.barchart.jenkins</groupId>
-	<artifactId>maven-release-cascade</artifactId>
+	<artifactId>maven-release-cascade-plugin</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 
 	<name>Maven Cascade Release Plugin</name>
 	<description>Configure and perform maven release cascade</description>
+	<url>https://wiki.jenkins-ci.org/display/JENKINS/Maven+Cascade+Release+Plugin</url>
 
 	<!-- Founding organization. -->
 	<organization>
