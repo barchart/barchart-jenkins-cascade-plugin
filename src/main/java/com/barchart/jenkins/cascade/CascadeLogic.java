@@ -52,7 +52,7 @@ public class CascadeLogic {
 	 */
 	static final String SCM_CHECKIN = "scm:checkin "
 			+ "--define includes=pom.xml " //
-			+ "--define message=[cascade-update]" //
+			+ "--define message=[cascade-update] " //
 	;
 
 	/**
@@ -62,7 +62,7 @@ public class CascadeLogic {
 	 * git checkout
 	 * </pre>
 	 */
-	static final String SCM_CHECKOUT = "scm:checkout";
+	static final String SCM_CHECKOUT = "scm:checkout ";
 
 	/**
 	 * Perform SCM:
@@ -71,12 +71,12 @@ public class CascadeLogic {
 	 * git pull
 	 * </pre>
 	 */
-	static final String SCM_UPDATE = "scm:update";
+	static final String SCM_UPDATE = "scm:update ";
 
 	/**
 	 * Perform maven validation.
 	 */
-	static final String VALIDATE = "validate";
+	static final String VALIDATE = "validate ";
 
 	/**
 	 * Maven dependency version update goals.
