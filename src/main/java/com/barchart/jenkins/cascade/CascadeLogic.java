@@ -52,7 +52,7 @@ public class CascadeLogic {
 	 */
 	static final String SCM_CHECKIN = "scm:checkin "
 			+ "--define includes=pom.xml " //
-			+ "--define message=cascade" //
+			+ "--define message=[cascade-update]" //
 	;
 
 	/**
