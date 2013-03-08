@@ -15,10 +15,10 @@
 	xmlns:f="/lib/form">
 
 	<j:set var="help"
-		value="/plugin/barchart-jenkins-cascade-plugin/help/CascadeBuildAction" />
+		value="/plugin/maven-release-cascade/help/CascadeBuildAction" />
 
 	<j:set var="images"
-		value="/plugin/barchart-jenkins-cascade-plugin/images" />
+		value="/plugin/maven-release-cascade/images" />
 
 	<l:layout norefresh="true">
 

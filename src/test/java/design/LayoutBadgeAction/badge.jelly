@@ -9,7 +9,7 @@
 -->
 <j:jelly xmlns:j="jelly:core">
 
-	<j:set var="plugin" value="/plugin/barchart-jenkins-cascade-plugin" />
+	<j:set var="plugin" value="/plugin/maven-release-cascade" />
 	<j:set var="images" value="${plugin}/images" />
 
 	<img title="Cascade Layout" width="16" height="16"

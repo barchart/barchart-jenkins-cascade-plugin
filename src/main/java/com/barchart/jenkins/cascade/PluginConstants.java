@@ -16,8 +16,9 @@ public interface PluginConstants {
 
 	/* Plugin */
 
-	String PLUGIN_NAME = "Barchart Cascade Release Plugin";
-	String PLUGIN_URL = "/plugin/barchart-jenkins-cascade-plugin";
+	String PLUGIN_ARTIFACT = "maven-release-cascade";
+	String PLUGIN_NAME = "Maven Cascade Release Plugin";
+	String PLUGIN_URL = "/plugin/" + PLUGIN_ARTIFACT;
 
 	/* Cascade project. */
 	String CASCADE_PROJECT_PRONOUN = "Cascade";
@@ -26,14 +27,14 @@ public interface PluginConstants {
 	/* Layout project. */
 
 	String LAYOUT_ACTION_NAME = "Cascade Layout";
-	String LAYOUT_ACTION_URL = "barchart-cascade-layout";
 	String LAYOUT_ACTION_ICON = PLUGIN_URL + "/images/48x48/monkey.png";
+	String LAYOUT_ACTION_URL = "cascade-layout";
 
 	/* Member projects. */
 
 	String MEMBER_ACTION_NAME = "Cascade Release";
-	String MEMBER_ACTION_URL = "barchart-cascade-release";
 	String MEMBER_ACTION_ICON = PLUGIN_URL + "/images/48x48/dragon.png";
+	String MEMBER_ACTION_URL = "cascade-release";
 
 	String LOGGER_PREFIX = "[CASCADE]";
 
