@@ -302,7 +302,7 @@ public class CascadeLogic {
 			final ModuleName moduleName, final List<Action> goals)
 			throws Exception {
 
-		context.log("=> module: " + moduleName);
+		context.log("\n" + "module: " + moduleName);
 		logActions(context, goals);
 
 		final MavenModuleSet project = project(context, moduleName);
@@ -323,14 +323,15 @@ public class CascadeLogic {
 		/** Block till build started. */
 		final MavenModuleSetBuild moduleBuild = startFuture.get();
 
-		context.log("=> console: " + moduleBuild.getAbsoluteUrl() + "console");
+		context.log("\t" + "console: " + moduleBuild.getAbsoluteUrl()
+				+ "console");
 
 		/** Block till build complete. */
 		buildFuture.get();
 
 		final Result result = moduleBuild.getResult();
 
-		context.log("=> result: " + result);
+		context.log("\n" + "result: " + result);
 
 		return result;
 
