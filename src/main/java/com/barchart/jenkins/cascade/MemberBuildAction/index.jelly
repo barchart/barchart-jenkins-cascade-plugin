@@ -33,8 +33,14 @@
 
 				<f:section title="Perform Cascade Project Release">
 
-					<f:entry title="Test">
-						<f:textbox name="test" value="test" />
+					<f:entry title="Cascade Project">
+						<f:textbox value="${it.cascadeName}" disabled="true" />
+					</f:entry>
+					<f:entry title="Layout Project">
+						<f:textbox value="${it.layoutName}" disabled="true" />
+					</f:entry>
+					<f:entry title="Member Project">
+						<f:textbox value="${it.memberName}" disabled="true" />
 					</f:entry>
 
 				</f:section>
