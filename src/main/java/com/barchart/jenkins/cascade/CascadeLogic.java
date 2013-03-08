@@ -33,7 +33,11 @@ public class CascadeLogic {
 	/**
 	 * Perform maven release.
 	 */
-	static final String RELEASE = "release:prepare release:perform --define localCheckout=true --define resume=false";
+	static final String RELEASE = "release:prepare release:perform "
+			+ "--define localCheckout=true " //
+			+ "--define arguments=\"-DskipTests\" " //
+			+ "--define resume=false " //
+	;
 
 	/**
 	 * Perform SCM:
@@ -44,9 +48,12 @@ public class CascadeLogic {
 	 * git push
 	 * </pre>
 	 * 
-	 * Do not use wildcards in SCM.
+	 * Use only specific files in "includes".
 	 */
-	static final String SCM_CHECKIN = "scm:checkin --define includes=pom.xml --define message=cascade";
+	static final String SCM_CHECKIN = "scm:checkin "
+			+ "--define includes=pom.xml " //
+			+ "--define message=cascade" //
+	;
 
 	/**
 	 * Perform SCM:
@@ -75,11 +82,12 @@ public class CascadeLogic {
 	 * Maven dependency version update goals.
 	 */
 	static final String VERSION_DEPENDENCY = "versions:use-latest-versions "
-			+ "--define generateBackupPoms=false "
-			+ "--define excludeReactor=false "
-			+ "--define allowMajorUpdates=false "
-			+ "--define allowMinorUpdates=false "
-			+ "--define allowIncrementalUpdates=true ";
+			+ "--define generateBackupPoms=false " //
+			+ "--define excludeReactor=false " //
+			+ "--define allowMajorUpdates=false " //
+			+ "--define allowMinorUpdates=false " //
+			+ "--define allowIncrementalUpdates=true " //
+	;
 
 	/**
 	 * Maven parent version update goals.
