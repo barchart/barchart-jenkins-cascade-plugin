@@ -35,11 +35,19 @@
 
 					<f:entry title="Choose Action" field="configAction"
 						help="${help}/configAction.jelly">
-						<select name="configAction">
-							<option value="create">Create Projects</option>
-							<option value="delete">Delete Projects</option>
-							<option value="update">Update Projects</option>
-						</select>
+						<p/>
+						<f:radio name="configAction" title="Create Projects"
+							value="create" checked="true">
+						</f:radio>
+						<p/>
+						<f:radio name="configAction" title="Delete Projects"
+							value="delete" checked="false">
+						</f:radio>
+						<p/>
+						<f:radio name="configAction" title="Update Projects"
+							value="update" checked="false">
+						</f:radio>
+						<p/>
 					</f:entry>
 
 					<tr>
