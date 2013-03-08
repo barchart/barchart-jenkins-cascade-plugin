@@ -135,7 +135,7 @@ public class LayoutLogic {
 		final String cascadeName = cascadeName(context, layoutProject);
 
 		context.log("");
-		context.log("Root project: " + layoutName);
+		context.log("Layout project: " + layoutName);
 		context.log("Cascade project: " + cascadeName);
 
 		final MemberProjectProperty layoutProperty = new MemberProjectProperty(
@@ -244,7 +244,7 @@ public class LayoutLogic {
 			 */
 			final String memberName = memberName(context, layoutProject, module);
 
-			context.log("---");
+			context.log("");
 			context.log("Module name: " + moduleName);
 			context.log("Project name: " + memberName);
 
