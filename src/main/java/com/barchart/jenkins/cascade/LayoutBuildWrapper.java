@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
-
 /**
  * Layout project.
  * <p>
@@ -178,10 +177,10 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			context.log("Initiate maven validation.");
 
 			/** Attach icon in build history. */
-			build.addAction(new LayoutBadgeAction());
+			build.addAction(new LayoutBadge());
 
 			/** Override maven build goals for validation. */
-			build.addAction(new MavenGoalsAction(getMavenGoals()));
+			build.addAction(new MavenGoalsIntercept(getMavenGoals()));
 
 			return new Environment() {
 				@Override

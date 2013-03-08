@@ -7,17 +7,15 @@
  */
 package com.barchart.jenkins.cascade;
 
-
 /**
- * Action used to skip SCM checkout.
+ * Show icon for a project validation build.
  * 
  * @author Andrei Pozolotin
  */
-public class CheckoutSkipAction extends AbstractAction {
+public class MavenProjectValidateBadge extends AbstractBadge {
 
-	@Override
-	public String toString() {
-		return "Ignore SCM Checkout.";
+	public MavenProjectValidateBadge() {
+		super("Project Validate", "check.png");
 	}
 
 }

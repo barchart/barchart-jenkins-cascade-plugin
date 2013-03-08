@@ -37,8 +37,8 @@ public class LayoutPermalink extends Permalink {
 
 		for (final Run<?, ?> run : job.getBuilds()) {
 
-			final LayoutBadgeAction action = run
-					.getAction(LayoutBadgeAction.class);
+			final LayoutBadge action = run
+					.getAction(LayoutBadge.class);
 
 			if (action != null && run.getResult() == Result.SUCCESS) {
 				return run;

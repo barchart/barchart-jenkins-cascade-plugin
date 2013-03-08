@@ -139,17 +139,16 @@ public class CascadeLogic {
 	}
 
 	/**
-	 * Commit pom.xml
+	 * Commit pom.xml to SCM.
 	 */
 	public static List<Action> mavenCommitGoals(final String... options) {
-		final MavenGoalsAction goals = new MavenGoalsAction();
-		/** Pull */
+		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(SCM_UPDATE);
-		/** Push */
 		goals.append(SCM_CHECKIN);
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
 		list.add(new CheckoutSkipAction());
+		list.add(new MavenCommitBadge());
 		list.add(goals);
 		return list;
 	}
@@ -181,11 +180,12 @@ public class CascadeLogic {
 	 * Update dependency version in pom.xml.
 	 */
 	public static List<Action> mavenDependencyGoals(final String... options) {
-		final MavenGoalsAction goals = new MavenGoalsAction();
+		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(VERSION_DEPENDENCY);
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
 		list.add(new CheckoutSkipAction());
+		list.add(new MavenDependencyUpdateBadge());
 		list.add(goals);
 		return list;
 	}
@@ -207,11 +207,12 @@ public class CascadeLogic {
 	 * Update parent version in pom.xml.
 	 */
 	public static List<Action> mavenParentGoals(final String... options) {
-		final MavenGoalsAction goals = new MavenGoalsAction();
+		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(VERSION_PARENT);
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
 		list.add(new CheckoutSkipAction());
+		list.add(new MavenParentUpdateBadge());
 		list.add(goals);
 		return list;
 	}
@@ -220,10 +221,11 @@ public class CascadeLogic {
 	 * Release maven artifact.
 	 */
 	public static List<Action> mavenReleaseGoals(final String... options) {
-		final List<Action> list = new ArrayList<Action>();
-		final MavenGoalsAction goals = new MavenGoalsAction();
+		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(RELEASE);
 		goals.append(options);
+		final List<Action> list = new ArrayList<Action>();
+		list.add(new MavenProjectReleaseBadge());
 		list.add(goals);
 		return list;
 	}
@@ -232,10 +234,11 @@ public class CascadeLogic {
 	 * Update maven and jenkins metadata.
 	 */
 	public static List<Action> mavenValidateGoals(final String... options) {
-		final List<Action> list = new ArrayList<Action>();
-		final MavenGoalsAction goals = new MavenGoalsAction();
+		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(VALIDATE);
 		goals.append(options);
+		final List<Action> list = new ArrayList<Action>();
+		list.add(new MavenProjectValidateBadge());
 		list.add(goals);
 		return list;
 	}

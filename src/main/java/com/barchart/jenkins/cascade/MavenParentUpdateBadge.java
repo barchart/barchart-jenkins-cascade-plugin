@@ -7,17 +7,15 @@
  */
 package com.barchart.jenkins.cascade;
 
-
 /**
- * Action used to skip SCM checkout.
+ * Show icon for a parent version update build.
  * 
  * @author Andrei Pozolotin
  */
-public class CheckoutSkipAction extends AbstractAction {
+public class MavenParentUpdateBadge extends AbstractBadge {
 
-	@Override
-	public String toString() {
-		return "Ignore SCM Checkout.";
+	public MavenParentUpdateBadge() {
+		super("Parent Update", "game-spades.png");
 	}
 
 }

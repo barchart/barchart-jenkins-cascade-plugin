@@ -7,19 +7,15 @@
  */
 package com.barchart.jenkins.cascade;
 
-import hudson.model.BuildBadgeAction;
-
 /**
- * Attach action to build to display a layout build icon in build history.
+ * Show icon for maven layout change build.
  * 
  * @author Andrei Pozolotin
  */
-public class LayoutBadgeAction extends AbstractBadgeAction implements
-		BuildBadgeAction {
+public class LayoutBadge extends AbstractBadge {
 
-	@Override
-	public String getIconFileName() {
-		return "game-hearts.png";
+	public LayoutBadge() {
+		super("Cascade Layout", "monkey.png");
 	}
 
 }

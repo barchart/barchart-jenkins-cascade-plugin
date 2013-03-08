@@ -69,7 +69,7 @@ public class MemberBuildAction implements Action {
 		final CascadeProject cascadeProject = (CascadeProject) cascadeItem;
 
 		final MemberUserCause cause = new MemberUserCause();
-		final MemberBadgeAction badge = new MemberBadgeAction();
+		final MemberBadge badge = new MemberBadge();
 
 		cascadeProject.scheduleBuild(0, cause, this, badge);
 

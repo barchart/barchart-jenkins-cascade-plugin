@@ -7,17 +7,15 @@
  */
 package com.barchart.jenkins.cascade;
 
-
 /**
- * Action used to skip SCM checkout.
+ * Show icon for a dependency versions update build.
  * 
  * @author Andrei Pozolotin
  */
-public class CheckoutSkipAction extends AbstractAction {
+public class MavenDependencyUpdateBadge extends AbstractBadge {
 
-	@Override
-	public String toString() {
-		return "Ignore SCM Checkout.";
+	public MavenDependencyUpdateBadge() {
+		super("Dependency Update", "game-clubs.png");
 	}
 
 }

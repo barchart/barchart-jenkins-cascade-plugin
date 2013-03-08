@@ -17,15 +17,15 @@ import hudson.util.ArgumentListBuilder;
  * 
  * @author Andrei Pozolotin
  */
-public class MavenGoalsAction extends InvisibleAction implements
+public class MavenGoalsIntercept extends InvisibleAction implements
 		MavenArgumentInterceptorAction {
 
 	private final StringBuilder text = new StringBuilder();
 
-	public MavenGoalsAction() {
+	public MavenGoalsIntercept() {
 	}
 
-	public MavenGoalsAction(final String goals) {
+	public MavenGoalsIntercept(final String goals) {
 		text.append(goals);
 	}
 
