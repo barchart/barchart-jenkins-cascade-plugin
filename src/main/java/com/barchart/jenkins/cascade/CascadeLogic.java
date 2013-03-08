@@ -67,7 +67,7 @@ public class CascadeLogic {
 	static final String SCM_UPDATE = "scm:update";
 
 	/**
-	 * Perform maven validateion.
+	 * Perform maven validation.
 	 */
 	static final String VALIDATE = "validate";
 
@@ -288,7 +288,7 @@ public class CascadeLogic {
 	}
 
 	/**
-	 * Build maven module , wait for completion.
+	 * Build maven module, wait for completion.
 	 */
 	public static Result process(final BuildContext<CascadeBuild> context,
 			final ModuleName moduleName, final List<Action> goals)

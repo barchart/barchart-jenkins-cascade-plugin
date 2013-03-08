@@ -174,7 +174,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 		if (isLayoutBuild(build)) {
 
-			context.log("Initiate maven validation.");
+			context.log("Start maven validation.");
 
 			/** Attach icon in build history. */
 			build.addAction(new LayoutBadge());

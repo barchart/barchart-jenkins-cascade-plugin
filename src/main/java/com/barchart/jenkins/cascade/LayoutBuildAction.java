@@ -7,6 +7,7 @@
  */
 package com.barchart.jenkins.cascade;
 
+import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
@@ -97,8 +98,7 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 		final List<ParameterValue> values = new ArrayList<ParameterValue>();
 		final Action parameters = new ParametersAction(values);
 
-		final String configAction = PluginUtilities.httpStringParam(
-				"configAction", params);
+		final String configAction = httpStringParam("configAction", params);
 		final Action arguments = new LayoutArgumentsAction(configAction);
 
 		project.scheduleBuild(0, new LayoutUserCause(), parameters, arguments);

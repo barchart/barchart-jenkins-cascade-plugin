@@ -15,7 +15,7 @@ package com.barchart.jenkins.cascade;
 public class MavenProjectValidateBadge extends AbstractBadge {
 
 	public MavenProjectValidateBadge() {
-		super("Project Validate", "check.png");
+		super("Validate Project", "check.png");
 	}
 
 }
