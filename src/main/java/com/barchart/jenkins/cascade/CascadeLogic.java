@@ -33,7 +33,7 @@ public class CascadeLogic {
 	/**
 	 * Perform maven release.
 	 */
-	static final String RELEASE = "release:prepare release:perform "
+	static final String RELEASE = "release:clean release:prepare release:perform "
 			+ "--define localCheckout=true " //
 			+ "--define arguments=\"-DskipTests\" " //
 			+ "--define resume=false " //

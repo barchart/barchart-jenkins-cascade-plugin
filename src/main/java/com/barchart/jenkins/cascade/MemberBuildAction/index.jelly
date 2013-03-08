@@ -43,6 +43,15 @@
 						<f:textbox value="${it.memberName}" disabled="true" />
 					</f:entry>
 
+					<p />
+
+					<f:entry title="Release Version">
+						<f:textbox value="TODO" />
+					</f:entry>
+					<f:entry title="Development Version">
+						<f:textbox value="TODO" />
+					</f:entry>
+
 				</f:section>
 
 				<tr>

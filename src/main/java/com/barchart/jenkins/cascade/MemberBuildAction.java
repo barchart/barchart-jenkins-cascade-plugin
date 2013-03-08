@@ -26,6 +26,9 @@ public class MemberBuildAction implements Action {
 	final private String layoutName;
 	final private String memberName;
 
+	private String releaseVersion;
+	private String developmentVersion;
+
 	public MemberBuildAction( //
 			final String cascadeName, //
 			final String layoutName, //
@@ -82,6 +85,10 @@ public class MemberBuildAction implements Action {
 		return cascadeName;
 	}
 
+	public String getDevelopmentVersion() {
+		return developmentVersion;
+	}
+
 	public String getDisplayName() {
 		return PluginConstants.MEMBER_ACTION_NAME;
 	}
@@ -96,6 +103,10 @@ public class MemberBuildAction implements Action {
 
 	public String getMemberName() {
 		return memberName;
+	}
+
+	public String getReleaseVersion() {
+		return releaseVersion;
 	}
 
 	public String getUrlName() {
