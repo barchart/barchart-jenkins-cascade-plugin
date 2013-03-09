@@ -31,6 +31,8 @@ import java.util.Set;
 
 import jenkins.model.Jenkins;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
@@ -70,7 +72,7 @@ public class PluginUtilities {
 
 	};
 
-	static final String SNAPSHOT = "-SNAPSHOT";
+	public static final String SNAPSHOT = "-SNAPSHOT";
 
 	/**
 	 * Change known instance field.
@@ -468,6 +470,58 @@ public class PluginUtilities {
 	 */
 	public static String tokenVariable(final String tokenName) {
 		return "${" + tokenName + "}";
+	}
+
+	public static Artifact mavenArtifact(final Parent parent) {
+		return new DefaultArtifact( //
+				parent.getGroupId(), //
+				parent.getArtifactId(), //
+				parent.getVersion(), //
+				null, // scope
+				"pom", // type
+				"", // classifier
+				null // handler
+		);
+	}
+
+	public static Artifact mavenArtifact(final Dependency dependency) {
+		return new DefaultArtifact( //
+				dependency.getGroupId(), //
+				dependency.getArtifactId(), //
+				dependency.getVersion(), //
+				null, // scope
+				dependency.getType(), // type
+				"", // classifier
+				null // handler
+		);
+	}
+
+	public static Artifact mavenArtifact(final Model model) {
+		return new DefaultArtifact( //
+				model.getGroupId(), //
+				model.getArtifactId(), //
+				model.getVersion(), //
+				null, // scope
+				model.getPackaging(), // type
+				"", // classifier
+				null // handler
+		);
+	}
+
+	public static String mavenReleaseVersion(final String version) {
+		if (version.endsWith(SNAPSHOT)) {
+			return version.replaceAll(SNAPSHOT, "");
+		} else {
+			return version;
+		}
+	}
+
+	public static String mavenSnapshotVersion(final String version) {
+		if (version.endsWith(SNAPSHOT)) {
+			return version;
+		} else {
+			return version + SNAPSHOT;
+		}
 	}
 
 	private PluginUtilities() {

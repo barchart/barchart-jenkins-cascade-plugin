@@ -16,9 +16,9 @@ public interface PluginConstants {
 
 	/* Plugin */
 
-	String PLUGIN_ARTIFACT = "maven-release-cascade";
+	String PLUGIN_ID = "maven-release-cascade";
 	String PLUGIN_NAME = "Maven Cascade Release Plugin";
-	String PLUGIN_URL = "/plugin/" + PLUGIN_ARTIFACT;
+	String PLUGIN_URL = "/plugin/" + PLUGIN_ID;
 
 	/* Cascade project. */
 	String CASCADE_PROJECT_PRONOUN = "Cascade";

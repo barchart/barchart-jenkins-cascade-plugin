@@ -14,15 +14,10 @@ import hudson.model.BuildBadgeAction;
  * 
  * @author Andrei Pozolotin
  */
-public class AbstractBadge extends AbstractAction implements
-		BuildBadgeAction {
+public class AbstractBadge extends AbstractAction implements BuildBadgeAction {
 
-	public AbstractBadge() {
-		super();
-	}
-
-	public AbstractBadge(String iconFileName, String displayName) {
-		super(iconFileName, displayName);
+	public AbstractBadge(final String displayName, final String iconFileName) {
+		super(displayName, iconFileName);
 	}
 
 }
