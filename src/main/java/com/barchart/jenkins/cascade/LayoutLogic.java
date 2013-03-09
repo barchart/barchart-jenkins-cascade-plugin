@@ -199,7 +199,7 @@ public class LayoutLogic {
 
 		switch (action.getConfigAction()) {
 		default:
-			context.err("Unexpected config action, ignore: "
+			context.logErr("Unexpected config action, ignore: "
 					+ action.getConfigAction());
 			break;
 		case CREATE:
@@ -298,7 +298,7 @@ public class LayoutLogic {
 
 			switch (action.getConfigAction()) {
 			default:
-				context.err("Unexpected config action, ignore: "
+				context.logErr("Unexpected config action, ignore: "
 						+ action.getConfigAction());
 				break;
 			case CREATE:
@@ -354,9 +354,9 @@ public class LayoutLogic {
 
 			}
 
-			context.err("###################################");
-			context.err("WARNING: YOU ARE USING UNTESTED SCM");
-			context.err("###################################");
+			context.logErr("###################################");
+			context.logErr("WARNING: YOU ARE USING UNTESTED SCM");
+			context.logErr("###################################");
 		}
 
 		/** Update Maven paths. */

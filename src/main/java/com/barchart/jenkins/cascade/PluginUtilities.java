@@ -137,7 +137,7 @@ public class PluginUtilities {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static boolean isLayoutBuild(final AbstractBuild build) {
-		return build.getCause(LayoutUserCause.class) != null;
+		return build.getCause(LayoutBuildCause.class) != null;
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class PluginUtilities {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static boolean isMemberBuild(final AbstractBuild build) {
-		return build.getCause(MemberUserCause.class) != null;
+		return build.getCause(MemberBuildCause.class) != null;
 	}
 
 	/**
@@ -494,6 +494,16 @@ public class PluginUtilities {
 				"", // classifier
 				null // handler
 		);
+	}
+
+	public static void ensureFields(final Model model) {
+		if (model.getGroupId() == null) {
+			final Parent parent = model.getParent();
+			if (parent == null) {
+				return;
+			}
+			model.setGroupId(parent.getGroupId());
+		}
 	}
 
 	public static Artifact mavenArtifact(final Model model) {

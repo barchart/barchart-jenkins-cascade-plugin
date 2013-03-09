@@ -14,14 +14,15 @@ import hudson.maven.MavenModuleSet;
 import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.Result;
+import hudson.model.Actionable;
 import hudson.model.queue.QueueTaskFuture;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 
 /**
@@ -96,10 +97,10 @@ public class CascadeLogic {
 	static final String VERSION_PARENT = "versions:update-parent "
 			+ "--define generateBackupPoms=false ";
 
-	public static MemberUserCause cascadeCause(
+	public static MemberBuildCause cascadeCause(
 			final BuildContext<CascadeBuild> context) {
 		final CascadeBuild build = context.build();
-		final MemberUserCause cause = build.getCause(MemberUserCause.class);
+		final MemberBuildCause cause = build.getCause(MemberBuildCause.class);
 		return cause;
 	}
 
@@ -114,6 +115,10 @@ public class CascadeLogic {
 	public static boolean hasCascadeCause(
 			final BuildContext<CascadeBuild> context) {
 		return null != cascadeCause(context);
+	}
+
+	public static boolean hasReleaseAction(final Actionable item) {
+		return null != item.getAction(MavenProjectReleaseBadge.class);
 	}
 
 	public static boolean isFailure(final Result result) {
@@ -267,8 +272,8 @@ public class CascadeLogic {
 			throws Exception {
 
 		if (!hasCascadeCause(context)) {
-			context.err("Unknown build cause.");
-			context.err("Cascade builds expect invocation form member projects.");
+			context.logErr("Unknown build cause.");
+			context.logErr("Cascade builds expect invocation form member projects.");
 			return Result.NOT_BUILT;
 		}
 
@@ -281,8 +286,8 @@ public class CascadeLogic {
 		final MavenModule rootModule = memberProject.getRootModule();
 
 		if (rootModule == null) {
-			context.err("Maven module undefined.");
-			context.err("This happens when a new project is created but is never built.");
+			context.logErr("Maven module undefined.");
+			context.logErr("This happens when a new project is created but is never built.");
 			return Result.NOT_BUILT;
 		}
 
@@ -307,17 +312,17 @@ public class CascadeLogic {
 			final ModuleName moduleName, final List<Action> goals)
 			throws Exception {
 
-		context.log("\t" + "module: " + moduleName);
+		context.logTab("module: " + moduleName);
 		logActions(context, goals);
 
 		final MavenModuleSet project = project(context, moduleName);
 
 		if (project == null) {
-			context.err("Project not found.");
+			context.logErr("Project not found.");
 			return Result.FAILURE;
 		}
 
-		final MemberUserCause cause = cascadeCause(context);
+		final MemberBuildCause cause = cascadeCause(context);
 
 		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = project
 				.scheduleBuild2(0, cause, goals);
@@ -326,17 +331,20 @@ public class CascadeLogic {
 				.getStartCondition();
 
 		/** Block till build started. */
-		final MavenModuleSetBuild moduleBuild = startFuture.get();
+		final MavenModuleSetBuild build = startFuture.get();
 
-		context.log("\t" + "console: " + moduleBuild.getAbsoluteUrl()
-				+ "console");
+		context.logTab("console: " + build.getAbsoluteUrl() + "console");
 
 		/** Block till build complete. */
 		buildFuture.get();
 
-		final Result result = moduleBuild.getResult();
+		final Result result = build.getResult();
 
-		context.log("\t" + "result: " + result);
+		context.logTab("result: " + result);
+
+		if (isSuccess(result)) {
+			storeBuildResult(context, build);
+		}
 
 		return result;
 
@@ -356,7 +364,7 @@ public class CascadeLogic {
 		final MavenModuleSet project = project(context, moduleName);
 
 		if (project == null) {
-			context.err("Project not found.");
+			context.logErr("Project not found.");
 			return Result.FAILURE;
 		}
 
@@ -369,11 +377,11 @@ public class CascadeLogic {
 
 		context.log("Verify project.");
 		if (isRelease(mavenModel(project))) {
-			context.log("\t" + "Project is a release.");
-			context.err("Please update project version to a snapshot.");
+			context.logTab("Project is a release.");
+			context.logErr("Please update project version to a snapshot.");
 			return Result.FAILURE;
 		} else {
-			context.log("\t" + "Project is a snapshot.");
+			context.logTab("Project is a snapshot.");
 		}
 
 		context.log("Process parent.");
@@ -383,14 +391,14 @@ public class CascadeLogic {
 			{
 				final Parent parent = mavenParent(project);
 				if (parent == null) {
-					context.log("\t" + "Project has no parent.");
+					context.logTab("Project has no parent.");
 					break PARENT;
 				}
 				if (isRelease(parent)) {
-					context.log("\t" + "Parent is a release: " + parent);
+					context.logTab("Parent is a release: " + parent);
 					break PARENT;
 				}
-				context.log("\t" + "Parent needs an update: " + parent);
+				context.logTab("Parent needs an update: " + parent);
 				if (isFailure(process(context, moduleName,
 						mavenParentGoals(mavenParentFilter(parent))))) {
 					return Result.FAILURE;
@@ -401,26 +409,24 @@ public class CascadeLogic {
 			{
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
-					context.log("\t" + "Parent updated: " + parent);
+					context.logTab("Parent updated: " + parent);
 					break PARENT;
 				}
-				context.log("\t" + "Parent needs a release: " + parent);
+				context.logTab("Parent needs a release: " + parent);
 				final ModuleName parentName = moduleName(parent);
 				if (isFailure(process(level + 1, context, parentName))) {
 					return Result.FAILURE;
 				}
-				parent.setVersion(mavenReleaseVersion(parent.getVersion()));
-				context.result(parent);
 			}
 
 			/** Refresh parent after the release. */
 			{
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
-					context.log("\t" + "Parent refreshed: " + parent);
+					context.logTab("Parent refreshed: " + parent);
 					break PARENT;
 				}
-				context.log("\t" + "Parent needs a refresh: " + parent);
+				context.logTab("Parent needs a refresh: " + parent);
 				if (isFailure(process(context, moduleName,
 						mavenParentGoals(mavenParentFilter(parent))))) {
 					return Result.FAILURE;
@@ -431,10 +437,10 @@ public class CascadeLogic {
 			{
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
-					context.log("\t" + "Parent verified: " + parent);
+					context.logTab("Parent verified: " + parent);
 					break PARENT;
 				}
-				context.err("Can not verify parent:" + parent);
+				context.logErr("Can not verify parent:" + parent);
 				return Result.FAILURE;
 			}
 
@@ -448,11 +454,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.log("\t" + "Project has no snapshot dependencies.");
+					context.logTab("Project has no snapshot dependencies.");
 					break DEPENDENCY;
 				}
-				context.log("\t" + "Dependencies need update: "
-						+ snapshots.size());
+				context.logTab("Dependencies need update: " + snapshots.size());
 				logDependency(context, snapshots);
 				if (isFailure(process(context, moduleName,
 						mavenDependencyGoals(mavenDependencyFilter(snapshots))))) {
@@ -465,19 +470,15 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.log("\t" + "Dependencies are updated.");
+					context.logTab("Dependencies are updated.");
 					break DEPENDENCY;
 				}
-				context.log("\t" + "Dependencies need release: "
-						+ snapshots.size());
+				context.logTab("Dependencies need release: " + snapshots.size());
 				for (final Dependency dependency : snapshots) {
 					final ModuleName dependencyName = moduleName(dependency);
 					if (isFailure(process(level + 1, context, dependencyName))) {
 						return Result.FAILURE;
 					}
-					dependency.setVersion(mavenReleaseVersion(dependency
-							.getVersion()));
-					context.result(dependency);
 				}
 			}
 
@@ -486,10 +487,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.log("\t" + "Dependencies are released.");
+					context.logTab("Dependencies are released.");
 					break DEPENDENCY;
 				}
-				context.log("\t" + "Dependencies needs refresh: "
+				context.logTab("Dependencies needs refresh: "
 						+ snapshots.size());
 				logDependency(context, snapshots);
 				if (isFailure(process(context, moduleName,
@@ -503,10 +504,11 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.log("\t" + "Dependencies are verified.");
+					context.logTab("Dependencies are verified.");
 					break DEPENDENCY;
 				}
-				context.err("Failed to verify dependency: " + snapshots.size());
+				context.logErr("Failed to verify dependency: "
+						+ snapshots.size());
 				logDependency(context, snapshots);
 				return Result.FAILURE;
 			}
@@ -521,14 +523,6 @@ public class CascadeLogic {
 		context.log("Release project.");
 		if (isFailure(process(context, moduleName, mavenReleaseGoals()))) {
 			return Result.FAILURE;
-		}
-		{
-			/** FIXME set release version */
-			final Model model = mavenModel(project);
-			if (model.getGroupId() == null) {
-				model.setGroupId(model.getParent().getGroupId());
-			}
-			context.result(mavenArtifact(model));
 		}
 
 		/**
@@ -579,6 +573,41 @@ public class CascadeLogic {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Store build result in the build context.
+	 */
+	public static void storeBuildResult(final BuildContext context,
+			final MavenModuleSetBuild build) throws Exception {
+
+		if (!hasReleaseAction(build)) {
+			return;
+		}
+
+		/** Project which was released. */
+		final MavenModuleSet project = build.getProject();
+
+		/** Relative path of this project in SCM repository. */
+		final String modulePath = project.getRootModule().getRelativePath();
+
+		/** Location of SCM checkout repository during the release. */
+		final String releaseRepo = "target/checkout";
+
+		/** Absolute path of this project during the release. */
+		final String releaseFolder = build.getWorkspace().child(modulePath)
+				.child(releaseRepo).child(modulePath).getRemote();
+
+		/** Maven pom.xml which was released in this build. */
+		final File pomFile = new File(releaseFolder, "pom.xml");
+
+		if (!pomFile.exists()) {
+			context.logErr("Can not locate release result: " + pomFile);
+			return;
+		}
+
+		context.result(mavenModel(pomFile));
+
 	}
 
 	private CascadeLogic() {

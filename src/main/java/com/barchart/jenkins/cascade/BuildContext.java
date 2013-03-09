@@ -15,9 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
 
 /**
  * Build context bean.
@@ -43,11 +41,6 @@ public class BuildContext<B extends AbstractBuild> {
 		return (B) build;
 	}
 
-	/** Log error with plug-in prefix. */
-	public void err(final String text) {
-		listener.error(PluginConstants.LOGGER_PREFIX + " " + text);
-	}
-
 	public BuildListener listener() {
 		return listener;
 	}
@@ -58,6 +51,12 @@ public class BuildContext<B extends AbstractBuild> {
 				.println(PluginConstants.LOGGER_PREFIX + " " + text);
 	}
 
+	/** Log error with plug-in prefix. */
+	public void logErr(final String text) {
+		listener.error(PluginConstants.LOGGER_PREFIX + " " + text);
+	}
+
+	/** Log collected artifact results. */
 	public void logResult(final String title) {
 		log(title);
 		if (resultSet.isEmpty()) {
@@ -69,28 +68,25 @@ public class BuildContext<B extends AbstractBuild> {
 		}
 	}
 
+	/** Log text with plug-in prefix and a tab. */
+	public void logTab(final String text) {
+		log("\t" + text);
+	}
+
+	/** Collected artifact results. */
 	public Set<Artifact> result() {
 		return resultSet;
 	}
 
-	/** Store result. */
+	/** Store artifact result. */
 	public void result(final Artifact artifact) {
 		resultSet.add(artifact);
 	}
 
-	/** Store result. */
-	public void result(final Dependency dependency) {
-		resultSet.add(mavenArtifact(dependency));
-	}
-
-	/** Store result. */
+	/** Store model result. */
 	public void result(final Model model) {
-		resultSet.add(mavenArtifact(model));
-	}
-
-	/** Store result. */
-	public void result(final Parent parent) {
-		resultSet.add(mavenArtifact(parent));
+		ensureFields(model);
+		result(mavenArtifact(model));
 	}
 
 }

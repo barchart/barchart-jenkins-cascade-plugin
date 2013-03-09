@@ -101,7 +101,7 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 		final String configAction = httpStringParam("configAction", params);
 		final Action arguments = new LayoutArgumentsAction(configAction);
 
-		project.scheduleBuild(0, new LayoutUserCause(), parameters, arguments);
+		project.scheduleBuild(0, new LayoutBuildCause(), parameters, arguments);
 
 		response.sendRedirect(request.getContextPath() + '/' + project.getUrl());
 

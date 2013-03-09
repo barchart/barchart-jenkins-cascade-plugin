@@ -9,7 +9,6 @@ package com.barchart.jenkins.cascade;
 
 import hudson.maven.MavenArgumentInterceptorAction;
 import hudson.maven.MavenModuleSetBuild;
-import hudson.model.InvisibleAction;
 import hudson.util.ArgumentListBuilder;
 
 /**
@@ -17,7 +16,7 @@ import hudson.util.ArgumentListBuilder;
  * 
  * @author Andrei Pozolotin
  */
-public class MavenGoalsIntercept extends InvisibleAction implements
+public class MavenGoalsIntercept extends AbstractAction implements
 		MavenArgumentInterceptorAction {
 
 	private final StringBuilder text = new StringBuilder();

@@ -14,6 +14,6 @@ import hudson.model.Cause.UserIdCause;
  * 
  * @author Andrei Pozolotin
  */
-public class MemberUserCause extends UserIdCause {
+public class MemberBuildCause extends UserIdCause {
 
 }
