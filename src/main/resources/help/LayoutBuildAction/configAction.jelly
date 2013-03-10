@@ -8,5 +8,14 @@
 
 -->
 <div>
-	HELLO HELP. 
+	Choose layout configuration action and start layout build.
+	<p />
+	<b>Create</b> - Create new cascade project family, including cascade
+	manager and member projects. Existing projects are not affected.
+	<p />
+	<b>Delete</b> - Delete cascade manager and all member projects. Layout
+	project is not affected.
+	<p />
+	<b>Update</b> - Delete and Create cascade project family. Layout
+	project is not affected.
 </div>

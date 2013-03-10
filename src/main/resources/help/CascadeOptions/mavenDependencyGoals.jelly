@@ -1,0 +1,19 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<div>
+	Maven dependency version update goals.
+	<p />
+	For more information see <a  target="_blank"
+		href="http://mojo.codehaus.org/versions-maven-plugin/">Versions Maven Plugin</a>.
+	<p />
+	<a target="_blank"
+		href="http://mojo.codehaus.org/versions-maven-plugin/examples/advancing-dependency-versions.html">Advancing
+		Dependency Versions</a>
+</div>

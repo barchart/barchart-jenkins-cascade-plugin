@@ -34,8 +34,8 @@ public class MemberBuildActionFactory extends TransientProjectActionFactory {
 
 		final MavenModuleSet memberProject = (MavenModuleSet) project;
 
-		final MemberProjectProperty property = memberProject
-				.getProperty(MemberProjectProperty.class);
+		final MemberProjectProperty property = MemberProjectProperty
+				.property(memberProject);
 
 		if (property == null) {
 			return Collections.emptyList();
@@ -50,11 +50,7 @@ public class MemberBuildActionFactory extends TransientProjectActionFactory {
 			return Collections.emptyList();
 		}
 
-		final MemberBuildAction action = new MemberBuildAction( //
-				property.getCascadeName(), //
-				property.getLayoutName(), //
-				property.getMemberName() //
-		);
+		final MemberBuildAction action = new MemberBuildAction(property);
 
 		return Collections.singleton(action);
 

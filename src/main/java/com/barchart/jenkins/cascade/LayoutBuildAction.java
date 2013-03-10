@@ -107,4 +107,8 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 
 	}
 
+	public LayoutOptions getLayoutOptions() {
+		return LayoutBuildWrapper.wrapper(project).getLayoutOptions();
+	}
+
 }

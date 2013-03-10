@@ -8,9 +8,5 @@
 
 -->
 <div>
-	HELLO HELP. 
-
-	MAVEN_PROJECT_ID
-	MAVEN_GROUP_ID
-	MAVEN_ARTIFACT_ID
+	Name of the jenkins view which will contain all cascade member projects.
 </div>

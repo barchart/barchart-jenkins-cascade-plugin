@@ -1,0 +1,53 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<!--
+	Component configuration page. 
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/maven-release-cascade" />
+	<j:set var="help" value="${plugin}/help/LayoutOptions" />
+	<j:set var="images" value="${plugin}/images" />
+
+	<f:section title="Layout Options" name="${it.NAME}">
+
+		<f:entry help="${help}/section.jelly">
+			<img src="${images}/32x32/monkey.png" alt="" />
+		</f:entry>
+
+		<f:entry title="Validation Goals" field="mavenValidateGoals"
+			help="${help}/mavenValidateGoals.jelly">
+			<f:expandableTextbox
+				value="${h.defaulted(it.mavenValidateGoals,it.MAVEN_VALIDATE_GOALS)}" />
+		</f:entry>
+
+		<f:entry title="Layout View Name" field="layoutViewName"
+			help="${help}/layoutViewName.jelly">
+			<f:textbox
+				value="${h.defaulted(it.layoutViewName,it.LAYOUT_VIEW_NAME)}" />
+		</f:entry>
+
+		<f:entry title="Member Project Name" field="memberProjectName"
+			help="${help}/memberProjectName.jelly">
+			<f:textbox
+				value="${h.defaulted(it.memberProjectName,it.MEMBER_PROJECT_NAME)}" />
+		</f:entry>
+
+		<f:entry title="Cascade Project Name" field="cascadeProjectName"
+			help="${help}/cascadeProjectName.jelly">
+			<f:textbox
+				value="${h.defaulted(it.cascadeProjectName,it.CASCADE_PROJECT_NAME)}" />
+		</f:entry>
+
+	</f:section>
+
+</j:jelly>

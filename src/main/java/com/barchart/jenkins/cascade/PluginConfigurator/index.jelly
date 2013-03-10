@@ -1,0 +1,53 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+
+<!--
+	Global plug-in configuration page. 
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/maven-release-cascade" />
+	<j:set var="help" value="${plugin}/help/PluginConfigurator" />
+	<j:set var="images" value="${plugin}/images" />
+
+	<l:layout permission="${app.READ}" norefresh="true">
+
+		<l:main-panel>
+
+			<h1>
+				<img src="${it.iconFileName}" alt="" />
+				<j:out value="${it.displayName}" />
+			</h1>
+			<h3>
+				<j:out value="${it.description}" />
+			</h3>
+
+			<f:form method="post" action="submit">
+
+				<table>
+					<tr>
+						<st:include it="${it.layoutOptions}" page="config.jelly" />
+					</tr>
+					<tr>
+						<st:include it="${it.cascadeOptions}" page="config.jelly" />
+					</tr>
+				</table>
+
+				<f:submit value="Submit" />
+
+			</f:form>
+
+		</l:main-panel>
+
+	</l:layout>
+
+</j:jelly>

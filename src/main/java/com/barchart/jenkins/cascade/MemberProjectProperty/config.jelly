@@ -15,34 +15,42 @@
 	<j:set var="help" value="${plugin}/help/MemberProjectProperty" />
 	<j:set var="images" value="${plugin}/images" />
 
-	<f:section title="Cascade Release">
+	<!-- 	<j:if test="${instance.isValid()}"> -->
+	<j:if test="true">
 
-		<f:advanced>
+		<f:section title="Cascade Property">
 
-			<f:entry title="This Project Role" field="projectRole"
-				help="${help}/projectRole.jelly">
-				<f:textbox disabled="true"/>
-			</f:entry>
-			
-			<f:entry title="Cascade Project" field="cascadeName"
-				help="${help}/cascadeName.jelly">
-				<f:textbox disabled="true" />
-			</f:entry>
-			
-			<f:entry title="Layout Project" field="layoutName"
-				help="${help}/layoutName.jelly">
-				<f:textbox disabled="true" />
-			</f:entry>
+			<f:advanced>
 
-			<f:entry title="Member Project" field="memberName"
-				help="${help}/memberName.jelly">
-				<f:textbox disabled="true" />
-			</f:entry>
-			
-			<st:include page="configure-advanced.jelly" optional="true" />
+				<f:entry title="Project Role" field="projectRole"
+					help="${help}/projectRole.jelly">
+					<f:textbox disabled="true" />
+				</f:entry>
 
-		</f:advanced>
+				<f:entry title="Cascade UUID" field="cascadeUUID"
+					help="${help}/cascadeUUID.jelly">
+					<f:textbox disabled="true" />
+				</f:entry>
 
-	</f:section>
+				<f:entry title="Cascade Project" field="cascadeName"
+					help="${help}/cascadeName.jelly">
+					<f:textbox disabled="true" />
+				</f:entry>
+
+				<f:entry title="Layout Project" field="layoutName"
+					help="${help}/layoutName.jelly">
+					<f:textbox disabled="true" />
+				</f:entry>
+
+				<f:entry title="Member Project" field="memberName"
+					help="${help}/memberName.jelly">
+					<f:textbox disabled="true" />
+				</f:entry>
+
+			</f:advanced>
+
+		</f:section>
+
+	</j:if>
 
 </j:jelly>

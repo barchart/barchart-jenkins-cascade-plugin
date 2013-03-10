@@ -1,0 +1,25 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<div>
+	Naming convention for <b>cascade management project</b>.
+	<p />
+	The following custom variables are available
+	<p />
+	MAVEN_PROJECT_ID - corresponds to maven
+	${project.groupId}:${project.artifactId}
+	<p />
+	MAVEN_GROUP_ID - corresponds to maven ${project.groupId}
+	<p />
+	MAVEN_ARTIFACT_ID - corresponds to maven ${project.artifactId}
+	<p />
+	As well as<a target="_blank"
+		href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">
+		Standard Jenkins Variables</a>
+</div>

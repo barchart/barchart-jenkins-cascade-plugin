@@ -52,8 +52,8 @@ public class CascadeLogic {
 	 * 
 	 * Use only specific files in "includes".
 	 */
-	static final String SCM_CHECKIN = "scm:checkin "
-			+ "--define includes=pom.xml " //
+	static final String SCM_CHECKIN = //
+	"scm:checkin " + "--define includes=pom.xml " //
 			+ "--define message=[cascade-update] " //
 	;
 
@@ -83,7 +83,8 @@ public class CascadeLogic {
 	/**
 	 * Maven dependency version update goals.
 	 */
-	static final String VERSION_DEPENDENCY = "versions:use-latest-versions "
+	static final String VERSION_DEPENDENCY = //
+	"versions:use-latest-versions " //
 			+ "--define generateBackupPoms=false " //
 			+ "--define excludeReactor=false " //
 			+ "--define allowMajorUpdates=false " //
@@ -94,7 +95,8 @@ public class CascadeLogic {
 	/**
 	 * Maven parent version update goals.
 	 */
-	static final String VERSION_PARENT = "versions:update-parent "
+	static final String VERSION_PARENT = //
+	"versions:update-parent " //
 			+ "--define generateBackupPoms=false ";
 
 	public static MemberBuildCause cascadeCause(
@@ -217,10 +219,20 @@ public class CascadeLogic {
 		return "--define parentVersion=[" + version + ",)";
 	}
 
+	public static CascadeOptions cascadeOptions(
+			final BuildContext<CascadeBuild> context) {
+
+		context.build().getProject();
+
+		return null;
+
+	}
+
 	/**
 	 * Update parent version in pom.xml.
 	 */
-	public static List<Action> mavenParentGoals(final String... options) {
+	public static List<Action> mavenParentGoals(
+			final BuildContext<CascadeBuild> context, final String... options) {
 		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(VERSION_PARENT);
 		goals.append(options);
@@ -315,7 +327,7 @@ public class CascadeLogic {
 		context.logTab("module: " + moduleName);
 		logActions(context, goals);
 
-		final MavenModuleSet project = project(context, moduleName);
+		final MavenModuleSet project = memberProject(context, moduleName);
 
 		if (project == null) {
 			context.logErr("Project not found.");
@@ -361,7 +373,7 @@ public class CascadeLogic {
 		context.log("Level: " + level);
 		context.log("Module: " + moduleName);
 
-		final MavenModuleSet project = project(context, moduleName);
+		final MavenModuleSet project = memberProject(context, moduleName);
 
 		if (project == null) {
 			context.logErr("Project not found.");
@@ -400,7 +412,7 @@ public class CascadeLogic {
 				}
 				context.logTab("Parent needs an update: " + parent);
 				if (isFailure(process(context, moduleName,
-						mavenParentGoals(mavenParentFilter(parent))))) {
+						mavenParentGoals(context, mavenParentFilter(parent))))) {
 					return Result.FAILURE;
 				}
 			}
@@ -428,7 +440,7 @@ public class CascadeLogic {
 				}
 				context.logTab("Parent needs a refresh: " + parent);
 				if (isFailure(process(context, moduleName,
-						mavenParentGoals(mavenParentFilter(parent))))) {
+						mavenParentGoals(context, mavenParentFilter(parent))))) {
 					return Result.FAILURE;
 				}
 			}
@@ -539,23 +551,27 @@ public class CascadeLogic {
 	}
 
 	/**
-	 * Find member project of a cascade.
+	 * Find member project of a cascade based on cascade UUID and module name.
 	 */
-	public static MavenModuleSet project(
+	public static MavenModuleSet memberProject(
 			final BuildContext<CascadeBuild> context,
 			final ModuleName moudleName) {
 
+		final CascadeProject cacadeProject = context.build().getProject();
+
+		final String cascadeUUID = MemberProjectProperty
+				.propertyCascadeUUID(cacadeProject);
+
 		for (final MavenModuleSet project : mavenProjectList()) {
 
-			final MemberProjectProperty property = project
-					.getProperty(MemberProjectProperty.class);
+			final String memberUUID = MemberProjectProperty
+					.propertyCascadeUUID(project);
 
-			if (property == null) {
+			if (memberUUID == null) {
 				continue;
 			}
 
-			final boolean isCascadeMatch = context.build().getProject()
-					.getName().equals(property.getCascadeName());
+			final boolean isCascadeMatch = cascadeUUID.equals(memberUUID);
 
 			final MavenModule rootModule = project.getRootModule();
 
@@ -578,7 +594,8 @@ public class CascadeLogic {
 	/**
 	 * Store build result in the build context.
 	 */
-	public static void storeBuildResult(final BuildContext context,
+	public static void storeBuildResult(
+			final BuildContext<CascadeBuild> context,
 			final MavenModuleSetBuild build) throws Exception {
 
 		if (!hasReleaseAction(build)) {

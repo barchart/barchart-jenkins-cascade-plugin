@@ -7,10 +7,8 @@
  */
 package com.barchart.jenkins.cascade;
 
-import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
 import hudson.model.BuildListener;
@@ -21,7 +19,6 @@ import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -30,7 +27,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * <p>
  * Maven build wrapper for cascade layout management.
  * <p>
- * Validates maven build and updates cascade member projects layout.
+ * Validates maven build and updates cascade member projects.
  * 
  * @author Andrei Pozolotin
  */
@@ -40,28 +37,9 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	@Extension
 	public static class TheDescriptor extends BuildWrapperDescriptor {
 
-		/** Jelly field. */
-		public static final String DEFAULT_LAYOUT_VIEW = "cascade";
-
-		/** Jelly field. */
-		public static final String DEFAULT_MAVEN_GOALS = "clean validate";
-
-		/** Jelly field. */
-		public static final String DEFAULT_MEMBER_PATTERN = tokenVariable(MavenTokenMacro.TOKEN_ARTIFACT_ID);
-
-		/**
-		 * Jelly field.
-		 * <p>
-		 * <a href=
-		 * "https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables"
-		 * >Jenkins Build Environment Variables</a>
-		 */
-		public static final String DEFAULT_CASCADE_PATTERN = tokenVariable("JOB_NAME")
-				+ "_CASCADE";
-
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.LAYOUT_ACTION_NAME;
+			return "Cascade layout and release builds";
 		}
 
 		/**
@@ -69,90 +47,61 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		 */
 		@Override
 		public boolean isApplicable(final AbstractProject<?, ?> project) {
-
 			if (project instanceof MavenModuleSet) {
-
-				final MavenModuleSet mavenProject = (MavenModuleSet) project;
-
-				final MavenModule rootModule = mavenProject.getRootModule();
-
-				if (rootModule == null) {
-					return false;
-				}
-
-				final List<MavenModule> mavenModuleList = rootModule
-						.getChildren();
-
-				if (mavenModuleList != null && !mavenModuleList.isEmpty()) {
-					return true;
-				}
+				return true;
 			}
-
 			return false;
-
 		}
 
 	}
 
-	/** Jelly field. */
-	private String layoutView;
+	public static boolean hasWrapper(final MavenModuleSet project) {
+		return wrapper(project) != null;
+	}
 
-	/** Jelly field. */
-	private String mavenGoals;
+	public static LayoutBuildWrapper wrapper(final MavenModuleSet project) {
 
-	/** Jelly field. */
-	private String memberPattern;
+		final LayoutBuildWrapper wrapper = project.getBuildWrappersList().get(
+				LayoutBuildWrapper.class);
 
-	/** Jelly field. */
-	private String cascadePattern;
+		return wrapper;
 
+	}
+
+	private CascadeOptions cascadeOptions = CascadeOptions.META.global();
+
+	private LayoutOptions layoutOptions = LayoutOptions.META.global();
+
+	/**
+	 * Required for injection.
+	 */
 	public LayoutBuildWrapper() {
-		/** Required for injection. */
 	}
 
 	/**
-	 * Jelly injected.
+	 * Jelly form submit.
 	 */
 	@DataBoundConstructor
 	public LayoutBuildWrapper( //
-			final String mavenGoals, //
-			final String layoutView, //
-			final String memberPattern, //
-			final String cascadePattern //
+			final CascadeOptions cascadeOptions, //
+			final LayoutOptions layoutOptions //
 	) {
-		this.mavenGoals = mavenGoals;
-		this.layoutView = layoutView;
-		this.memberPattern = memberPattern;
-		this.cascadePattern = cascadePattern;
+		this.cascadeOptions = cascadeOptions;
+		this.layoutOptions = layoutOptions;
 	}
 
-	/**
-	 * Jenkins view name for the cascade layout. This view will contain
-	 * generated cascade and member projects.
-	 */
-	public String getLayoutView() {
-		return layoutView;
+	public CascadeOptions getCascadeOptions() {
+		if (cascadeOptions == null) {
+			cascadeOptions = CascadeOptions.META.global();
+		}
+		return cascadeOptions;
 	}
 
-	/**
-	 * Maven goals to use for layout validation.
-	 */
-	public String getMavenGoals() {
-		return mavenGoals;
-	}
-
-	/**
-	 * Member project naming convention.
-	 */
-	public String getMemberPattern() {
-		return memberPattern;
-	}
-
-	/**
-	 * Cascade project naming convention.
-	 */
-	public String getCascadePattern() {
-		return cascadePattern;
+	public LayoutOptions getLayoutOptions() {
+		if (layoutOptions == null) {
+			layoutOptions = LayoutOptions.META.global();
+		}
+		return layoutOptions;
 	}
 
 	@Override
@@ -172,7 +121,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		final BuildContext<AbstractBuild> context = new BuildContext<AbstractBuild>(
 				build, listener);
 
-		if (isLayoutBuild(build)) {
+		if (LayoutBuildCause.isLayoutBuild(build)) {
 
 			context.log("Start maven validation.");
 
@@ -180,7 +129,8 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			build.addAction(new LayoutBadge());
 
 			/** Override maven build goals for validation. */
-			build.addAction(new MavenGoalsIntercept(getMavenGoals()));
+			build.addAction(new MavenGoalsIntercept(getLayoutOptions()
+					.getMavenValidateGoals()));
 
 			return new Environment() {
 				@Override

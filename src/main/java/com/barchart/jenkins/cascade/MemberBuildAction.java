@@ -7,10 +7,7 @@
  */
 package com.barchart.jenkins.cascade;
 
-import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
-import hudson.model.TopLevelItem;
-import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -22,21 +19,14 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public class MemberBuildAction implements Action {
 
-	final private String cascadeName;
-	final private String layoutName;
-	final private String memberName;
+	final private MemberProjectProperty property;
 
 	private String releaseVersion;
 	private String developmentVersion;
 
 	public MemberBuildAction( //
-			final String cascadeName, //
-			final String layoutName, //
-			final String memberName //
-	) {
-		this.cascadeName = cascadeName;
-		this.layoutName = layoutName;
-		this.memberName = memberName;
+			final MemberProjectProperty property) {
+		this.property = property;
 	}
 
 	/**
@@ -47,42 +37,20 @@ public class MemberBuildAction implements Action {
 	public void doSubmit(final StaplerRequest request,
 			final StaplerResponse response) throws Exception {
 
-		final Jenkins jenkins = Jenkins.getInstance();
-
-		final TopLevelItem cascadeItem = jenkins.getItem(cascadeName);
-
-		if (!(cascadeItem instanceof CascadeProject)) {
-			throw new IllegalStateException("Cascade project is invalid: "
-					+ cascadeName);
-		}
-
-		final TopLevelItem layoutItem = jenkins.getItem(layoutName);
-		if (!(layoutItem instanceof MavenModuleSet)) {
-			throw new IllegalStateException("Layout project is invalid: "
-					+ layoutName);
-		}
-
-		final TopLevelItem memberItem = jenkins.getItem(memberName);
-
-		if (!(memberItem instanceof MavenModuleSet)) {
-			throw new IllegalStateException("Member project is invalid: "
-					+ memberName);
-		}
-
-		final CascadeProject cascadeProject = (CascadeProject) cascadeItem;
+		final CascadeProject project = MemberProjectProperty
+				.cascadeProject(property);
 
 		final MemberBuildCause cause = new MemberBuildCause();
 		final MemberBadge badge = new MemberBadge();
 
-		cascadeProject.scheduleBuild(0, cause, this, badge);
+		project.scheduleBuild(0, cause, this, badge);
 
-		response.sendRedirect(request.getContextPath() + '/'
-				+ cascadeProject.getUrl());
+		response.sendRedirect(request.getContextPath() + '/' + project.getUrl());
 
 	}
 
 	public String getCascadeName() {
-		return cascadeName;
+		return "TODO";
 	}
 
 	public String getDevelopmentVersion() {
@@ -98,11 +66,11 @@ public class MemberBuildAction implements Action {
 	}
 
 	public String getLayoutName() {
-		return layoutName;
+		return "TODO";
 	}
 
 	public String getMemberName() {
-		return memberName;
+		return "TODO";
 	}
 
 	public String getReleaseVersion() {

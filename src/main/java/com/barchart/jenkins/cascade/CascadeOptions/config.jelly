@@ -1,0 +1,58 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<!--
+	Component configuration page. 
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/maven-release-cascade" />
+	<j:set var="images" value="${plugin}/images" />
+	<j:set var="help" value="${plugin}/help/CascadeOptions" />
+
+	<f:section title="Cascade Options" name="${it.NAME}">
+
+		<f:entry help="${help}/section.jelly">
+			<img src="${images}/32x32/dragon.png" alt="" />
+		</f:entry>
+
+		<f:entry title="Validation Goals" field="mavenValidateGoals"
+			help="${help}/mavenValidateGoals.jelly">
+			<f:expandableTextbox value="${it.mavenValidateGoals}" />
+		</f:entry>
+
+		<f:entry title="Parent Update Goals" field="mavenParentGoals"
+			help="${help}/mavenParentGoals.jelly">
+			<f:expandableTextbox
+				value="${h.defaulted(it.mavenParentGoals,it.MAVEN_PARENT_GOALS)}" />
+		</f:entry>
+
+		<f:entry title="Dependency Update Goals" field="mavenDependencyGoals"
+			help="${help}/mavenDependencyGoals.jelly">
+			<f:expandableTextbox
+				value="${h.defaulted(it.mavenDependencyGoals,it.MAVEN_DEPENDENCY_GOALS)}" />
+		</f:entry>
+
+		<f:entry title="SCM Commit Goals" field="mavenCommitGoals"
+			help="${help}/mavenCommitGoals.jelly">
+			<f:expandableTextbox
+				value="${h.defaulted(it.mavenCommitGoals,it.MAVEN_COMMIT_GOALS)}" />
+		</f:entry>
+
+		<f:entry title="Release Goals" field="mavenReleaseGoals"
+			help="${help}/mavenReleaseGoals.jelly">
+			<f:expandableTextbox
+				value="${h.defaulted(it.mavenReleaseGoals,it.MAVEN_RELEASE_GOALS)}" />
+		</f:entry>
+
+	</f:section>
+
+</j:jelly>

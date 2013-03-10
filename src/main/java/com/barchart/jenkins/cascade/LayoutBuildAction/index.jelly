@@ -31,30 +31,36 @@
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Configure Cascade Projects Layout">
+				<f:section title="Configure Cascade Projects Layout" />
 
+				<f:advanced title="Layout Options" align="left">
+					<st:include it="${it.layoutOptions}" page="config.jelly" />
+				</f:advanced>
+
+				<f:section title="">
 					<f:entry title="Choose Action" field="configAction"
 						help="${help}/configAction.jelly">
-						<p/>
+						<p />
 						<f:radio name="configAction" title="Create Projects"
 							value="create" checked="true">
 						</f:radio>
-						<p/>
+						<p />
 						<f:radio name="configAction" title="Delete Projects"
 							value="delete" checked="false">
 						</f:radio>
-						<p/>
+						<p />
 						<f:radio name="configAction" title="Update Projects"
 							value="update" checked="false">
 						</f:radio>
-						<p/>
+						<p />
 					</f:entry>
-
-					<tr>
-						<td colspan="4" align="left"><f:submit value="Submit" /></td>
-					</tr>
-
 				</f:section>
+
+				<f:section title="" />
+
+				<tr>
+					<td colspan="4" align="left"><f:submit value="Submit" /></td>
+				</tr>
 
 			</f:form>
 

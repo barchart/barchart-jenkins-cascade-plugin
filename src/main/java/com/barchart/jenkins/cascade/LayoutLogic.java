@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import jenkins.model.Jenkins;
 import jenkins.scm.SCMCheckoutStrategy;
@@ -54,7 +55,8 @@ public class LayoutLogic {
 		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
 				.get(LayoutBuildWrapper.class);
 
-		final String cascadePattern = wrapper.getCascadePattern();
+		final String cascadePattern = wrapper.getLayoutOptions()
+				.getCascadeProjectName();
 
 		try {
 
@@ -96,7 +98,8 @@ public class LayoutLogic {
 		final VariableResolver<String> resolver = new VariableResolver.Union<String>(
 				moduleResolver, buildResolver);
 
-		final String memberPattern = wrapper.getMemberPattern();
+		final String memberPattern = wrapper.getLayoutOptions()
+				.getMemberProjectName();
 
 		final String memberName = Util.replaceMacro(memberPattern, resolver);
 
@@ -115,6 +118,9 @@ public class LayoutLogic {
 		final LayoutArgumentsAction action = context.build().getAction(
 				LayoutArgumentsAction.class);
 
+		context.log("Layout property: "
+				+ MemberProjectProperty.property(layoutProject));
+
 		processCascade(context, layoutProject, action);
 
 		processMember(context, layoutProject, action);
@@ -124,7 +130,7 @@ public class LayoutLogic {
 
 	/** Handle cascade project create/update/delete. */
 	public static void processCascade( //
-			final BuildContext context, //
+			final BuildContext<?> context, //
 			final MavenModuleSet layoutProject, //
 			final LayoutArgumentsAction action //
 	) throws IOException {
@@ -138,22 +144,31 @@ public class LayoutLogic {
 		context.log("Layout project: " + layoutName);
 		context.log("Cascade project: " + cascadeName);
 
-		final MemberProjectProperty layoutProperty = new MemberProjectProperty(
-				ProjectRole.LAYOUT.code(), //
-				cascadeName, //
-				layoutName, //
-				"" //
-		);
+		final String cascadeCode = ProjectRole.CASCADE.code();
+		final String cascadeUUID = MemberProjectProperty
+				.propertyCascadeUUID(layoutProject);
+		final String projectUUID = UUID.randomUUID().toString();
+
+		final MemberProjectProperty cascadeProperty = new MemberProjectProperty(
+				cascadeCode, cascadeUUID, projectUUID);
+
+		context.log("Cascade property: " + cascadeProperty);
 
 		final JenkinsTask projectCreate = new JenkinsTask() {
 			public void run() throws IOException {
 				if (isProjectExists(cascadeName)) {
+
 					context.log("Cascade project exist, skip create.");
+
 				} else {
+
 					context.log("Creating cascade project.");
+
 					final CascadeProject cascadeProject = jenkins
 							.createProject(CascadeProject.class, cascadeName);
-					ensureProperty(layoutProject, layoutProperty);
+
+					ensureProperty(cascadeProject, cascadeProperty);
+
 					/** Provide description */
 					{
 						final StringBuilder text = new StringBuilder();
@@ -169,13 +184,22 @@ public class LayoutLogic {
 						text.append(layoutProject.getName());
 						text.append("</b>");
 						text.append("<p>\n");
+						text.append("Cascade member property:");
+						text.append("<br>\n");
+						text.append("<b>");
+						text.append(cascadeProperty);
+						text.append("</b>");
+						text.append("<p>\n");
 						cascadeProject.setDescription(text.toString());
 					}
+
 					/** Persist project. */
 					{
 						cascadeProject.save();
 					}
+
 					context.log("Cascade project created.");
+
 				}
 			}
 		};
@@ -377,13 +401,15 @@ public class LayoutLogic {
 
 		/** Enable cascade release action. */
 		{
+			final String memberCode = ProjectRole.MEMBER.code();
+			final String memberUUID = MemberProjectProperty
+					.propertyCascadeUUID(layoutProject);
+			final String projectUUID = UUID.randomUUID().toString();
 
 			final MemberProjectProperty memberProperty = new MemberProjectProperty(
-					ProjectRole.MEMBER.code(), //
-					cascadeName(context, layoutProject), //
-					layoutProject.getName(), //
-					memberProject.getName() //
-			);
+					memberCode, memberUUID, projectUUID);
+
+			context.log("Member property: " + memberProperty);
 
 			ensureProperty(memberProject, memberProperty);
 
@@ -404,7 +430,7 @@ public class LayoutLogic {
 			text.append(layoutProject.getName());
 			text.append("</b>");
 			text.append("<p>\n");
-			text.append("Cascade Member project:");
+			text.append("Cascade member project:");
 			text.append("<br>\n");
 			text.append("<b>");
 			text.append(memberProject.getName());
@@ -454,7 +480,7 @@ public class LayoutLogic {
 			final MavenModuleSet project //
 	) {
 
-		context.log("=> project: " + project.getAbsoluteUrl());
+		context.logTab("project: " + project.getAbsoluteUrl());
 
 		final Cause cause = (Cause) context.build().getCauses().get(0);
 

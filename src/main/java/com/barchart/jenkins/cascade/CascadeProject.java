@@ -78,6 +78,8 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 
 		final JSONObject json = request.getSubmittedForm();
 
+		getBuildWrappers();
+
 	}
 
 }

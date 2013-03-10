@@ -1,0 +1,23 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<div>
+	<b>Maven Cascade Release Pluging</b>
+	<p />
+	You can learn more about this plugin: 
+	<p />
+	at <a target="_blank"
+		href="https://github.com/barchart/barchart-jenkins-cascade-plugin/wiki">
+		Development Site</a>
+	<p />
+	or <a target="_blank"
+		href="https://wiki.jenkins-ci.org/display/JENKINS/Maven+Cascade+Release+Plugin">
+		Jenkins Plugin Home
+		</a>
+</div>

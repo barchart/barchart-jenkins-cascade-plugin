@@ -113,7 +113,13 @@ public class PluginUtilities {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void ensureProperty(final AbstractProject project,
 			final JobProperty property) throws IOException {
-		project.removeProperty(property.getClass());
+		while (true) {
+			final JobProperty past = project
+					.removeProperty(property.getClass());
+			if (past == null) {
+				break;
+			}
+		}
 		project.addProperty(property);
 	}
 
@@ -130,14 +136,6 @@ public class PluginUtilities {
 	 */
 	public static boolean isExpression(final String version) {
 		return version.contains("${") && version.contains("}");
-	}
-
-	/**
-	 * Build originated by layout action.
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static boolean isLayoutBuild(final AbstractBuild build) {
-		return build.getCause(LayoutBuildCause.class) != null;
 	}
 
 	/**

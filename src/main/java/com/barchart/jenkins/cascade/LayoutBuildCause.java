@@ -7,6 +7,7 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.model.AbstractBuild;
 import hudson.model.Cause.UserIdCause;
 
 /**
@@ -15,5 +16,13 @@ import hudson.model.Cause.UserIdCause;
  * @author Andrei Pozolotin
  */
 public class LayoutBuildCause extends UserIdCause {
+
+	/**
+	 * Build originated by layout action.
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static boolean isLayoutBuild(final AbstractBuild build) {
+		return build.getCause(LayoutBuildCause.class) != null;
+	}
 
 }

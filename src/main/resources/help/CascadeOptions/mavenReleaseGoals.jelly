@@ -1,0 +1,27 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<div>
+	Maven project release goals.
+	<p />
+	For more information see <a target="_blank"
+		href="http://maven.apache.org/maven-release/maven-release-plugin/">
+		Maven Release Plugin</a>.
+	<p />
+	<a target="_blank"
+		href="http://maven.apache.org/maven-release/maven-release-plugin/clean-mojo.html">release:clean</a>
+	<p />
+	<a target="_blank"
+		href="http://maven.apache.org/maven-release/maven-release-plugin/prepare-mojo.html">release:prepare</a>
+	<p />
+	<a target="_blank"
+		href="http://maven.apache.org/maven-release/maven-release-plugin/perform-mojo.html">release:perform</a>
+</div>
+
+

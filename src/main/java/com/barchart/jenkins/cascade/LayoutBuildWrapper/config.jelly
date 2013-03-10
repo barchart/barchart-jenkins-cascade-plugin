@@ -14,65 +14,32 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="help" value="${plugin}/help/LayoutBuildWrapper" />
-	<j:set var="images" value="${plugin}/images" />
+	<!-- Wrapper instance is not created by default. -->
+	<j:choose>
 
-	<f:advanced title="Cascade Layout Options" align="left">
+		<j:when test="${instance != null}">
+			<st:include it="${instance.layoutOptions}" page="config.jelly" />
+			<st:include it="${instance.cascadeOptions}" page="config.jelly" />
+		</j:when>
 
-		<f:entry title="Validation goals" field="mavenGoals"
-			help="${help}/mavenGoals.jelly">
-			<f:textbox
-				value="${h.defaulted(instance.mavenGoals,descriptor.DEFAULT_MAVEN_GOALS)}" />
-		</f:entry>
+		<j:otherwise>
 
-		<f:entry title="Layout View" field="layoutView"
-			help="${help}/layoutView.jelly">
-			<f:textbox
-				value="${h.defaulted(instance.layoutView,descriptor.DEFAULT_LAYOUT_VIEW)}" />
-		</f:entry>
+			<j:set var="plugin" value="/plugin/maven-release-cascade" />
+			<j:set var="help" value="${plugin}/help/LayoutBuildWrapper" />
+			<j:set var="images" value="${plugin}/images" />
 
-		<f:entry title="Member Naming" field="memberPattern"
-			help="${help}/memberPattern.jelly">
-			<f:textbox
-				value="${h.defaulted(instance.memberPattern,descriptor.DEFAULT_MEMBER_PATTERN)}" />
-		</f:entry>
+			<f:entry>
+				<img src="${images}/32x32/dragon.png" alt="" />
+			</f:entry>
 
-		<f:entry title="Cascade Naming" field="cascadePattern"
-			help="${help}/cascadePattern.jelly">
-			<f:textbox
-				value="${h.defaulted(instance.cascadePattern,descriptor.DEFAULT_CASCADE_PATTERN)}" />
-		</f:entry>
+			<f:entry title="WARNING" help="${help}/section.jelly">
+				<f:textbox disabled="true"
+					value="This is advanced feature. Click SAVE and LOAD if you really mean it. Otherwise click for help --->" />
+			</f:entry>
+		</j:otherwise>
 
-	</f:advanced>
+	</j:choose>
 
-	<f:advanced title="Cascade Release Options" align="left">
-
-		<f:entry title="Release Goals" field="cascadeReleaseGoals"
-			help="${help}/cascadeReleaseGoals.jelly">
-			<f:expandableTextbox
-				value="${h.defaulted(instance.cascadeReleaseGoals,descriptor.CASCADE_RELEASE_GOALS)}" />
-		</f:entry>
-
-		<f:entry title="Parent Update Goals" field="cascadeParentGoals"
-			help="${help}/cascadeParentGoals.jelly">
-			<f:expandableTextbox
-				value="${h.defaulted(instance.cascadeParentGoals,descriptor.CASCADE_PARENT_GOALS)}" />
-		</f:entry>
-
-		<f:entry title="Dependency Update Goals"
-			field="cascadeDependencyGoals"
-			help="${help}/cascadeDependencyGoals.jelly">
-			<f:expandableTextbox
-				value="${h.defaulted(instance.cascadeDependencyGoals,descriptor.CASCADE_DEPENDENCY_GOALS)}" />
-		</f:entry>
-
-		<f:entry title="SCM Commit Goals" field="cascadeCommitGoals"
-			help="${help}/cascadeCommitGoals.jelly">
-			<f:expandableTextbox
-				value="${h.defaulted(instance.cascadeCommitGoals,descriptor.CASCADE_COMMIT_GOALS)}" />
-		</f:entry>
-
-	</f:advanced>
+	<f:section title="" />
 
 </j:jelly>
