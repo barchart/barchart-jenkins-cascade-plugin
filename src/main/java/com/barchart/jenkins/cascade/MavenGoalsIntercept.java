@@ -32,9 +32,14 @@ public class MavenGoalsIntercept extends AbstractAction implements
 		return text.toString();
 	}
 
-	/** Append a goal with separators. */
+	/**
+	 * Remove non-printable chars, append a goal with training space.
+	 */
 	public void append(final String goal) {
-		text.append(goal);
+		if (goal == null) {
+			return;
+		}
+		text.append(goal.replaceAll("\\p{C}", " "));
 		text.append(" ");
 	}
 
