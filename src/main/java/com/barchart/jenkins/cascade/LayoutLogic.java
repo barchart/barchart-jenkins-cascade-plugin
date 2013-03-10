@@ -15,6 +15,7 @@ import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
 import hudson.model.TopLevelItem;
+import hudson.model.AbstractProject;
 import hudson.model.Cause;
 import hudson.model.Descriptor;
 import hudson.plugins.git.GitSCM;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import jenkins.model.Jenkins;
 import jenkins.scm.SCMCheckoutStrategy;
@@ -38,6 +38,7 @@ import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.joda.time.DateTime;
 
 import com.barchart.jenkins.cascade.PluginUtilities.JenkinsTask;
+import com.barchart.jenkins.cascade.ProjectIdentity.Mode;
 
 /**
  * Layout build logic.
@@ -47,7 +48,7 @@ import com.barchart.jenkins.cascade.PluginUtilities.JenkinsTask;
 public class LayoutLogic {
 
 	/**
-	 * Provide cascade project name.
+	 * Generate cascade project name.
 	 */
 	public static String cascadeName(final BuildContext context,
 			final MavenModuleSet layoutProject) throws IOException {
@@ -72,7 +73,7 @@ public class LayoutLogic {
 	}
 
 	/**
-	 * Provide member project name.
+	 * Generate member project name.
 	 */
 	public static String memberName(final BuildContext context,
 			final MavenModuleSet layoutProject, final MavenModule module)
@@ -108,7 +109,7 @@ public class LayoutLogic {
 	}
 
 	/**
-	 * Process layout build action.
+	 * Layout build entry point.
 	 */
 	public static boolean process(final BuildContext context)
 			throws IOException {
@@ -118,8 +119,15 @@ public class LayoutLogic {
 		final LayoutArgumentsAction action = context.build().getAction(
 				LayoutArgumentsAction.class);
 
-		context.log("Layout property: "
-				+ MemberProjectProperty.property(layoutProject));
+		final ProjectIdentity layoutIdentity = ProjectIdentity
+				.ensureLayoutIdentity(layoutProject);
+
+		final String layoutName = layoutProject.getName();
+
+		context.log("");
+		context.log("Layout action: " + action);
+		context.log("Layout project: " + layoutName);
+		context.logTab("Project identity: " + layoutIdentity);
 
 		processCascade(context, layoutProject, action);
 
@@ -128,7 +136,9 @@ public class LayoutLogic {
 		return true;
 	}
 
-	/** Handle cascade project create/update/delete. */
+	/**
+	 * Handle cascade project create/update/delete.
+	 */
 	public static void processCascade( //
 			final BuildContext<?> context, //
 			final MavenModuleSet layoutProject, //
@@ -144,32 +154,29 @@ public class LayoutLogic {
 		context.log("Layout project: " + layoutName);
 		context.log("Cascade project: " + cascadeName);
 
-		final String cascadeCode = ProjectRole.CASCADE.code();
-		final String cascadeUUID = MemberProjectProperty
-				.propertyCascadeUUID(layoutProject);
-		final String projectUUID = UUID.randomUUID().toString();
-
-		final MemberProjectProperty cascadeProperty = new MemberProjectProperty(
-				cascadeCode, cascadeUUID, projectUUID);
-
-		context.log("Cascade property: " + cascadeProperty);
-
+		/**
+		 * Create using name as distinction.
+		 */
 		final JenkinsTask projectCreate = new JenkinsTask() {
 			public void run() throws IOException {
 				if (isProjectExists(cascadeName)) {
 
-					context.log("Cascade project exist, skip create.");
+					context.logErr("Cascade project exist, skip create.");
 
 				} else {
 
-					context.log("Creating cascade project.");
+					context.logTab("Creating cascade project.");
 
 					final CascadeProject cascadeProject = jenkins
 							.createProject(CascadeProject.class, cascadeName);
 
-					ensureProperty(cascadeProject, cascadeProperty);
+					final ProjectIdentity cascadeIdentity = ProjectIdentity
+							.ensureCascadeIdentity(layoutProject,
+									cascadeProject);
 
-					/** Provide description */
+					context.logTab("Project identity: " + cascadeIdentity);
+
+					context.logTab("Provide description.");
 					{
 						final StringBuilder text = new StringBuilder();
 						text.append("Generated on:");
@@ -178,45 +185,54 @@ public class LayoutLogic {
 						text.append(new DateTime());
 						text.append("</b>");
 						text.append("<p>\n");
-						text.append("Cascade layout project:");
-						text.append("<br>\n");
-						text.append("<b>");
-						text.append(layoutProject.getName());
-						text.append("</b>");
-						text.append("<p>\n");
-						text.append("Cascade member property:");
-						text.append("<br>\n");
-						text.append("<b>");
-						text.append(cascadeProperty);
-						text.append("</b>");
-						text.append("<p>\n");
 						cascadeProject.setDescription(text.toString());
 					}
 
-					/** Persist project. */
+					context.logTab("Persist project.");
 					{
 						cascadeProject.save();
 					}
 
-					context.log("Cascade project created.");
+					context.logTab("Project created.");
 
 				}
 			}
 		};
+
+		/**
+		 * Delete using identity as distinction.
+		 */
 		final JenkinsTask projectDelete = new JenkinsTask() {
 			public void run() throws IOException {
-				if (!isProjectExists(cascadeName)) {
-					context.log("Cascade project missing, skip delete.");
+
+				final ProjectRole role = ProjectRole.CASCADE;
+				final String cascadeID = ProjectIdentity
+						.familyID(layoutProject);
+				final String projectID = "unused";
+
+				final AbstractProject cascadeProject = ProjectIdentity
+						.abstractProject(role, cascadeID, projectID,
+								Mode.ROLE_FAMILY);
+
+				if (cascadeProject == null) {
+
+					context.logErr("Cascade project missing, skip delete.");
+
 				} else {
-					context.log("Deleting cascade project.");
-					final TopLevelItem cascadeProject = jenkins
-							.getItem(cascadeName);
+
+					context.logTab("Project identity: "
+							+ ProjectIdentity.identity(cascadeProject));
+
+					context.logTab("Deleting cascade project.");
+
 					try {
 						cascadeProject.delete();
 					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
-					context.log("Cascade project deleted.");
+
+					context.logTab("Project deleted.");
+
 				}
 			}
 		};
@@ -249,11 +265,37 @@ public class LayoutLogic {
 			final LayoutArgumentsAction action //
 	) throws IOException {
 
-		final Jenkins jenkins = Jenkins.getInstance();
+		switch (action.getConfigAction()) {
+		default:
+			context.logErr("Unexpected config action, ignore: "
+					+ action.getConfigAction());
+			break;
+		case CREATE:
+			processMemberCreate(context, layoutProject, action);
+			break;
+		case DELETE:
+			processMemberDelete(context, layoutProject, action);
+			break;
+		case UPDATE:
+			processMemberDelete(context, layoutProject, action);
+			processMemberCreate(context, layoutProject, action);
+			break;
+		}
 
-		/** Unsorted module list. */
-		// final Collection<MavenModule> moduleList =
-		// layoutProject.getModules();
+		return true;
+
+	}
+
+	/**
+	 * Create using name as distinction.
+	 */
+	public static boolean processMemberCreate(//
+			final BuildContext context,//
+			final MavenModuleSet layoutProject,//
+			final LayoutArgumentsAction action //
+	) throws IOException {
+
+		final Jenkins jenkins = Jenkins.getInstance();
 
 		/** Topologically sorted list of modules. */
 		final List<MavenModule> moduleList = layoutProject
@@ -270,71 +312,74 @@ public class LayoutLogic {
 
 			context.log("");
 			context.log("Module name: " + moduleName);
-			context.log("Project name: " + memberName);
+			context.log("Member project: " + memberName);
 
 			if (isSameModuleName(layoutProject.getRootModule(), module)) {
-				context.log("This is a root module project, managed by user, skip.");
+				context.logTab("This is a root module project, managed by user, skip.");
 				continue;
 			}
 
-			final JenkinsTask projectCreate = new JenkinsTask() {
-				public void run() throws IOException {
-					if (isProjectExists(memberName)) {
-						context.log("Project exists, create skipped: "
-								+ memberName);
-					} else {
-						context.log("Creating project: " + memberName);
+			if (isProjectExists(memberName)) {
 
-						/** Clone project via XML. */
-						final TopLevelItem item = jenkins.copy(
-								(TopLevelItem) layoutProject, memberName);
+				context.logErr("Project exists, create skipped: " + memberName);
 
-						final MavenModuleSet memberProject = (MavenModuleSet) item;
+			} else {
 
-						processMemberCreate(context, module, memberProject,
-								layoutProject);
+				context.logTab("Creating project: " + memberName);
 
-						processMemberValidate(context, memberProject);
+				/** Clone project via XML. */
+				final TopLevelItem item = jenkins.copy(
+						(TopLevelItem) layoutProject, memberName);
 
-						context.log("Project created: " + memberName);
+				final MavenModuleSet memberProject = (MavenModuleSet) item;
 
-					}
-				}
-			};
+				processMemberCreate(context, module, memberProject,
+						layoutProject);
 
-			final JenkinsTask projectDelete = new JenkinsTask() {
-				public void run() throws IOException {
-					if (!isProjectExists(memberName)) {
-						context.log("Project not present, delete skipped: "
-								+ memberName);
-					} else {
-						final TopLevelItem item = jenkins.getItem(memberName);
-						context.log("Deleting project : " + memberName);
-						try {
-							item.delete();
-						} catch (final InterruptedException e) {
-							e.printStackTrace();
-						}
-						context.log("Project deleted: " + memberName);
-					}
-				}
-			};
+				processMemberValidate(context, memberProject);
 
-			switch (action.getConfigAction()) {
-			default:
-				context.logErr("Unexpected config action, ignore: "
-						+ action.getConfigAction());
-				break;
-			case CREATE:
-				projectCreate.run();
-				break;
-			case DELETE:
-				projectDelete.run();
-				break;
-			case UPDATE:
-				projectDelete.run();
-				projectCreate.run();
-				break;
+				context.logTab("Project created: " + memberName);
+
+			}
+
+		}
+
+		return true;
+	}
+
+	/**
+	 * Delete using identity as distinction.
+	 */
+	public static boolean processMemberDelete(//
+			final BuildContext context,//
+			final MavenModuleSet layoutProject,//
+			final LayoutArgumentsAction action //
+	) throws IOException {
+
+		final String familyID = ProjectIdentity.familyID(layoutProject);
+
+		final List<MavenModuleSet> memberProjectList = ProjectIdentity
+				.memberProjectList(familyID);
+
+		if (memberProjectList.isEmpty()) {
+			context.logErr("No member projects in the family: " + familyID);
+			return false;
+		}
+
+		for (final MavenModuleSet memberProject : memberProjectList) {
+
+			context.log("");
+			context.log("Member project: " + memberProject.getName());
+
+			context.logTab("Project identity: "
+					+ ProjectIdentity.identity(memberProject));
+
+			try {
+				memberProject.delete();
+				context.logTab("Project deleted.");
+			} catch (final Exception e) {
+				context.logExc(e);
+				context.logErr("Failed to delete project.");
 			}
 
 		}
@@ -353,7 +398,7 @@ public class LayoutLogic {
 			final MavenModuleSet layoutProject//
 	) throws IOException {
 
-		/** Update SCM paths. */
+		context.logTab("Update SCM paths.");
 		SCM: {
 
 			final SCM scm = memberProject.getScm();
@@ -383,7 +428,7 @@ public class LayoutLogic {
 			context.logErr("###################################");
 		}
 
-		/** Update Maven paths. */
+		context.logTab("Update Maven paths.");
 		{
 			final String rootPOM = module.getRelativePath() + "/pom.xml";
 
@@ -391,7 +436,7 @@ public class LayoutLogic {
 
 		}
 
-		/** Disable cascade layout action. */
+		context.logTab("Remove cascade layout action.");
 		{
 			final DescribableList<BuildWrapper, Descriptor<BuildWrapper>> buildWrapperList = memberProject
 					.getBuildWrappersList();
@@ -399,23 +444,15 @@ public class LayoutLogic {
 			buildWrapperList.remove(LayoutBuildWrapper.class);
 		}
 
-		/** Enable cascade release action. */
+		context.logTab("Ensure member identity.");
 		{
-			final String memberCode = ProjectRole.MEMBER.code();
-			final String memberUUID = MemberProjectProperty
-					.propertyCascadeUUID(layoutProject);
-			final String projectUUID = UUID.randomUUID().toString();
+			final ProjectIdentity memberdentity = ProjectIdentity
+					.ensureMemberIdentity(layoutProject, memberProject);
 
-			final MemberProjectProperty memberProperty = new MemberProjectProperty(
-					memberCode, memberUUID, projectUUID);
-
-			context.log("Member property: " + memberProperty);
-
-			ensureProperty(memberProject, memberProperty);
-
+			context.logTab("Project identity: " + memberdentity);
 		}
 
-		/** Provide description. */
+		context.logTab("Provide project description.");
 		{
 			final StringBuilder text = new StringBuilder();
 			text.append("Generated on:");
@@ -424,28 +461,16 @@ public class LayoutLogic {
 			text.append(new DateTime());
 			text.append("</b>");
 			text.append("<p>\n");
-			text.append("Cascade layout project:");
-			text.append("<br>\n");
-			text.append("<b>");
-			text.append(layoutProject.getName());
-			text.append("</b>");
-			text.append("<p>\n");
-			text.append("Cascade member project:");
-			text.append("<br>\n");
-			text.append("<b>");
-			text.append(memberProject.getName());
-			text.append("</b>");
-			text.append("<p>\n");
 			memberProject.setDescription(text.toString());
 		}
 
-		/** Use custom checkout. */
+		context.logTab("Use custom checkout strategy.");
 		{
 			final SCMCheckoutStrategy strategy = new CheckoutStrategySCM();
 			memberProject.setScmCheckoutStrategy(strategy);
 		}
 
-		/** Persist changes. */
+		context.logTab("Persist project changes.");
 		{
 			memberProject.save();
 		}
@@ -465,6 +490,7 @@ public class LayoutLogic {
 		goals.append(VALIDATE);
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
+		list.add(new MavenLayoutBadge());
 		list.add(new MavenProjectValidateBadge());
 		list.add(goals);
 		return list;

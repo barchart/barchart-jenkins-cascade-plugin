@@ -15,7 +15,7 @@ package com.barchart.jenkins.cascade;
 public class MavenDependencyUpdateBadge extends AbstractBadge {
 
 	public MavenDependencyUpdateBadge() {
-		super("Dependency Update", "game-clubs.png");
+		super("Dependency Update", "children.png");
 	}
 
 }

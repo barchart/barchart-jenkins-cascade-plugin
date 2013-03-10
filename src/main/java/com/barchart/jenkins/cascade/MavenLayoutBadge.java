@@ -12,10 +12,10 @@ package com.barchart.jenkins.cascade;
  * 
  * @author Andrei Pozolotin
  */
-public class LayoutBadge extends AbstractBadge {
+public class MavenLayoutBadge extends AbstractBadge {
 
-	public LayoutBadge() {
-		super("Cascade Layout", "monkey.png");
+	public MavenLayoutBadge() {
+		super("Layout Build", "monkey.png");
 	}
 
 }

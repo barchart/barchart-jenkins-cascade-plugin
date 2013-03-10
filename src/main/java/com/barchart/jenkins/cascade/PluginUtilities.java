@@ -120,6 +120,7 @@ public class PluginUtilities {
 				break;
 			}
 		}
+		/** Will do save(). */
 		project.addProperty(property);
 	}
 

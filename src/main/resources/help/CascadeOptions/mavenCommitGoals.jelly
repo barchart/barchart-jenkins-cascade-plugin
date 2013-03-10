@@ -15,5 +15,8 @@
 		Plugin </a>.
 	<p />
 	<a target="_blank"
+		href="http://maven.apache.org/scm/maven-scm-plugin/update-mojo.html">scm:update</a>
+	<p />
+	<a target="_blank"
 		href="http://maven.apache.org/scm/maven-scm-plugin/checkin-mojo.html">scm:checkin</a>
 </div>

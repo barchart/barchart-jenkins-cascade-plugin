@@ -15,7 +15,7 @@ package com.barchart.jenkins.cascade;
 public class MavenProjectReleaseBadge extends AbstractBadge {
 
 	public MavenProjectReleaseBadge() {
-		super("Project Release", "game-hearts.png");
+		super("Project Release", "package.png");
 	}
 
 }

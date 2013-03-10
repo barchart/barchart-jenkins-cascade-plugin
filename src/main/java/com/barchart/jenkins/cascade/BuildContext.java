@@ -73,6 +73,10 @@ public class BuildContext<B extends AbstractBuild> {
 		log("\t" + text);
 	}
 
+	public void logExc(final Throwable e) {
+		e.printStackTrace(listener().getLogger());
+	}
+
 	/** Collected artifact results. */
 	public Set<Artifact> result() {
 		return resultSet;

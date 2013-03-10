@@ -8,14 +8,14 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Show icon for a cascade release build.
+ * Show icon for a cascade build.
  * 
  * @author Andrei Pozolotin
  */
-public class MemberBadge extends AbstractBadge {
+public class MavenCascadeBadge extends AbstractBadge {
 
-	public MemberBadge() {
-		super("Cascade Release", "dragon.png");
+	public MavenCascadeBadge() {
+		super("Cascade Build", "dragon.png");
 	}
 
 }

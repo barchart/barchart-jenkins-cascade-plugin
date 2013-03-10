@@ -1,0 +1,64 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<!--
+	Show cascade member project identity, when applicable, on project properties page. 
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/maven-release-cascade" />
+	<j:set var="help" value="${plugin}/help/ProjectIdentity" />
+	<j:set var="images" value="${plugin}/images" />
+
+	<!-- 	<j:if test="true"> -->
+	<j:if test="${instance.isValid()}">
+
+		<f:section title="Cascade Identity">
+
+			<f:advanced>
+
+				<f:entry title="Role" field="projectRole"
+					help="${help}/projectRole.jelly">
+					<f:textbox disabled="true" />
+				</f:entry>
+
+				<f:entry title="Family ID" field="familyID"
+					help="${help}/familyID.jelly">
+					<f:textbox disabled="true" />
+				</f:entry>
+
+				<f:entry title="Member ID" field="projectID"
+					help="${help}/projectID.jelly">
+					<f:textbox disabled="true" />
+				</f:entry>
+
+				<f:entry title="Layout Project" help="${help}/layoutName.jelly">
+					<f:textbox disabled="true" value="${instance.layoutProject().name}" />
+				</f:entry>
+
+				<f:entry title="Cascade Project" help="${help}/cascadeName.jelly">
+					<f:textbox disabled="true"
+						value="${instance.cascadeProject().name}" />
+				</f:entry>
+
+				<f:entry title="Member Project" help="${help}/memberName.jelly">
+					<f:textbox disabled="true" value="${instance.memberProject().name}" />
+				</f:entry>
+
+			</f:advanced>
+
+		</f:section>
+
+		<f:section title="" />
+
+	</j:if>
+
+</j:jelly>

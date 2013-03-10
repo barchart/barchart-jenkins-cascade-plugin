@@ -19,14 +19,19 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public class MemberBuildAction implements Action {
 
-	final private MemberProjectProperty property;
+	final private ProjectIdentity identity;
+
+	public ProjectIdentity getIdentity() {
+		return identity;
+	}
 
 	private String releaseVersion;
 	private String developmentVersion;
 
 	public MemberBuildAction( //
-			final MemberProjectProperty property) {
-		this.property = property;
+			final ProjectIdentity identity //
+	) {
+		this.identity = identity;
 	}
 
 	/**
@@ -37,11 +42,10 @@ public class MemberBuildAction implements Action {
 	public void doSubmit(final StaplerRequest request,
 			final StaplerResponse response) throws Exception {
 
-		final CascadeProject project = MemberProjectProperty
-				.cascadeProject(property);
+		final CascadeProject project = ProjectIdentity.cascadeProject(identity);
 
 		final MemberBuildCause cause = new MemberBuildCause();
-		final MemberBadge badge = new MemberBadge();
+		final MavenCascadeBadge badge = new MavenCascadeBadge();
 
 		project.scheduleBuild(0, cause, this, badge);
 
@@ -50,7 +54,7 @@ public class MemberBuildAction implements Action {
 	}
 
 	public String getCascadeName() {
-		return "TODO";
+		return identity.cascadeProject().getName();
 	}
 
 	public String getDevelopmentVersion() {
@@ -66,11 +70,11 @@ public class MemberBuildAction implements Action {
 	}
 
 	public String getLayoutName() {
-		return "TODO";
+		return identity.layoutProject().getName();
 	}
 
 	public String getMemberName() {
-		return "TODO";
+		return identity.memberProject().getName();
 	}
 
 	public String getReleaseVersion() {

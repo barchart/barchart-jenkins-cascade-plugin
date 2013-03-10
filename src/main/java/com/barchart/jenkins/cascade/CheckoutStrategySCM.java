@@ -32,7 +32,7 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 	public static class TheDescriptor extends SCMCheckoutStrategyDescriptor {
 		@Override
 		public String getDisplayName() {
-			return "Custom";
+			return "Cascade Release Stragegy";
 		}
 
 		@Override

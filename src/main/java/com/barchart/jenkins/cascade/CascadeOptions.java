@@ -57,12 +57,25 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 
 	}
 
+	/**
+	 * Perform SCM:
+	 * 
+	 * <pre>
+	 * git pull
+	 * git add pom.xml
+	 * git commit -m "message"
+	 * git push
+	 * </pre>
+	 */
 	public static final String MAVEN_COMMIT_GOALS = //
-	"scm:checkin \n" //
+	"scm:update scm:checkin \n" //
 			+ "--define includes=pom.xml \n" //
 			+ "--define message=[cascade-update] \n" //
 	;
 
+	/**
+	 * Maven dependency version update goals.
+	 */
 	public static final String MAVEN_DEPENDENCY_GOALS = //
 	"versions:use-latest-versions \n" //
 			+ "--define generateBackupPoms=false \n" //
@@ -72,10 +85,16 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 			+ "--define allowIncrementalUpdates=true \n" //
 	;
 
+	/**
+	 * Maven parent version update goals.
+	 */
 	public static final String MAVEN_PARENT_GOALS = //
 	"versions:update-parent \n" //
 			+ "--define generateBackupPoms=false \n";
 
+	/**
+	 * Perform maven release.
+	 */
 	public static final String MAVEN_RELEASE_GOALS = //
 	"release:clean release:prepare release:perform \n"
 			+ "--define localCheckout=true \n" //
@@ -83,6 +102,9 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 			+ "--define resume=false \n" //
 	;
 
+	/**
+	 * Perform maven validation.
+	 */
 	public static final String MAVEN_VALIDATE_GOALS = //
 	"validate \n" //
 	;

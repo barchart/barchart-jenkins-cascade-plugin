@@ -34,14 +34,14 @@ public class MemberBuildActionFactory extends TransientProjectActionFactory {
 
 		final MavenModuleSet memberProject = (MavenModuleSet) project;
 
-		final MemberProjectProperty property = MemberProjectProperty
-				.property(memberProject);
+		final ProjectIdentity identity = ProjectIdentity
+				.identity(memberProject);
 
-		if (property == null) {
+		if (identity == null) {
 			return Collections.emptyList();
 		}
 
-		final ProjectRole role = ProjectRole.from(property.getProjectRole());
+		final ProjectRole role = ProjectRole.from(identity.getProjectRole());
 
 		switch (role) {
 		case MEMBER:
@@ -50,7 +50,7 @@ public class MemberBuildActionFactory extends TransientProjectActionFactory {
 			return Collections.emptyList();
 		}
 
-		final MemberBuildAction action = new MemberBuildAction(property);
+		final MemberBuildAction action = new MemberBuildAction(identity);
 
 		return Collections.singleton(action);
 

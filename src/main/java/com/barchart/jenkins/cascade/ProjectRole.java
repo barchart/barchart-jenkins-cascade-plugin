@@ -18,19 +18,22 @@ public enum ProjectRole {
 	/** Role unknown. */
 	UNKNOWN(""), //
 
-	/** Cascade project. */
+	/** Cascade execution project. */
 	CASCADE("cascade"), //
 
-	/** Layout project. */
+	/** Layout definition project. */
 	LAYOUT("layout"), //
 
-	/** Member project. */
+	/** Member participant project. */
 	MEMBER("member"), //
 
 	;
 
 	private final String code;
 
+	/**
+	 * Role code stored in config.xml
+	 */
 	public String code() {
 		return code;
 	}

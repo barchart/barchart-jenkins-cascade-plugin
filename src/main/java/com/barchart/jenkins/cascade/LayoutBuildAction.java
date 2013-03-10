@@ -36,10 +36,10 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 	public static final List<Permalink> PERMALINKS = Collections
 			.singletonList(LayoutPermalink.INSTANCE);
 
-	private final MavenModuleSet project;
+	private final MavenModuleSet layoutProject;
 
-	public LayoutBuildAction(final MavenModuleSet project) {
-		this.project = project;
+	public LayoutBuildAction(final MavenModuleSet layoutProject) {
+		this.layoutProject = layoutProject;
 	}
 
 	public String getDisplayName() {
@@ -51,7 +51,7 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 	}
 
 	public Collection<MavenModule> getModules() {
-		return project.getModules();
+		return layoutProject.getModules();
 	}
 
 	public ParameterDefinition getParameterDefinition(final String name) {
@@ -64,7 +64,7 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 	}
 
 	public List<ParameterDefinition> getParameterDefinitions() {
-		final ParametersDefinitionProperty pdp = project
+		final ParametersDefinitionProperty pdp = layoutProject
 				.getProperty(ParametersDefinitionProperty.class);
 		List<ParameterDefinition> pds = Collections.emptyList();
 		if (pdp != null) {
@@ -78,7 +78,7 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 	}
 
 	public MavenModule getRootModule() {
-		return project.getRootModule();
+		return layoutProject.getRootModule();
 	}
 
 	public String getUrlName() {
@@ -101,14 +101,16 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 		final String configAction = httpStringParam("configAction", params);
 		final Action arguments = new LayoutArgumentsAction(configAction);
 
-		project.scheduleBuild(0, new LayoutBuildCause(), parameters, arguments);
+		layoutProject.scheduleBuild(0, new LayoutBuildCause(), parameters,
+				arguments);
 
-		response.sendRedirect(request.getContextPath() + '/' + project.getUrl());
+		response.sendRedirect(request.getContextPath() + '/'
+				+ layoutProject.getUrl());
 
 	}
 
 	public LayoutOptions getLayoutOptions() {
-		return LayoutBuildWrapper.wrapper(project).getLayoutOptions();
+		return LayoutBuildWrapper.wrapper(layoutProject).getLayoutOptions();
 	}
 
 }

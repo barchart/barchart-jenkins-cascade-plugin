@@ -15,7 +15,7 @@ package com.barchart.jenkins.cascade;
 public class MavenParentUpdateBadge extends AbstractBadge {
 
 	public MavenParentUpdateBadge() {
-		super("Parent Update", "game-spades.png");
+		super("Parent Update", "parent.png");
 	}
 
 }

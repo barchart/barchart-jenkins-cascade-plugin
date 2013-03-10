@@ -72,7 +72,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 			.getName());
 
 	public static final String MAVEN_VALIDATE_GOALS = //
-	"clean validate" //
+	"clean validate \n" //
 	;
 
 	public static final String MEMBER_PROJECT_NAME = //
