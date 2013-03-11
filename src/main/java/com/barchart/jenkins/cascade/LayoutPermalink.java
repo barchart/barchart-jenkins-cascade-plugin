@@ -8,6 +8,7 @@
 package com.barchart.jenkins.cascade;
 
 
+
 import hudson.model.Result;
 import hudson.model.Job;
 import hudson.model.PermalinkProjectAction.Permalink;
@@ -37,8 +38,8 @@ public class LayoutPermalink extends Permalink {
 
 		for (final Run<?, ?> run : job.getBuilds()) {
 
-			final MavenLayoutBadge action = run
-					.getAction(MavenLayoutBadge.class);
+			final DoLayoutBadge action = run
+					.getAction(DoLayoutBadge.class);
 
 			if (action != null && run.getResult() == Result.SUCCESS) {
 				return run;

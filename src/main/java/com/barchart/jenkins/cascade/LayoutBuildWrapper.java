@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
+
 /**
  * Layout project.
  * <p>
@@ -128,7 +129,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			context.log("Start maven validation.");
 
 			/** Attach icon in build history. */
-			build.addAction(new MavenLayoutBadge());
+			build.addAction(new DoLayoutBadge());
 
 			/** Override maven build goals for validation. */
 			build.addAction(new MavenGoalsIntercept(getLayoutOptions()

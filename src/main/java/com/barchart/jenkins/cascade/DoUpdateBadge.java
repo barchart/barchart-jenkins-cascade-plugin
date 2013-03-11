@@ -8,14 +8,14 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Show icon for a SCM commit build.
+ * Show icon for a project update build.
  * 
  * @author Andrei Pozolotin
  */
-public class MavenCommitBadge extends AbstractBadge {
+public class DoUpdateBadge extends AbstractBadge {
 
-	public MavenCommitBadge() {
-		super("Commit Changes", "game-diamond.png");
+	public DoUpdateBadge() {
+		super("Update", "reload.png");
 	}
 
 }

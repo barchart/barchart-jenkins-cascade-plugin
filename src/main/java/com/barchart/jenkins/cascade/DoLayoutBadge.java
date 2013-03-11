@@ -8,14 +8,14 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Show icon for a project validation build.
+ * Show icon for maven layout change build.
  * 
  * @author Andrei Pozolotin
  */
-public class MavenProjectValidateBadge extends AbstractBadge {
+public class DoLayoutBadge extends AbstractBadge {
 
-	public MavenProjectValidateBadge() {
-		super("Project Validate", "check.png");
+	public DoLayoutBadge() {
+		super("Layout", "monkey.png");
 	}
 
 }

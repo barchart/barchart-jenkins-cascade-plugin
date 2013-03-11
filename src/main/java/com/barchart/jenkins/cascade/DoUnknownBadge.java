@@ -8,14 +8,14 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Show icon for a dependency versions update build.
+ * Show icon for a unknown build type.
  * 
  * @author Andrei Pozolotin
  */
-public class MavenDependencyUpdateBadge extends AbstractBadge {
+public class DoUnknownBadge extends AbstractBadge {
 
-	public MavenDependencyUpdateBadge() {
-		super("Dependency Update", "children.png");
+	public DoUnknownBadge() {
+		super("Unknown", "help.png");
 	}
 
 }

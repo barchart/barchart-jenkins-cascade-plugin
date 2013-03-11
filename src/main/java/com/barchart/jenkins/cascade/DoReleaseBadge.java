@@ -8,14 +8,14 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Show icon for maven layout change build.
+ * Show icon for a project release build.
  * 
  * @author Andrei Pozolotin
  */
-public class MavenLayoutBadge extends AbstractBadge {
+public class DoReleaseBadge extends AbstractBadge {
 
-	public MavenLayoutBadge() {
-		super("Layout Build", "monkey.png");
+	public DoReleaseBadge() {
+		super("Release", "package.png");
 	}
 
 }

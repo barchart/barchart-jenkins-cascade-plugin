@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 
+
 /**
  * Release build logic.
  * 
@@ -73,7 +74,7 @@ public class CascadeLogic {
 	 * Verify presence of a release badge.
 	 */
 	public static boolean hasReleaseAction(final Actionable item) {
-		return null != item.getAction(MavenProjectReleaseBadge.class);
+		return null != item.getAction(DoReleaseBadge.class);
 	}
 
 	/**
@@ -108,8 +109,8 @@ public class CascadeLogic {
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
 		list.add(new CheckoutSkipAction());
-		list.add(new MavenCascadeBadge());
-		list.add(new MavenCommitBadge());
+		list.add(new DoCascadeBadge());
+		list.add(new DoCommitBadge());
 		list.add(goals);
 		return list;
 	}
@@ -148,8 +149,8 @@ public class CascadeLogic {
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
 		list.add(new CheckoutSkipAction());
-		list.add(new MavenCascadeBadge());
-		list.add(new MavenDependencyUpdateBadge());
+		list.add(new DoCascadeBadge());
+		list.add(new DoDependencyBadge());
 		list.add(goals);
 		return list;
 	}
@@ -178,8 +179,8 @@ public class CascadeLogic {
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
 		list.add(new CheckoutSkipAction());
-		list.add(new MavenCascadeBadge());
-		list.add(new MavenParentUpdateBadge());
+		list.add(new DoCascadeBadge());
+		list.add(new DoParentBadge());
 		list.add(goals);
 		return list;
 	}
@@ -194,8 +195,8 @@ public class CascadeLogic {
 		goals.append(cascadeOptions.getMavenReleaseGoals());
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
-		list.add(new MavenCascadeBadge());
-		list.add(new MavenProjectReleaseBadge());
+		list.add(new DoCascadeBadge());
+		list.add(new DoReleaseBadge());
 		list.add(goals);
 		return list;
 	}
@@ -210,8 +211,8 @@ public class CascadeLogic {
 		goals.append(cascadeOptions.getMavenValidateGoals());
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
-		list.add(new MavenCascadeBadge());
-		list.add(new MavenProjectValidateBadge());
+		list.add(new DoCascadeBadge());
+		list.add(new DoValidateBadge());
 		list.add(goals);
 		return list;
 	}

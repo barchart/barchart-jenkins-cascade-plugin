@@ -12,6 +12,7 @@ import hudson.model.Action;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+
 /**
  * Cascade build action link on member project page.
  * 
@@ -45,7 +46,7 @@ public class MemberBuildAction implements Action {
 		final CascadeProject project = ProjectIdentity.cascadeProject(identity);
 
 		final MemberBuildCause cause = new MemberBuildCause();
-		final MavenCascadeBadge badge = new MavenCascadeBadge();
+		final DoCascadeBadge badge = new DoCascadeBadge();
 
 		project.scheduleBuild(0, cause, this, badge);
 

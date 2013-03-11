@@ -19,6 +19,7 @@ public interface PluginConstants {
 	String PLUGIN_ID = "maven-release-cascade";
 	String PLUGIN_NAME = "Maven Cascade Release Plugin";
 	String PLUGIN_URL = "/plugin/" + PLUGIN_ID;
+	String PLUGIN_ICON = PLUGIN_URL + "/images/48x48/red-matreshka-head.png";
 
 	/* Cascade project. */
 	String CASCADE_PROJECT_PRONOUN = "Cascade";

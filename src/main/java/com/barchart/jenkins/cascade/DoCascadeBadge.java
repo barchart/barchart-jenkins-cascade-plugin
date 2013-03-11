@@ -12,10 +12,10 @@ package com.barchart.jenkins.cascade;
  * 
  * @author Andrei Pozolotin
  */
-public class MavenCascadeBadge extends AbstractBadge {
+public class DoCascadeBadge extends AbstractBadge {
 
-	public MavenCascadeBadge() {
-		super("Cascade Build", "dragon.png");
+	public DoCascadeBadge() {
+		super("Cascade", "dragon.png");
 	}
 
 }

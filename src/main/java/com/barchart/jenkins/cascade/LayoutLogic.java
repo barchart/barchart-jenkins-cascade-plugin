@@ -120,8 +120,8 @@ public class LayoutLogic {
 		goals.append(VALIDATE);
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
-		list.add(new MavenLayoutBadge());
-		list.add(new MavenProjectValidateBadge());
+		list.add(new DoLayoutBadge());
+		list.add(new DoValidateBadge());
 		list.add(goals);
 		return list;
 	}

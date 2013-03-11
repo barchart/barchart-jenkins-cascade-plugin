@@ -63,7 +63,7 @@ public class PluginConfigurator extends ManagementLink {
 
 	@Override
 	public String getIconFileName() {
-		return MEMBER_ACTION_ICON;
+		return PLUGIN_ICON;
 	}
 
 	/**

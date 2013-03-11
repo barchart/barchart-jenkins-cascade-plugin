@@ -8,38 +8,11 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Attach action to the build to record arguments.
+ * Attach action to the layout build.
  * 
  * @author Andrei Pozolotin
  */
 public class LayoutArgumentsAction extends AbstractAction {
-
-	public enum ConfigAction {
-
-		BUILD("build"), //
-
-		CREATE("create"), //
-		DELETE("delete"), //
-		UPDATE("update"), //
-
-		;
-
-		public final String name;
-
-		ConfigAction(final String name) {
-			this.name = name;
-		}
-
-		public static ConfigAction form(final String name) {
-			for (final ConfigAction type : ConfigAction.values()) {
-				if (type.name.equalsIgnoreCase(name)) {
-					return type;
-				}
-			}
-			return BUILD;
-		}
-
-	}
 
 	private final String configAction;
 
@@ -47,8 +20,8 @@ public class LayoutArgumentsAction extends AbstractAction {
 		this.configAction = configAction;
 	}
 
-	public ConfigAction getConfigAction() {
-		return ConfigAction.form(configAction);
+	public ProjectAction getConfigAction() {
+		return ProjectAction.form(configAction);
 	}
 
 	@Override

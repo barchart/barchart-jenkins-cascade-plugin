@@ -8,14 +8,14 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Show icon for a parent version update build.
+ * Show icon for a project create build.
  * 
  * @author Andrei Pozolotin
  */
-public class MavenParentUpdateBadge extends AbstractBadge {
+public class DoCreateBadge extends AbstractBadge {
 
-	public MavenParentUpdateBadge() {
-		super("Parent Update", "parent.png");
+	public DoCreateBadge() {
+		super("Create", "add.png");
 	}
 
 }
