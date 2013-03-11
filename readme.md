@@ -7,7 +7,5 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
-barchart-jenkinis-cascade-plugin
-================================
 
-[Plugin Manual](https://github.com/barchart/barchart-jenkins-cascade-plugin/wiki)
+### [Plugin Manual](https://github.com/barchart/barchart-jenkins-cascade-plugin/wiki)
