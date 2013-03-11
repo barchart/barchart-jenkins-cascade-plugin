@@ -14,6 +14,7 @@ import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.maven.MavenModuleSetBuild;
 import hudson.model.JobProperty;
+import hudson.model.Result;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -122,6 +123,28 @@ public class PluginUtilities {
 		}
 	}
 
+	public static ListView ensureListView(final String viewName)
+			throws IOException {
+
+		final Jenkins jenkins = Jenkins.getInstance();
+
+		View view = jenkins.getView(viewName);
+
+		if (view == null) {
+			view = new ListView(viewName);
+			jenkins.addView(view);
+			return (ListView) view;
+		} else {
+			if (view instanceof ListView) {
+				return (ListView) view;
+			} else {
+				throw new IllegalStateException(
+						"View exists, but not as ListView: " + viewName);
+			}
+		}
+
+	}
+
 	/**
 	 * Replace project job property.
 	 */
@@ -152,6 +175,13 @@ public class PluginUtilities {
 	 */
 	public static boolean isExpression(final String version) {
 		return version.contains("${") && version.contains("}");
+	}
+
+	/**
+	 * Strict failure result.
+	 */
+	public static boolean isFailure(final Result result) {
+		return Result.SUCCESS != result;
 	}
 
 	/**
@@ -236,6 +266,13 @@ public class PluginUtilities {
 	 */
 	public static boolean isSnapshot(final String version) {
 		return version.endsWith(SNAPSHOT);
+	}
+
+	/**
+	 * Strict success result.
+	 */
+	public static boolean isSuccess(final Result result) {
+		return Result.SUCCESS == result;
 	}
 
 	/**
@@ -520,28 +557,6 @@ public class PluginUtilities {
 	 */
 	public static String tokenVariable(final String tokenName) {
 		return "${" + tokenName + "}";
-	}
-
-	public static ListView ensureListView(final String viewName)
-			throws IOException {
-
-		final Jenkins jenkins = Jenkins.getInstance();
-
-		View view = jenkins.getView(viewName);
-
-		if (view == null) {
-			view = new ListView(viewName);
-			jenkins.addView(view);
-			return (ListView) view;
-		} else {
-			if (view instanceof ListView) {
-				return (ListView) view;
-			} else {
-				throw new IllegalStateException(
-						"View exists, but not as ListView: " + viewName);
-			}
-		}
-
 	}
 
 	private PluginUtilities() {

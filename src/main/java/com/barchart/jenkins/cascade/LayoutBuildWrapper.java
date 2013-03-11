@@ -7,6 +7,7 @@
  */
 package com.barchart.jenkins.cascade;
 
+import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
@@ -143,7 +144,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 					context.log("Maven validation finished.");
 
 					final Result result = build.getResult();
-					if (result.isWorseThan(Result.SUCCESS)) {
+					if (isFailure(result)) {
 						context.log("Maven result is not success, abort.");
 						return false;
 					} else {
