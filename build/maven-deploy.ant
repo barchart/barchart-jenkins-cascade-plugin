@@ -8,7 +8,7 @@
 
 -->
 <!--
-
+	Eclipse/Maven plugin artifact remote deploy script.
 -->
 <project default="maven" basedir="./..">
 

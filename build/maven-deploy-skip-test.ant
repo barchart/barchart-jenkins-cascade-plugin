@@ -8,7 +8,8 @@
 
 -->
 <!--
-	Eclipse/Maven release invocateion script.
+	Eclipse/Maven plugin artifact remote deploy script
+	which ingores unit tests.
 -->
 <project default="maven" basedir="./..">
 
@@ -25,22 +26,11 @@
 
 		<exec executable="${executable}">
 
-			<!-- Release from clean state -->
-			<arg value="release:clean" />
-			<arg value="release:prepare" />
-			<arg value="release:perform" />
+			<arg value="clean" />
+			<arg value="deploy" />
 
-			<!-- Do not try to resume failed release. -->
 			<arg value="--define" />
-			<arg value="resume=false" />
-
-			<!-- Avoid duplicate repository clone during release. -->
-			<arg value="--define" />
-			<arg value="localCheckout=true" />
-
-			<!-- Skip all unit tests during the release. -->
-			<arg value="--define" />
-			<arg value="arguments=&quot; --define skipTests=true &quot;" />
+			<arg value="skipTests" />
 
 		</exec>
 

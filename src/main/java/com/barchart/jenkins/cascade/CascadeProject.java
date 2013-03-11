@@ -24,7 +24,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 /**
- * Orchestration project.
+ * Cascade orchestration project.
  * <p>
  * Peer project to the layout project. Provides cascade workflow.
  * 
@@ -49,7 +49,7 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 	}
 
 	@Extension
-	public static final TheDescriptor DESCRIPTOR = new TheDescriptor();
+	public static final TheDescriptor META = new TheDescriptor();
 
 	public CascadeProject(final ItemGroup parent, final String name) {
 		super(parent, name);
@@ -61,7 +61,11 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 	}
 
 	public TheDescriptor getDescriptor() {
-		return DESCRIPTOR;
+		return META;
+	}
+
+	public TheDescriptor getMeta() {
+		return META;
 	}
 
 	@Override

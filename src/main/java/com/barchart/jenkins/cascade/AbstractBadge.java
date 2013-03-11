@@ -10,7 +10,8 @@ package com.barchart.jenkins.cascade;
 import hudson.model.BuildBadgeAction;
 
 /**
- * Attach action to build to display a layout build icon in build history.
+ * Attach action to build to display a layout build icon in the project build
+ * history.
  * 
  * @author Andrei Pozolotin
  */

@@ -8,7 +8,7 @@
 
 -->
 <!--
-
+	Eclipse/Maven local jenkins copy launch script.
 -->
 <project default="jenkins" basedir="./..">
 

@@ -8,7 +8,7 @@
 
 -->
 <!--
-
+	Eclipse/Maven plugin artifact local install script.
 -->
 <project default="maven" basedir="./..">
 

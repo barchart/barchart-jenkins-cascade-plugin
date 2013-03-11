@@ -35,6 +35,15 @@
 		<url>http://www.barchart.com/</url>
 	</organization>
 
+	<!-- Plug-in contributor list. -->
+	<developers>
+		<developer>
+			<id>Andrei-Pozolotin</id>
+			<name>Andrei Pozolotin</name>
+			<email>Andrei.Pozolotin@gmail.com</email>
+		</developer>
+	</developers>
+
 	<!-- Jenkins development dependencies. -->
 	<repositories>
 		<repository>
@@ -54,6 +63,13 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 	</properties>
+
+	<!-- Source repository for releases. -->
+	<scm>
+		<url>https://github.com/jenkinsci/maven-release-cascade-plugin</url>
+		<connection>scm:git:ssh://github.com/jenkinsci/maven-release-cascade-plugin.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/maven-release-cascade-plugin.git</developerConnection>
+	</scm>
 
 	<dependencies>
 

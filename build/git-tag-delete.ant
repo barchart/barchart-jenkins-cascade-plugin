@@ -7,6 +7,9 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
+<!--
+	Manually delete source repository tag.
+-->
 <project default="git" basedir="./..">
 
 	<echo message="basedir : ${basedir}" />

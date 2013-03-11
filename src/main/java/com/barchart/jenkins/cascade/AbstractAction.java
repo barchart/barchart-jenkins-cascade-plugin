@@ -10,6 +10,8 @@ package com.barchart.jenkins.cascade;
 import hudson.model.Action;
 
 /**
+ * Base for jenkins actions.
+ * 
  * @author Andrei Pozolotin
  */
 public class AbstractAction implements Action {

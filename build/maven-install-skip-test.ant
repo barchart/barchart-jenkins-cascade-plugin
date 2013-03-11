@@ -8,7 +8,8 @@
 
 -->
 <!--
-
+	Eclipse/Maven plugin artifact local install script 
+	which does not run unit tests.
 -->
 <project default="maven" basedir="./..">
 
@@ -32,7 +33,7 @@
 			<arg value="skipTests" />
 
 		</exec>
-		
+
 	</target>
 
 </project>

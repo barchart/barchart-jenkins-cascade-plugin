@@ -30,14 +30,14 @@ public class PluginActivator extends Plugin implements
 	}
 
 	@Extension
-	public static final TheDescriptor DESCRIPTOR = new TheDescriptor();
+	public static final TheDescriptor META = new TheDescriptor();
 
 	public static PluginActivator get() {
 		return Hudson.getInstance().getPlugin(PluginActivator.class);
 	}
 
 	public TheDescriptor getDescriptor() {
-		return DESCRIPTOR;
+		return META;
 	}
 
 	@Override
