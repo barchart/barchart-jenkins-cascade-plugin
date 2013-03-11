@@ -17,6 +17,8 @@ import hudson.model.JobProperty;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.ListView;
+import hudson.model.View;
 
 import java.io.File;
 import java.io.FileReader;
@@ -108,6 +110,19 @@ public class PluginUtilities {
 	}
 
 	/**
+	 * Validate model entries and create defaults.
+	 */
+	public static void ensureFields(final Model model) {
+		if (model.getGroupId() == null) {
+			final Parent parent = model.getParent();
+			if (parent == null) {
+				return;
+			}
+			model.setGroupId(parent.getGroupId());
+		}
+	}
+
+	/**
 	 * Replace project job property.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -154,10 +169,16 @@ public class PluginUtilities {
 		return null != Jenkins.getInstance().getItem(projectName);
 	}
 
+	/**
+	 * Verify model version is not snapshot.
+	 */
 	public static boolean isRelease(final Model model) {
 		return !isSnapshot(model);
 	}
 
+	/**
+	 * Verify model version is a snapshot.
+	 */
 	public static boolean isRelease(final Parent parent) {
 		return !isSnapshot(parent);
 	}
@@ -218,15 +239,46 @@ public class PluginUtilities {
 	}
 
 	/**
-	 * Maven nested module immediate dependencies.
+	 * Build maven artifact from maven dependency.
 	 */
-	// public static List<Dependency> mavenDependencies(final MavenModule
-	// module,
-	// final DependencyMatcher matcher) throws Exception {
-	//
-	// return mavenDependencies(mavenPomFile(module), matcher);
-	//
-	// }
+	public static Artifact mavenArtifact(final Dependency dependency) {
+		return new DefaultArtifact( //
+				dependency.getGroupId(), //
+				dependency.getArtifactId(), //
+				dependency.getVersion(), //
+				null, // scope
+				dependency.getType(), // type
+				"", // classifier
+				null // handler
+		);
+	}
+
+	/**
+	 * Build maven artifact from maven model.
+	 */
+	public static Artifact mavenArtifact(final Model model) {
+		return new DefaultArtifact( //
+				model.getGroupId(), //
+				model.getArtifactId(), //
+				model.getVersion(), //
+				null, // scope
+				model.getPackaging(), // type
+				"", // classifier
+				null // handler
+		);
+	}
+
+	public static Artifact mavenArtifact(final Parent parent) {
+		return new DefaultArtifact( //
+				parent.getGroupId(), //
+				parent.getArtifactId(), //
+				parent.getVersion(), //
+				null, // scope
+				"pom", // type
+				"", // classifier
+				null // handler
+		);
+	}
 
 	/**
 	 * Collect matching dependencies form a pom.xml file.
@@ -278,13 +330,9 @@ public class PluginUtilities {
 
 	}
 
-	// public static Model mavenModel(final MavenModule module) throws Exception
-	// {
-	//
-	// return mavenModel(mavenPomFile(module));
-	//
-	// }
-
+	/**
+	 * Extract maven model from jenkins project.
+	 */
 	public static Model mavenModel(final MavenModuleSet project)
 			throws Exception {
 
@@ -342,21 +390,6 @@ public class PluginUtilities {
 		return parent;
 
 	}
-
-	/**
-	 * Module pom.xml file.
-	 */
-	// public static File mavenPomFile(final MavenModule module) {
-	//
-	// final File rootDir = module.getParent().getRootDir();
-	//
-	// final File projectDir = new File(rootDir, module.getRelativePath());
-	//
-	// final File pomFile = new File(projectDir, "pom.xml");
-	//
-	// return pomFile;
-	//
-	// }
 
 	/**
 	 * Find maven parent for a jenkins maven job.
@@ -429,11 +462,39 @@ public class PluginUtilities {
 
 	}
 
+	/**
+	 * Convert from any version to release version.
+	 */
+	public static String mavenReleaseVersion(final String version) {
+		if (version.endsWith(SNAPSHOT)) {
+			return version.replaceAll(SNAPSHOT, "");
+		} else {
+			return version;
+		}
+	}
+
+	/**
+	 * Convert from any version to snapshot version.
+	 */
+	public static String mavenSnapshotVersion(final String version) {
+		if (version.endsWith(SNAPSHOT)) {
+			return version;
+		} else {
+			return version + SNAPSHOT;
+		}
+	}
+
+	/**
+	 * Build jenkins module name from maven dependency.
+	 */
 	public static ModuleName moduleName(final Dependency dependency) {
 		return new ModuleName(dependency.getGroupId(),
 				dependency.getArtifactId());
 	}
 
+	/**
+	 * Build jenkins module name from maven parent.
+	 */
 	public static ModuleName moduleName(final Parent parent) {
 		return new ModuleName(parent.getGroupId(), parent.getArtifactId());
 	}
@@ -454,16 +515,6 @@ public class PluginUtilities {
 
 	}
 
-	/** TODO */
-	public static String moduleRelativePath(final MavenModule module) {
-
-		final StringBuilder text = new StringBuilder();
-
-		final MavenModuleSet parent = module.getParent();
-
-		return text.toString();
-	}
-
 	/**
 	 * Produce token variable entry from token name.
 	 */
@@ -471,66 +522,26 @@ public class PluginUtilities {
 		return "${" + tokenName + "}";
 	}
 
-	public static Artifact mavenArtifact(final Parent parent) {
-		return new DefaultArtifact( //
-				parent.getGroupId(), //
-				parent.getArtifactId(), //
-				parent.getVersion(), //
-				null, // scope
-				"pom", // type
-				"", // classifier
-				null // handler
-		);
-	}
+	public static ListView ensureListView(final String viewName)
+			throws IOException {
 
-	public static Artifact mavenArtifact(final Dependency dependency) {
-		return new DefaultArtifact( //
-				dependency.getGroupId(), //
-				dependency.getArtifactId(), //
-				dependency.getVersion(), //
-				null, // scope
-				dependency.getType(), // type
-				"", // classifier
-				null // handler
-		);
-	}
+		final Jenkins jenkins = Jenkins.getInstance();
 
-	public static void ensureFields(final Model model) {
-		if (model.getGroupId() == null) {
-			final Parent parent = model.getParent();
-			if (parent == null) {
-				return;
+		View view = jenkins.getView(viewName);
+
+		if (view == null) {
+			view = new ListView(viewName);
+			jenkins.addView(view);
+			return (ListView) view;
+		} else {
+			if (view instanceof ListView) {
+				return (ListView) view;
+			} else {
+				throw new IllegalStateException(
+						"View exists, but not as ListView: " + viewName);
 			}
-			model.setGroupId(parent.getGroupId());
 		}
-	}
 
-	public static Artifact mavenArtifact(final Model model) {
-		return new DefaultArtifact( //
-				model.getGroupId(), //
-				model.getArtifactId(), //
-				model.getVersion(), //
-				null, // scope
-				model.getPackaging(), // type
-				"", // classifier
-				null // handler
-		);
-	}
-
-	public static String mavenReleaseVersion(final String version) {
-		if (version.endsWith(SNAPSHOT)) {
-			return version.replaceAll(SNAPSHOT, "");
-		} else {
-			return version;
-		}
-	}
-
-	public static String mavenSnapshotVersion(final String version) {
-		if (version.endsWith(SNAPSHOT)) {
-			return version;
-		} else {
-			return version + SNAPSHOT;
-		}
 	}
 
 	private PluginUtilities() {

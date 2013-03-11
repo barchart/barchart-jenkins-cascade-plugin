@@ -13,11 +13,13 @@ import hudson.Util;
 import hudson.maven.ModuleName;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
+import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractProject;
 import hudson.model.Cause;
 import hudson.model.Descriptor;
+import hudson.model.ListView;
 import hudson.plugins.git.GitSCM;
 import hudson.scm.SCM;
 import hudson.scm.SubversionSCM;
@@ -48,9 +50,15 @@ import com.barchart.jenkins.cascade.ProjectIdentity.Mode;
 public class LayoutLogic {
 
 	/**
+	 * Perform maven validation.
+	 */
+	static final String VALIDATE = "validate";
+
+	/**
 	 * Generate cascade project name.
 	 */
-	public static String cascadeName(final BuildContext context,
+	public static String cascadeName(
+			final BuildContext<MavenModuleSetBuild> context,
 			final MavenModuleSet layoutProject) throws IOException {
 
 		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
@@ -73,14 +81,58 @@ public class LayoutLogic {
 	}
 
 	/**
+	 * Create view if missing and add project to the view.
+	 */
+	public static void ensureProjectView(
+			final BuildContext<MavenModuleSetBuild> context,
+			final TopLevelItem project) throws IOException {
+
+		final String viewName = layoutOptions(context).getLayoutViewName();
+
+		final ListView view = ensureListView(viewName);
+
+		view.add(project);
+
+		context.logTab("Project view: " + view.getAbsoluteUrl());
+
+	}
+
+	/**
+	 * Extract layout options from layout build wrapper.
+	 */
+	public static LayoutOptions layoutOptions(
+			final BuildContext<MavenModuleSetBuild> context) {
+
+		final MavenModuleSet layoutProject = context.build().getProject();
+
+		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
+				.wrapper(layoutProject);
+
+		return wrapper.getLayoutOptions();
+
+	}
+
+	/**
+	 * Update maven and jenkins metadata.
+	 */
+	public static List<Action> mavenValidateGoals(final String... options) {
+		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
+		goals.append(VALIDATE);
+		goals.append(options);
+		final List<Action> list = new ArrayList<Action>();
+		list.add(new MavenLayoutBadge());
+		list.add(new MavenProjectValidateBadge());
+		list.add(goals);
+		return list;
+	}
+
+	/**
 	 * Generate member project name.
 	 */
-	public static String memberName(final BuildContext context,
+	public static String memberName(
+			final BuildContext<MavenModuleSetBuild> context,
 			final MavenModuleSet layoutProject, final MavenModule module)
 			throws IOException {
-
-		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
-				.get(LayoutBuildWrapper.class);
 
 		final ModuleName moduleName = module.getModuleName();
 
@@ -99,7 +151,7 @@ public class LayoutLogic {
 		final VariableResolver<String> resolver = new VariableResolver.Union<String>(
 				moduleResolver, buildResolver);
 
-		final String memberPattern = wrapper.getLayoutOptions()
+		final String memberPattern = layoutOptions(context)
 				.getMemberProjectName();
 
 		final String memberName = Util.replaceMacro(memberPattern, resolver);
@@ -111,8 +163,8 @@ public class LayoutLogic {
 	/**
 	 * Layout build entry point.
 	 */
-	public static boolean process(final BuildContext context)
-			throws IOException {
+	public static boolean process(
+			final BuildContext<MavenModuleSetBuild> context) throws IOException {
 
 		final MavenModuleSet layoutProject = mavenModuleSet(context.build());
 
@@ -129,6 +181,8 @@ public class LayoutLogic {
 		context.log("Layout project: " + layoutName);
 		context.logTab("Project identity: " + layoutIdentity);
 
+		ensureProjectView(context, layoutProject);
+
 		processCascade(context, layoutProject, action);
 
 		processMember(context, layoutProject, action);
@@ -140,7 +194,7 @@ public class LayoutLogic {
 	 * Handle cascade project create/update/delete.
 	 */
 	public static void processCascade( //
-			final BuildContext<?> context, //
+			final BuildContext<MavenModuleSetBuild> context, //
 			final MavenModuleSet layoutProject, //
 			final LayoutArgumentsAction action //
 	) throws IOException {
@@ -192,6 +246,8 @@ public class LayoutLogic {
 					{
 						cascadeProject.save();
 					}
+
+					ensureProjectView(context, cascadeProject);
 
 					context.logTab("Project created.");
 
@@ -260,7 +316,7 @@ public class LayoutLogic {
 	 * Handle member projects create/update/delete.
 	 */
 	public static boolean processMember(//
-			final BuildContext context,//
+			final BuildContext<MavenModuleSetBuild> context,//
 			final MavenModuleSet layoutProject,//
 			final LayoutArgumentsAction action //
 	) throws IOException {
@@ -287,112 +343,10 @@ public class LayoutLogic {
 	}
 
 	/**
-	 * Create using name as distinction.
-	 */
-	public static boolean processMemberCreate(//
-			final BuildContext context,//
-			final MavenModuleSet layoutProject,//
-			final LayoutArgumentsAction action //
-	) throws IOException {
-
-		final Jenkins jenkins = Jenkins.getInstance();
-
-		/** Topologically sorted list of modules. */
-		final List<MavenModule> moduleList = layoutProject
-				.getDisabledModules(false);
-
-		for (final MavenModule module : moduleList) {
-
-			final ModuleName moduleName = module.getModuleName();
-
-			/**
-			 * Module-to-Project naming convention.
-			 */
-			final String memberName = memberName(context, layoutProject, module);
-
-			context.log("");
-			context.log("Module name: " + moduleName);
-			context.log("Member project: " + memberName);
-
-			if (isSameModuleName(layoutProject.getRootModule(), module)) {
-				context.logTab("This is a root module project, managed by user, skip.");
-				continue;
-			}
-
-			if (isProjectExists(memberName)) {
-
-				context.logErr("Project exists, create skipped: " + memberName);
-
-			} else {
-
-				context.logTab("Creating project: " + memberName);
-
-				/** Clone project via XML. */
-				final TopLevelItem item = jenkins.copy(
-						(TopLevelItem) layoutProject, memberName);
-
-				final MavenModuleSet memberProject = (MavenModuleSet) item;
-
-				processMemberCreate(context, module, memberProject,
-						layoutProject);
-
-				processMemberValidate(context, memberProject);
-
-				context.logTab("Project created: " + memberName);
-
-			}
-
-		}
-
-		return true;
-	}
-
-	/**
-	 * Delete using identity as distinction.
-	 */
-	public static boolean processMemberDelete(//
-			final BuildContext context,//
-			final MavenModuleSet layoutProject,//
-			final LayoutArgumentsAction action //
-	) throws IOException {
-
-		final String familyID = ProjectIdentity.familyID(layoutProject);
-
-		final List<MavenModuleSet> memberProjectList = ProjectIdentity
-				.memberProjectList(familyID);
-
-		if (memberProjectList.isEmpty()) {
-			context.logErr("No member projects in the family: " + familyID);
-			return false;
-		}
-
-		for (final MavenModuleSet memberProject : memberProjectList) {
-
-			context.log("");
-			context.log("Member project: " + memberProject.getName());
-
-			context.logTab("Project identity: "
-					+ ProjectIdentity.identity(memberProject));
-
-			try {
-				memberProject.delete();
-				context.logTab("Project deleted.");
-			} catch (final Exception e) {
-				context.logExc(e);
-				context.logErr("Failed to delete project.");
-			}
-
-		}
-
-		return true;
-
-	}
-
-	/**
 	 * Update details of created member project.
 	 */
 	public static void processMemberCreate(//
-			final BuildContext context,//
+			final BuildContext<MavenModuleSetBuild> context,//
 			final MavenModule module, //
 			final MavenModuleSet memberProject, //
 			final MavenModuleSet layoutProject//
@@ -478,22 +432,107 @@ public class LayoutLogic {
 	}
 
 	/**
-	 * Perform maven validation.
+	 * Create using name as distinction.
 	 */
-	static final String VALIDATE = "validate";
+	public static boolean processMemberCreate(//
+			final BuildContext<MavenModuleSetBuild> context,//
+			final MavenModuleSet layoutProject,//
+			final LayoutArgumentsAction action //
+	) throws IOException {
+
+		final Jenkins jenkins = Jenkins.getInstance();
+
+		/** Topologically sorted list of modules. */
+		final List<MavenModule> moduleList = layoutProject
+				.getDisabledModules(false);
+
+		for (final MavenModule module : moduleList) {
+
+			final ModuleName moduleName = module.getModuleName();
+
+			/**
+			 * Module-to-Project naming convention.
+			 */
+			final String memberName = memberName(context, layoutProject, module);
+
+			context.log("");
+			context.log("Module name: " + moduleName);
+			context.log("Member project: " + memberName);
+
+			if (isSameModuleName(layoutProject.getRootModule(), module)) {
+				context.logTab("This is a root module project, managed by user, skip.");
+				continue;
+			}
+
+			if (isProjectExists(memberName)) {
+
+				context.logErr("Project exists, create skipped: " + memberName);
+
+			} else {
+
+				context.logTab("Creating project: " + memberName);
+
+				/** Clone project via XML. */
+				final TopLevelItem item = jenkins.copy(
+						(TopLevelItem) layoutProject, memberName);
+
+				final MavenModuleSet memberProject = (MavenModuleSet) item;
+
+				processMemberCreate(context, module, memberProject,
+						layoutProject);
+
+				processMemberValidate(context, memberProject);
+
+				ensureProjectView(context, memberProject);
+
+				context.logTab("Project created: " + memberName);
+
+			}
+
+		}
+
+		return true;
+	}
 
 	/**
-	 * Update maven and jenkins metadata.
+	 * Delete using identity as distinction.
 	 */
-	public static List<Action> mavenValidateGoals(final String... options) {
-		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
-		goals.append(VALIDATE);
-		goals.append(options);
-		final List<Action> list = new ArrayList<Action>();
-		list.add(new MavenLayoutBadge());
-		list.add(new MavenProjectValidateBadge());
-		list.add(goals);
-		return list;
+	public static boolean processMemberDelete(//
+			final BuildContext<MavenModuleSetBuild> context,//
+			final MavenModuleSet layoutProject,//
+			final LayoutArgumentsAction action //
+	) throws IOException {
+
+		final String familyID = ProjectIdentity.familyID(layoutProject);
+
+		final List<MavenModuleSet> memberProjectList = ProjectIdentity
+				.memberProjectList(familyID);
+
+		if (memberProjectList.isEmpty()) {
+			context.logErr("No member projects in the family: " + familyID);
+			return false;
+		}
+
+		for (final MavenModuleSet memberProject : memberProjectList) {
+
+			context.log("");
+			context.log("Member project: " + memberProject.getName());
+
+			context.logTab("Project identity: "
+					+ ProjectIdentity.identity(memberProject));
+
+			try {
+				memberProject.delete();
+				context.logTab("Project deleted.");
+			} catch (final Exception e) {
+				context.logExc(e);
+				context.logErr("Failed to delete project.");
+			}
+
+		}
+
+		return true;
+
 	}
 
 	/**
@@ -502,13 +541,13 @@ public class LayoutLogic {
 	 * Build maven module, do not wait for completion.
 	 */
 	public static void processMemberValidate( //
-			final BuildContext context, //
+			final BuildContext<MavenModuleSetBuild> context, //
 			final MavenModuleSet project //
 	) {
 
 		context.logTab("project: " + project.getAbsoluteUrl());
 
-		final Cause cause = (Cause) context.build().getCauses().get(0);
+		final Cause cause = context.build().getCauses().get(0);
 
 		project.scheduleBuild2(0, cause, mavenValidateGoals());
 

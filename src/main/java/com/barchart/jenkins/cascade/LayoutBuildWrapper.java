@@ -10,6 +10,7 @@ package com.barchart.jenkins.cascade;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
+import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
@@ -118,7 +119,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			final BuildListener listener //
 	) throws IOException {
 
-		final BuildContext<AbstractBuild> context = new BuildContext<AbstractBuild>(
+		final BuildContext<MavenModuleSetBuild> context = new BuildContext<MavenModuleSetBuild>(
 				build, listener);
 
 		if (LayoutBuildCause.isLayoutBuild(build)) {
