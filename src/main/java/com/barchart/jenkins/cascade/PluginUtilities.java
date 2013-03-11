@@ -114,12 +114,12 @@ public class PluginUtilities {
 	 * Validate model entries and create defaults.
 	 */
 	public static void ensureFields(final Model model) {
-		if (model.getGroupId() == null) {
-			final Parent parent = model.getParent();
-			if (parent == null) {
-				return;
-			}
+		final Parent parent = model.getParent();
+		if (model.getGroupId() == null && parent != null) {
 			model.setGroupId(parent.getGroupId());
+		}
+		if (model.getVersion() == null && parent != null) {
+			model.setVersion(parent.getVersion());
 		}
 	}
 
@@ -364,6 +364,8 @@ public class PluginUtilities {
 
 			final Model model = xmlReader.read(fileReader);
 
+			ensureFields(model);
+
 			return model;
 
 		} catch (final Throwable e) {
@@ -398,25 +400,6 @@ public class PluginUtilities {
 
 		return null;
 
-	}
-
-	/**
-	 * Top level jenkins maven project resolved from the build, or null.
-	 */
-	public static MavenModuleSet mavenProject(final AbstractBuild<?, ?> build) {
-
-		if (build instanceof MavenBuild) {
-			final MavenBuild mavenBuild = (MavenBuild) build;
-			final MavenModule mavenModule = mavenBuild.getProject();
-			return mavenModule.getParent();
-		}
-
-		if (build instanceof MavenModuleSetBuild) {
-			final MavenModuleSetBuild mavenBuild = (MavenModuleSetBuild) build;
-			return mavenBuild.getProject();
-		}
-
-		return null;
 	}
 
 	/**
@@ -461,6 +444,25 @@ public class PluginUtilities {
 		final File pomFile = new File(absolutePath);
 
 		return pomFile;
+	}
+
+	/**
+	 * Top level jenkins maven project resolved from the build, or null.
+	 */
+	public static MavenModuleSet mavenProject(final AbstractBuild<?, ?> build) {
+
+		if (build instanceof MavenBuild) {
+			final MavenBuild mavenBuild = (MavenBuild) build;
+			final MavenModule mavenModule = mavenBuild.getProject();
+			return mavenModule.getParent();
+		}
+
+		if (build instanceof MavenModuleSetBuild) {
+			final MavenModuleSetBuild mavenBuild = (MavenModuleSetBuild) build;
+			return mavenBuild.getProject();
+		}
+
+		return null;
 	}
 
 	/**

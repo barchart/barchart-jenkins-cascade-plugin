@@ -89,7 +89,6 @@ public class BuildContext<B extends AbstractBuild> {
 
 	/** Store model result. */
 	public void result(final Model model) {
-		ensureFields(model);
 		result(mavenArtifact(model));
 	}
 
