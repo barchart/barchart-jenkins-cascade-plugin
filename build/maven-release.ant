@@ -40,7 +40,7 @@
 
 			<!-- Skip all unit tests during the release. -->
 			<arg value="--define" />
-			<arg value="arguments=&quot; --define skipTests=true &quot;" />
+			<arg value="arguments=--define skipTests=true" />
 
 		</exec>
 
