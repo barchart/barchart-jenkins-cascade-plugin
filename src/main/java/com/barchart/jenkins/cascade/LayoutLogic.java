@@ -53,15 +53,41 @@ import com.barchart.jenkins.cascade.ProjectIdentity.Mode;
 public class LayoutLogic {
 
 	/**
-	 * Assert plug-in maven module nesting convention:
+	 * Generate cascade project name.
+	 */
+	public static String cascadeName(
+			final BuildContext<MavenModuleSetBuild> context,
+			final MavenModuleSet layoutProject) throws IOException {
+
+		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
+				.get(LayoutBuildWrapper.class);
+
+		final String cascadePattern = wrapper.getLayoutOptions()
+				.getCascadeProjectName();
+
+		try {
+
+			final String cascadeName = TokenMacro.expandAll(context.build(),
+					context.listener(), cascadePattern);
+
+			return cascadeName;
+
+		} catch (final Exception e) {
+			throw new IOException(e);
+		}
+
+	}
+
+	/**
+	 * Verify plug-in maven module nesting convention:
 	 * <p>
 	 * 1) Layout project must have modules.
 	 * <p>
 	 * 2) Do not permit modules for member projects.
 	 */
-	public static boolean assertModuleNesting(
+	public static boolean checkModuleNesting(
 			final BuildContext<MavenModuleSetBuild> context,
-			final MavenModuleSet layoutProject) throws Exception {
+			final MavenModuleSet layoutProject) throws IOException {
 
 		final Model layoutModel = mavenModel(layoutProject);
 
@@ -71,6 +97,7 @@ public class LayoutLogic {
 			return false;
 		}
 
+		/** Layout project wokrspace. */
 		final FilePath workspace = context.build().getWorkspace();
 
 		final MavenModule layoutModule = layoutProject.getRootModule();
@@ -104,32 +131,6 @@ public class LayoutLogic {
 		}
 
 		return true;
-
-	}
-
-	/**
-	 * Generate cascade project name.
-	 */
-	public static String cascadeName(
-			final BuildContext<MavenModuleSetBuild> context,
-			final MavenModuleSet layoutProject) throws IOException {
-
-		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
-				.get(LayoutBuildWrapper.class);
-
-		final String cascadePattern = wrapper.getLayoutOptions()
-				.getCascadeProjectName();
-
-		try {
-
-			final String cascadeName = TokenMacro.expandAll(context.build(),
-					context.listener(), cascadePattern);
-
-			return cascadeName;
-
-		} catch (final Exception e) {
-			throw new IOException(e);
-		}
 
 	}
 
@@ -222,7 +223,7 @@ public class LayoutLogic {
 	public static boolean process(
 			final BuildContext<MavenModuleSetBuild> context) throws IOException {
 
-		final MavenModuleSet layoutProject = mavenModuleSet(context.build());
+		final MavenModuleSet layoutProject = mavenProject(context.build());
 
 		final LayoutArgumentsAction action = context.build().getAction(
 				LayoutArgumentsAction.class);
@@ -236,6 +237,10 @@ public class LayoutLogic {
 		context.log("Layout action: " + action);
 		context.log("Layout project: " + layoutName);
 		context.logTab("Project identity: " + layoutIdentity);
+
+		if (!checkModuleNesting(context, layoutProject)) {
+			return false;
+		}
 
 		ensureProjectView(context, layoutProject);
 
