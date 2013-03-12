@@ -9,6 +9,7 @@ package com.barchart.jenkins.cascade;
 
 import static com.barchart.jenkins.cascade.MavenTokenMacro.*;
 import static com.barchart.jenkins.cascade.PluginUtilities.*;
+import hudson.FilePath;
 import hudson.Util;
 import hudson.maven.ModuleName;
 import hudson.maven.MavenModule;
@@ -27,6 +28,7 @@ import hudson.tasks.BuildWrapper;
 import hudson.util.DescribableList;
 import hudson.util.VariableResolver;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +38,7 @@ import java.util.Map;
 import jenkins.model.Jenkins;
 import jenkins.scm.SCMCheckoutStrategy;
 
+import org.apache.maven.model.Model;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.joda.time.DateTime;
 
@@ -48,11 +51,6 @@ import com.barchart.jenkins.cascade.ProjectIdentity.Mode;
  * @author Andrei Pozolotin
  */
 public class LayoutLogic {
-
-	/**
-	 * Perform maven validation.
-	 */
-	static final String VALIDATE = "validate";
 
 	/**
 	 * Generate cascade project name.
@@ -77,6 +75,62 @@ public class LayoutLogic {
 		} catch (final Exception e) {
 			throw new IOException(e);
 		}
+
+	}
+
+	/**
+	 * Verify plug-in maven module nesting convention:
+	 * <p>
+	 * 1) Layout project must have modules.
+	 * <p>
+	 * 2) Do not permit modules for member projects.
+	 */
+	public static boolean checkModuleNesting(
+			final BuildContext<MavenModuleSetBuild> context,
+			final MavenModuleSet layoutProject) throws IOException {
+
+		final Model layoutModel = mavenModel(layoutProject);
+
+		if (layoutModel.getModules().isEmpty()) {
+			context.logErr("Layout project has no modules: " + layoutModel);
+			context.logErr("Cascade member projects must be defined in layout project as <module/> entries.");
+			return false;
+		}
+
+		/** Layout project wokrspace. */
+		final FilePath workspace = context.build().getWorkspace();
+
+		final MavenModule layoutModule = layoutProject.getRootModule();
+
+		/** Topologically sorted list of modules. */
+		final List<MavenModule> moduleList = layoutProject
+				.getDisabledModules(false);
+
+		for (final MavenModule module : moduleList) {
+			if (isSameModuleName(layoutModule, module)) {
+				/** Layout project module */
+				continue;
+			} else {
+				/** Member project module */
+				final String modulePath = module.getRelativePath();
+				final String moduleFolder = workspace.child(modulePath)
+						.getRemote();
+				final File pomFile = new File(moduleFolder, "pom.xml");
+				if (!pomFile.exists()) {
+					context.logErr("Project pom.xml is missing: " + pomFile);
+					return false;
+				}
+				final Model moduleModel = mavenModel(pomFile);
+				if (moduleModel.getModules().isEmpty()) {
+					continue;
+				}
+				context.logErr("Project contains <module/>: " + moduleModel);
+				context.logErr("Cascade member projects must not be using  <module/> entries.");
+				return false;
+			}
+		}
+
+		return true;
 
 	}
 
@@ -115,9 +169,12 @@ public class LayoutLogic {
 	/**
 	 * Update maven and jenkins metadata.
 	 */
-	public static List<Action> mavenValidateGoals(final String... options) {
+	public static List<Action> mavenValidateGoals(
+			final BuildContext<MavenModuleSetBuild> context,
+			final String... options) {
+		final LayoutOptions layoutOptions = new LayoutOptions();
 		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
-		goals.append(VALIDATE);
+		goals.append(layoutOptions.getMavenValidateGoals());
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
 		list.add(new DoLayoutBadge());
@@ -166,7 +223,7 @@ public class LayoutLogic {
 	public static boolean process(
 			final BuildContext<MavenModuleSetBuild> context) throws IOException {
 
-		final MavenModuleSet layoutProject = mavenModuleSet(context.build());
+		final MavenModuleSet layoutProject = mavenProject(context.build());
 
 		final LayoutArgumentsAction action = context.build().getAction(
 				LayoutArgumentsAction.class);
@@ -180,6 +237,10 @@ public class LayoutLogic {
 		context.log("Layout action: " + action);
 		context.log("Layout project: " + layoutName);
 		context.logTab("Project identity: " + layoutIdentity);
+
+		if (!checkModuleNesting(context, layoutProject)) {
+			return false;
+		}
 
 		ensureProjectView(context, layoutProject);
 
@@ -549,7 +610,7 @@ public class LayoutLogic {
 
 		final Cause cause = context.build().getCauses().get(0);
 
-		project.scheduleBuild2(0, cause, mavenValidateGoals());
+		project.scheduleBuild2(0, cause, mavenValidateGoals(context));
 
 	}
 

@@ -7,15 +7,42 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
+<!-- Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/> All rights 
+	reserved. Licensed under the OSI BSD License. http://www.opensource.org/licenses/bsd-license.php -->
 <?jelly escape-by-default='true'?>
 
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
-	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
-	xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+	xmlns:i="jelly:fmt">
 
 	<j:set var="plugin" value="/plugin/maven-release-cascade" />
 	<j:set var="help" value="${plugin}/help/CascadeBuild" />
 	<j:set var="images" value="${plugin}/images" />
 
+
+	<style type="text/css">
+		img {
+		margin-left:10px;
+		margin-right:10px;
+		}
+	</style>
+
+	<j:set var="resultSize" value="${it.resultSet().size()}" />
+
+	<h3>
+		Cascade Result:
+		<j:out value="${resultSize}" />
+	</h3>
+
+	<ul style="list-style-type: none;">
+		<j:forEach var="result" items="${it.resultSet()}">
+			<li>
+				<img src="${images}/16x16/package.png" alt="" />
+				<a href="${result.buildURL}" class="model-link">
+					${result.artifact}
+				</a>
+			</li>
+		</j:forEach>
+	</ul>
 
 </j:jelly>

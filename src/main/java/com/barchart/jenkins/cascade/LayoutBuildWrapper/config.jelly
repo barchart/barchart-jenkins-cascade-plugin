@@ -7,12 +7,11 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
-<!--
-	Per-project configuration.
--->
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
-	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
-	xmlns:f="/lib/form">
+<!-- Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/> All rights 
+	reserved. Licensed under the OSI BSD License. http://www.opensource.org/licenses/bsd-license.php -->
+<!-- Per-project configuration. -->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
 	<!-- Wrapper instance is not created by default. -->
 	<j:choose>
@@ -32,8 +31,8 @@
 				<img src="${images}/32x32/dragon.png" alt="" />
 			</f:entry>
 
-			<f:entry title="WARNING" help="${help}/section.jelly">
-				<f:textbox disabled="true"
+			<f:entry title="Notice" help="${help}/section.jelly">
+				<f:textbox disabled="true" clazz="warning"
 					value="This is advanced feature. Click SAVE and LOAD if you really mean it. Otherwise click for help --->" />
 			</f:entry>
 		</j:otherwise>

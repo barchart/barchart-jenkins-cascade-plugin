@@ -13,13 +13,41 @@ import hudson.model.Result;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * Cascade build. Manages cascade release logic.
+ * Cascade build.
+ * <p>
+ * Manages cascade release logic and stores the result.
  * 
  * @author Andrei Pozolotin
  */
 public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
+
+	protected class CascadeExecution extends RunExecution {
+
+		@Override
+		public void cleanUp(final BuildListener listener) throws Exception {
+		}
+
+		@Override
+		public void post(final BuildListener listener) throws Exception {
+
+		}
+
+		@Override
+		public Result run(final BuildListener listener) throws Exception {
+
+			final BuildContext<CascadeBuild> context = new BuildContext<CascadeBuild>(
+					CascadeBuild.this, listener);
+
+			return CascadeLogic.process(context);
+		}
+
+	}
+
+	private final Set<CascadeResult> resultSet = new TreeSet<CascadeResult>();
 
 	/** New build form UI. */
 	public CascadeBuild(final CascadeProject project) throws IOException {
@@ -34,7 +62,11 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		setup(project);
 	}
 
-	private void setup(final CascadeProject project) {
+	/**
+	 * Artifacts release in this cascade build.
+	 */
+	public Set<CascadeResult> resultSet() {
+		return resultSet;
 	}
 
 	@Override
@@ -42,27 +74,7 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		execute(new CascadeExecution());
 	}
 
-	protected class CascadeExecution extends RunExecution {
-
-		@Override
-		public Result run(final BuildListener listener) throws Exception {
-
-			final BuildContext<CascadeBuild> context = new BuildContext<CascadeBuild>(
-					CascadeBuild.this, listener);
-
-			return CascadeLogic.process(context);
-		}
-
-		@Override
-		public void post(final BuildListener listener) throws Exception {
-
-		}
-
-		@Override
-		public void cleanUp(final BuildListener listener) throws Exception {
-
-		}
-
+	private void setup(final CascadeProject project) {
 	}
 
 }

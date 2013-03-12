@@ -53,6 +53,16 @@
 				value="${h.defaulted(it.mavenReleaseGoals,it.MAVEN_RELEASE_GOALS)}" />
 		</f:entry>
 
+		<f:entry title="Should Log Actions" field="shouldLogActions"
+			help="${help}/shouldLogActions.jelly">
+			<f:checkbox value="${it.shouldLogActions}" />
+		</f:entry>
+
+		<f:entry title="Should Log Dependency" field="shouldLogDependency"
+			help="${help}/shouldLogDependency.jelly">
+			<f:checkbox value="${it.shouldLogDependency}" />
+		</f:entry>
+
 	</f:section>
 
 </j:jelly>

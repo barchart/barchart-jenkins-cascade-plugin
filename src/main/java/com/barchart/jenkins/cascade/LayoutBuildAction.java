@@ -101,10 +101,11 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 		final String configAction = httpStringParam("configAction", params);
 		final Action arguments = new LayoutArgumentsAction(configAction);
 
-		final Action badge = ProjectAction.form(configAction).badge();
+		final DoLayoutBadge layoutBadge = new DoLayoutBadge();
+		final Action projectBadge = ProjectAction.form(configAction).badge();
 
 		layoutProject.scheduleBuild(0, new LayoutBuildCause(), parameters,
-				arguments, badge);
+				arguments, layoutBadge, projectBadge);
 
 		response.sendRedirect(request.getContextPath() + '/'
 				+ layoutProject.getUrl());

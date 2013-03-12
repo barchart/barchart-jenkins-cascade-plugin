@@ -114,12 +114,12 @@ public class PluginUtilities {
 	 * Validate model entries and create defaults.
 	 */
 	public static void ensureFields(final Model model) {
-		if (model.getGroupId() == null) {
-			final Parent parent = model.getParent();
-			if (parent == null) {
-				return;
-			}
+		final Parent parent = model.getParent();
+		if (model.getGroupId() == null && parent != null) {
 			model.setGroupId(parent.getGroupId());
+		}
+		if (model.getVersion() == null && parent != null) {
+			model.setVersion(parent.getVersion());
 		}
 	}
 
@@ -355,23 +355,29 @@ public class PluginUtilities {
 	/**
 	 * Parse pom.xml file into maven model.
 	 */
-	public static Model mavenModel(final File pomFile) throws Exception {
+	public static Model mavenModel(final File pomFile) throws IOException {
+		try {
 
-		final MavenXpp3Reader xmlReader = new MavenXpp3Reader();
+			final MavenXpp3Reader xmlReader = new MavenXpp3Reader();
 
-		final Reader fileReader = new FileReader(pomFile);
+			final Reader fileReader = new FileReader(pomFile);
 
-		final Model model = xmlReader.read(fileReader);
+			final Model model = xmlReader.read(fileReader);
 
-		return model;
+			ensureFields(model);
 
+			return model;
+
+		} catch (final Throwable e) {
+			throw new IOException(e);
+		}
 	}
 
 	/**
 	 * Extract maven model from jenkins project.
 	 */
 	public static Model mavenModel(final MavenModuleSet project)
-			throws Exception {
+			throws IOException {
 
 		return mavenModel(mavenPomFile(project));
 
@@ -394,25 +400,6 @@ public class PluginUtilities {
 
 		return null;
 
-	}
-
-	/**
-	 * Top level jenkins maven project resolved from the build, or null.
-	 */
-	public static MavenModuleSet mavenModuleSet(final AbstractBuild<?, ?> build) {
-
-		if (build instanceof MavenBuild) {
-			final MavenBuild mavenBuild = (MavenBuild) build;
-			final MavenModule mavenModule = mavenBuild.getProject();
-			return mavenModule.getParent();
-		}
-
-		if (build instanceof MavenModuleSetBuild) {
-			final MavenModuleSetBuild mavenBuild = (MavenModuleSetBuild) build;
-			return mavenBuild.getProject();
-		}
-
-		return null;
 	}
 
 	/**
@@ -457,6 +444,25 @@ public class PluginUtilities {
 		final File pomFile = new File(absolutePath);
 
 		return pomFile;
+	}
+
+	/**
+	 * Top level jenkins maven project resolved from the build, or null.
+	 */
+	public static MavenModuleSet mavenProject(final AbstractBuild<?, ?> build) {
+
+		if (build instanceof MavenBuild) {
+			final MavenBuild mavenBuild = (MavenBuild) build;
+			final MavenModule mavenModule = mavenBuild.getProject();
+			return mavenModule.getParent();
+		}
+
+		if (build instanceof MavenModuleSetBuild) {
+			final MavenModuleSetBuild mavenBuild = (MavenModuleSetBuild) build;
+			return mavenBuild.getProject();
+		}
+
+		return null;
 	}
 
 	/**
@@ -519,6 +525,13 @@ public class PluginUtilities {
 		} else {
 			return version + SNAPSHOT;
 		}
+	}
+
+	/**
+	 * Convert from maven artifact to jenkins module name.
+	 */
+	public static ModuleName moduleName(final Artifact artifact) {
+		return new ModuleName(artifact.getGroupId(), artifact.getArtifactId());
 	}
 
 	/**
