@@ -7,15 +7,8 @@
  */
 package com.barchart.jenkins.cascade;
 
-import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
-
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Model;
 
 /**
  * Build context bean.
@@ -27,7 +20,6 @@ public class BuildContext<B extends AbstractBuild> {
 	private final AbstractBuild build;
 
 	private final BuildListener listener;
-	private final Set<Artifact> resultSet = new TreeSet<Artifact>();
 
 	public BuildContext(//
 			final AbstractBuild build, //
@@ -56,40 +48,13 @@ public class BuildContext<B extends AbstractBuild> {
 		listener.error(PluginConstants.LOGGER_PREFIX + " " + text);
 	}
 
-	/** Log collected artifact results. */
-	public void logResult(final String title) {
-		log(title);
-		if (resultSet.isEmpty()) {
-			log("\t" + "Empty.");
-		} else {
-			for (final Artifact artifact : resultSet) {
-				log("\t" + artifact);
-			}
-		}
+	public void logExc(final Throwable e) {
+		e.printStackTrace(listener().getLogger());
 	}
 
 	/** Log text with plug-in prefix and a tab. */
 	public void logTab(final String text) {
 		log("\t" + text);
-	}
-
-	public void logExc(final Throwable e) {
-		e.printStackTrace(listener().getLogger());
-	}
-
-	/** Collected artifact results. */
-	public Set<Artifact> result() {
-		return resultSet;
-	}
-
-	/** Store artifact result. */
-	public void result(final Artifact artifact) {
-		resultSet.add(artifact);
-	}
-
-	/** Store model result. */
-	public void result(final Model model) {
-		result(mavenArtifact(model));
 	}
 
 }

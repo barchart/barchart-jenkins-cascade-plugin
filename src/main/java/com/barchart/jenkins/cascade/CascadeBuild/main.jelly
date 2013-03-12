@@ -1,21 +1,45 @@
-<!--
-
-    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
-
-    All rights reserved. Licensed under the OSI BSD License.
-
-    http://www.opensource.org/licenses/bsd-license.php
-
--->
+<!-- Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/> All rights 
+	reserved. Licensed under the OSI BSD License. http://www.opensource.org/licenses/bsd-license.php -->
 <?jelly escape-by-default='true'?>
 
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
-	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
-	xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+	xmlns:i="jelly:fmt">
 
 	<j:set var="plugin" value="/plugin/maven-release-cascade" />
 	<j:set var="help" value="${plugin}/help/CascadeBuild" />
 	<j:set var="images" value="${plugin}/images" />
 
+
+	<style type="text/css">
+		img {
+		margin-left:10px;
+		margin-right:10px;
+		}
+	</style>
+
+	<h2>Cascade Result:</h2>
+
+	<ul style="list-style-type: none;">
+		<j:choose>
+			<j:when test="${it.resultSet().isEmpty()}">
+				<h3>
+					(empty)
+				</h3>
+			</j:when>
+			<j:otherwise>
+				<j:forEach var="result" items="${it.resultSet()}">
+					<li>
+						<h3>
+							<img src="${images}/24x24/package.png" alt="" />
+							<a href="${result.buildURL}" class="model-link">
+								${result.artifact}
+							</a>
+						</h3>
+					</li>
+				</j:forEach>
+			</j:otherwise>
+		</j:choose>
+	</ul>
 
 </j:jelly>

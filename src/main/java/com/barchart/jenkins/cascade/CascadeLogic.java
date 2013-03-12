@@ -76,8 +76,8 @@ public class CascadeLogic {
 	public static boolean hasModuleResult(
 			final BuildContext<CascadeBuild> context,
 			final ModuleName moduleName) {
-		for (final Artifact artifact : context.result()) {
-			if (moduleName(artifact).equals(moduleName)) {
+		for (final CascadeResult result : context.build().resultSet()) {
+			if (moduleName(result.getArtifact()).equals(moduleName)) {
 				return true;
 			}
 		}
@@ -116,6 +116,16 @@ public class CascadeLogic {
 		for (final Dependency dependency : dependencyList) {
 			context.logTab("\t" + dependency);
 		}
+	}
+
+	public static void logResult(final BuildContext<CascadeBuild> context) {
+
+		context.log("Cascade result: ");
+
+		for (final CascadeResult result : context.build().resultSet()) {
+			context.logTab(result.toString());
+		}
+
 	}
 
 	/**
@@ -289,6 +299,28 @@ public class CascadeLogic {
 	}
 
 	/**
+	 * Initial member release version.
+	 */
+	public static String memberReleaseVersion(
+			final BuildContext<CascadeBuild> context) {
+		final CascadeBuild build = context.build();
+		final MemberBuildAction action = build
+				.getAction(MemberBuildAction.class);
+		return action.getReleaseVersion();
+	}
+
+	/**
+	 * Initial member development version.
+	 */
+	public static String memberSnapshotVersion(
+			final BuildContext<CascadeBuild> context) {
+		final CascadeBuild build = context.build();
+		final MemberBuildAction action = build
+				.getAction(MemberBuildAction.class);
+		return action.getSnapshotVersion();
+	}
+
+	/**
 	 * Cascade entry point.
 	 */
 	public static Result process(final BuildContext<CascadeBuild> context)
@@ -327,11 +359,7 @@ public class CascadeLogic {
 
 		context.log("Cascade finished: " + result);
 
-		context.logResult("Cascade Result:");
-
-		if (isFailure(result)) {
-			context.build().showError("Cascade failed: " + projectName);
-		}
+		logResult(context);
 
 		return result;
 
@@ -401,7 +429,7 @@ public class CascadeLogic {
 			return Result.FAILURE;
 		}
 
-		context.log("Project: " + project.getAbsoluteUrl());
+		context.logTab("project: " + project.getAbsoluteUrl());
 
 		if (hasModuleResult(context, moduleName)) {
 			context.logTab("Module already released: " + moduleName);
@@ -618,7 +646,12 @@ public class CascadeLogic {
 			return;
 		}
 
-		context.result(mavenModel(pomFile));
+		final Artifact artifact = mavenArtifact(mavenModel(pomFile));
+		final String buildURL = build.getAbsoluteUrl();
+
+		final CascadeResult result = new CascadeResult(artifact, buildURL);
+
+		context.build().resultSet().add(result);
 
 	}
 
