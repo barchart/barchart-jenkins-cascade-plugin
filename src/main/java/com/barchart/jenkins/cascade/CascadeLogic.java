@@ -25,7 +25,6 @@ import java.util.concurrent.Future;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 
-
 /**
  * Release build logic.
  * 
@@ -82,9 +81,12 @@ public class CascadeLogic {
 	 */
 	public static void logActions(final BuildContext<CascadeBuild> context,
 			final List<Action> actionList) {
+		if (!cascadeOptions(context).getShouldLogActions()) {
+			return;
+		}
 		for (final Action action : actionList) {
-			context.log("\t" + action.getClass().getName());
-			context.log("\t\t" + action.toString());
+			context.logTab(action.getClass().getName());
+			context.logTab("\t" + action.toString());
 		}
 	}
 
@@ -93,8 +95,11 @@ public class CascadeLogic {
 	 */
 	public static void logDependency(final BuildContext<CascadeBuild> context,
 			final List<Dependency> dependencyList) {
+		if (!cascadeOptions(context).getShouldLogDependency()) {
+			return;
+		}
 		for (final Dependency dependency : dependencyList) {
-			context.log("\t" + dependency);
+			context.logTab("\t" + dependency);
 		}
 	}
 

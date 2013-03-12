@@ -26,9 +26,6 @@ import org.kohsuke.stapler.StaplerRequest;
 @Extension
 public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 
-	private static final Logger log = Logger.getLogger(CascadeOptions.class
-			.getName());
-
 	public static class TheDescriptor extends Descriptor<CascadeOptions> {
 
 		private CascadeOptions global;
@@ -56,6 +53,9 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 		}
 
 	}
+
+	private static final Logger log = Logger.getLogger(CascadeOptions.class
+			.getName());
 
 	/**
 	 * Perform SCM:
@@ -123,6 +123,9 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 	private String mavenReleaseGoals = MAVEN_RELEASE_GOALS;
 	private String mavenValidateGoals = MAVEN_VALIDATE_GOALS;
 
+	private boolean shouldLogActions = false;
+	private boolean shouldLogDependency = false;
+
 	public CascadeOptions() {
 	}
 
@@ -135,13 +138,20 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 			final String mavenParentGoals, //
 			final String mavenDependencyGoals, //
 			final String mavenCommitGoals, //
-			final String mavenReleaseGoals //
+			final String mavenReleaseGoals, //
+			final boolean shouldLogActions, //
+			final boolean shouldLogDependency //
 	) {
+
 		this.mavenValidateGoals = mavenValidateGoals;
 		this.mavenParentGoals = mavenParentGoals;
 		this.mavenDependencyGoals = mavenDependencyGoals;
 		this.mavenCommitGoals = mavenCommitGoals;
 		this.mavenReleaseGoals = mavenReleaseGoals;
+
+		this.shouldLogActions = shouldLogActions;
+		this.shouldLogDependency = shouldLogDependency;
+
 	}
 
 	public String getMavenCommitGoals() {
@@ -162,6 +172,14 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 
 	public String getMavenValidateGoals() {
 		return mavenValidateGoals;
+	}
+
+	public boolean getShouldLogActions() {
+		return shouldLogActions;
+	}
+
+	public boolean getShouldLogDependency() {
+		return shouldLogDependency;
 	}
 
 }
