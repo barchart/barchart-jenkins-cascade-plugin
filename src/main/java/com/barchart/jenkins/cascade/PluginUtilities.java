@@ -528,6 +528,13 @@ public class PluginUtilities {
 	}
 
 	/**
+	 * Convert from maven artifact to jenkins module name.
+	 */
+	public static ModuleName moduleName(final Artifact artifact) {
+		return new ModuleName(artifact.getGroupId(), artifact.getArtifactId());
+	}
+
+	/**
 	 * Build jenkins module name from maven dependency.
 	 */
 	public static ModuleName moduleName(final Dependency dependency) {

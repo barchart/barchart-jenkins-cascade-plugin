@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 
@@ -67,6 +68,20 @@ public class CascadeLogic {
 	public static boolean hasCascadeCause(
 			final BuildContext<CascadeBuild> context) {
 		return null != cascadeCause(context);
+	}
+
+	/**
+	 * Verify if module was already included in the results.
+	 */
+	public static boolean hasModuleResult(
+			final BuildContext<CascadeBuild> context,
+			final ModuleName moduleName) {
+		for (final Artifact artifact : context.result()) {
+			if (moduleName(artifact).equals(moduleName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -169,7 +184,7 @@ public class CascadeLogic {
 	 */
 	public static String mavenParentFilter(final Parent item) {
 		String version = item.getVersion();
-		version = version.replaceAll(PluginUtilities.SNAPSHOT, "");
+		version = version.replaceAll(SNAPSHOT, "");
 		return "--define parentVersion=[" + version + ",)";
 	}
 
@@ -353,7 +368,7 @@ public class CascadeLogic {
 
 		context.logTab("result: " + result);
 
-		if (PluginUtilities.isSuccess(result)) {
+		if (isSuccess(result)) {
 			storeBuildResult(context, build);
 		}
 
@@ -376,21 +391,26 @@ public class CascadeLogic {
 
 		if (project == null) {
 			context.logErr("Project not found.");
+			context.logErr("Please ensure cascade layout contains this module.");
 			return Result.FAILURE;
 		}
 
 		context.log("Project: " + project.getAbsoluteUrl());
 
+		if (hasModuleResult(context, moduleName)) {
+			context.logTab("Module already released: " + moduleName);
+			return Result.SUCCESS;
+		}
+
 		context.log("Update metadata before release.");
-		if (PluginUtilities.isFailure(process(context, moduleName,
-				mavenValidateGoals(context)))) {
+		if (isFailure(process(context, moduleName, mavenValidateGoals(context)))) {
 			return Result.FAILURE;
 		}
 
 		context.log("Verify project.");
 		if (isRelease(mavenModel(project))) {
-			context.logTab("Project is a release.");
-			context.logErr("Please update project version to a snapshot.");
+			context.logErr("Project is a release.");
+			context.logErr("Please update project version to appropriate snapshot.");
 			return Result.FAILURE;
 		} else {
 			context.logTab("Project is a snapshot.");
@@ -411,7 +431,7 @@ public class CascadeLogic {
 					break PARENT;
 				}
 				context.logTab("Parent needs an update: " + parent);
-				if (PluginUtilities.isFailure(process(context, moduleName,
+				if (isFailure(process(context, moduleName,
 						mavenParentGoals(context, mavenParentFilter(parent))))) {
 					return Result.FAILURE;
 				}
@@ -426,8 +446,7 @@ public class CascadeLogic {
 				}
 				context.logTab("Parent needs a release: " + parent);
 				final ModuleName parentName = moduleName(parent);
-				if (PluginUtilities.isFailure(process(level + 1, context,
-						parentName))) {
+				if (isFailure(process(level + 1, context, parentName))) {
 					return Result.FAILURE;
 				}
 			}
@@ -440,7 +459,7 @@ public class CascadeLogic {
 					break PARENT;
 				}
 				context.logTab("Parent needs a refresh: " + parent);
-				if (PluginUtilities.isFailure(process(context, moduleName,
+				if (isFailure(process(context, moduleName,
 						mavenParentGoals(context, mavenParentFilter(parent))))) {
 					return Result.FAILURE;
 				}
@@ -472,7 +491,7 @@ public class CascadeLogic {
 				}
 				context.logTab("Dependencies need update: " + snapshots.size());
 				logDependency(context, snapshots);
-				if (PluginUtilities.isFailure(process(
+				if (isFailure(process(
 						context,
 						moduleName,
 						mavenDependencyGoals(context,
@@ -492,8 +511,7 @@ public class CascadeLogic {
 				context.logTab("Dependencies need release: " + snapshots.size());
 				for (final Dependency dependency : snapshots) {
 					final ModuleName dependencyName = moduleName(dependency);
-					if (PluginUtilities.isFailure(process(level + 1, context,
-							dependencyName))) {
+					if (isFailure(process(level + 1, context, dependencyName))) {
 						return Result.FAILURE;
 					}
 				}
@@ -510,7 +528,7 @@ public class CascadeLogic {
 				context.logTab("Dependencies needs refresh: "
 						+ snapshots.size());
 				logDependency(context, snapshots);
-				if (PluginUtilities.isFailure(process(
+				if (isFailure(process(
 						context,
 						moduleName,
 						mavenDependencyGoals(context,
@@ -536,24 +554,23 @@ public class CascadeLogic {
 		}
 
 		context.log("Commit pom.xml changes.");
-		if (PluginUtilities.isFailure(process(context, moduleName,
-				mavenCommitGoals(context)))) {
+		if (isFailure(process(context, moduleName, mavenCommitGoals(context)))) {
 			return Result.FAILURE;
 		}
 
 		context.log("Release project.");
-		if (PluginUtilities.isFailure(process(context, moduleName,
-				mavenReleaseGoals(context)))) {
+		if (isFailure(process(context, moduleName, mavenReleaseGoals(context)))) {
 			return Result.FAILURE;
 		}
 
 		/**
 		 * Ensure next non-cascade release will pick up the change.
 		 * 
-		 * TODO
+		 * TODO to it once, optionally, at the end of cascade, for all released
+		 * modules.
 		 */
 		// context.log("Update metadata after release.");
-		// if (PluginUtilities.isFailure(process(context, moduleName,
+		// if (isFailure(process(context, moduleName,
 		// mavenValidateGoals(context)))) {
 		// return Result.FAILURE;
 		// }
