@@ -307,7 +307,9 @@ public class CascadeLogic {
 			return Result.FAILURE;
 		}
 
-		context.log("Cascade started: " + memberProject.getName());
+		final String projectName = memberProject.getName();
+
+		context.log("Cascade started: " + projectName);
 
 		final MavenModule rootModule = memberProject.getRootModule();
 
@@ -326,6 +328,10 @@ public class CascadeLogic {
 		context.log("Cascade finished: " + result);
 
 		context.logResult("Cascade Result:");
+
+		if (isFailure(result)) {
+			context.build().showError("Cascade failed: " + projectName);
+		}
 
 		return result;
 

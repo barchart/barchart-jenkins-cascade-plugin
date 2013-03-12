@@ -65,4 +65,15 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 
 	}
 
+	/**
+	 * Present error pop-up window.
+	 */
+	public void showError(final String message) {
+		try {
+			sendError(message);
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }
