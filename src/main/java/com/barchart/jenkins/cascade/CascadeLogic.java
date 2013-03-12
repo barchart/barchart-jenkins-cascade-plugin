@@ -549,12 +549,14 @@ public class CascadeLogic {
 
 		/**
 		 * Ensure next non-cascade release will pick up the change.
+		 * 
+		 * TODO
 		 */
-		context.log("Update metadata after release.");
-		if (PluginUtilities.isFailure(process(context, moduleName,
-				mavenValidateGoals(context)))) {
-			return Result.FAILURE;
-		}
+		// context.log("Update metadata after release.");
+		// if (PluginUtilities.isFailure(process(context, moduleName,
+		// mavenValidateGoals(context)))) {
+		// return Result.FAILURE;
+		// }
 
 		context.log("Project released: " + moduleName);
 		return Result.SUCCESS;
