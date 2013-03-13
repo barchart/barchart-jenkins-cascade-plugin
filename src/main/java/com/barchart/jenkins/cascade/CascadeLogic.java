@@ -15,12 +15,15 @@ import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.Result;
 import hudson.model.Actionable;
+import hudson.model.Queue;
 import hudson.model.queue.QueueTaskFuture;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
+
+import jenkins.model.Jenkins;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -384,8 +387,18 @@ public class CascadeLogic {
 
 		final MemberBuildCause cause = cascadeCause(context);
 
+		/** Ensure empty project build queue. */
+		final Queue queue = Jenkins.getInstance().getQueue();
+		while (queue.cancel(project)) {
+			context.logTab("removed non-cascade pending build");
+		}
+
 		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = project
 				.scheduleBuild2(0, cause, goals);
+
+		if (buildFuture == null) {
+			context.logErr("Logic error: can not schedule build.");
+		}
 
 		final Future<MavenModuleSetBuild> startFuture = buildFuture
 				.getStartCondition();
