@@ -44,6 +44,7 @@ public class PluginActivator extends Plugin implements
 	public void start() throws Exception {
 		super.start();
 		load();
+		RunLock.init();
 	}
 
 	@Override

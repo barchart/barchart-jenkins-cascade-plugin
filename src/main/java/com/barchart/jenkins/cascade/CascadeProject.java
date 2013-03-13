@@ -64,10 +64,6 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 		return META;
 	}
 
-	public TheDescriptor getMeta() {
-		return META;
-	}
-
 	@Override
 	public String getPronoun() {
 		return PluginConstants.CASCADE_PROJECT_PRONOUN;
