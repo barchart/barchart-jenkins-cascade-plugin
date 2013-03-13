@@ -13,7 +13,7 @@ import hudson.model.AbstractBuild;
 import hudson.model.listeners.RunListener;
 
 /**
- * Build life cycle events listener.
+ * Helps cascade family build mutual exclusion.
  * 
  * @author Andrei Pozolotin
  */

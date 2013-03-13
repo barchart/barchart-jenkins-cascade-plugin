@@ -54,31 +54,38 @@ public class RunDispatcher extends QueueTaskDispatcher {
 
 		case LAYOUT:
 			if (lock.hasLayout()) {
-				return new RunBlockCause("Layout is waiting on Layout.");
+				return new RunBlockCause(
+						"Layout build is waiting on another layout build.");
 			}
 			if (lock.hasCascade()) {
-				return new RunBlockCause("Layout is waiting on Cascade.");
+				return new RunBlockCause(
+						"Layout build is waiting on a cascade build.");
 			}
 			if (lock.hasMember()) {
-				return new RunBlockCause("Layout is waiting on Member.");
+				return new RunBlockCause(
+						"Layout build is waiting on a member build.");
 			}
 			break;
 
 		case CASCADE:
 			if (lock.hasLayout()) {
-				return new RunBlockCause("Cascade is waiting on Layout.");
+				return new RunBlockCause(
+						"Cascade build is waiting on a layout build.");
 			}
 			if (lock.hasCascade()) {
-				return new RunBlockCause("Cascade is waiting on Cascade.");
+				return new RunBlockCause(
+						"Cascade build is waiting on other cascade build.");
 			}
 			if (lock.hasMember()) {
-				return new RunBlockCause("Cascade is waiting on Member.");
+				return new RunBlockCause(
+						"Cascade build is waiting on a member build.");
 			}
 			break;
 
 		case MEMBER:
 			if (lock.hasLayout()) {
-				return new RunBlockCause("Member is waiting on Layout.");
+				return new RunBlockCause(
+						"Member build is waiting on a layout build.");
 			}
 			if (lock.hasCascade()) {
 				final List<Cause> causeList = item.getCauses();
@@ -87,7 +94,8 @@ public class RunDispatcher extends QueueTaskDispatcher {
 					return YES_CAN_RUN;
 				} else {
 					/** Non-cascade member build, must wait. */
-					return new RunBlockCause("Member is waiting on Cascade.");
+					return new RunBlockCause(
+							"Non-cascade member build is waiting on a cascade build.");
 				}
 			}
 			if (lock.hasMember()) {

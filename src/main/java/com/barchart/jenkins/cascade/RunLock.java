@@ -13,9 +13,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Represents mutual exclusion between different project type builds.
+ * Represents mutual exclusion between different cascade family project builds.
  * <p>
- * Singleton per cascade project family during the life of jenkins instance.
+ * Lock is a singleton per cascade project family during the life of jenkins
+ * instance.
  * 
  * @author Andrei Pozolotin
  */
@@ -27,7 +28,7 @@ public class RunLock {
 	private static final ConcurrentMap<String, RunLock> lockMap = new ConcurrentHashMap<String, RunLock>();
 
 	/**
-	 * Produce existing or create new lock.
+	 * Produce existing or create new build lock.
 	 */
 	public static RunLock ensure(final String familyID) {
 		RunLock lock = lockMap.get(familyID);
@@ -40,7 +41,7 @@ public class RunLock {
 	}
 
 	/**
-	 * Ensure class loading and initialization.
+	 * Ensure proper class loading and initialization.
 	 */
 	public static void init() {
 	}
@@ -60,31 +61,44 @@ public class RunLock {
 		}
 	}
 
+	/**
+	 * Cascade family served by this lock.
+	 */
 	public String familyID() {
 		return familyID;
 	}
 
-	/** Check if have any running cascade projects in the family. */
+	/**
+	 * Check if have any running cascade projects in the family.
+	 */
 	public boolean hasCascade() {
 		return isActive(ProjectRole.CASCADE);
 	}
 
-	/** Check if have any running layout projects in the family. */
+	/**
+	 * Check if have any running layout projects in the family.
+	 */
 	public boolean hasLayout() {
 		return isActive(ProjectRole.LAYOUT);
 	}
 
-	/** Check if have any running member projects in the family. */
+	/**
+	 * Check if have any running member projects in the family.
+	 */
 	public boolean hasMember() {
 		return isActive(ProjectRole.MEMBER);
 	}
 
-	/** Check if have running projects with the role. */
+	/**
+	 * Check if have running projects with the role.
+	 */
 	public boolean isActive(final ProjectRole role) {
 		return roleCountMap.get(role).get() > 0;
 	}
 
-	/** Change number of running projects with the role. */
+	/**
+	 * Change number of running projects with the role.
+	 */
 	public void setActive(final ProjectRole role, final boolean on) {
 		final AtomicInteger count = roleCountMap.get(role);
 		if (on) {
