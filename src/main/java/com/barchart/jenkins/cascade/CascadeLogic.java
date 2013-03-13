@@ -398,6 +398,7 @@ public class CascadeLogic {
 
 		if (buildFuture == null) {
 			context.logErr("Logic error: can not schedule build.");
+			return Result.FAILURE;
 		}
 
 		final Future<MavenModuleSetBuild> startFuture = buildFuture
