@@ -7,6 +7,7 @@
  */
 package design;
 
+import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.Launcher;
@@ -15,6 +16,7 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.plugins.git.GitPublisher;
 import hudson.plugins.git.GitPublisher.BranchToPush;
+import hudson.plugins.git.GitPublisher.NoteToPush;
 import hudson.plugins.git.GitPublisher.TagToPush;
 import hudson.plugins.git.GitSCM;
 import hudson.remoting.VirtualChannel;
@@ -25,6 +27,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.transport.RefSpec;
+import org.jenkinsci.plugins.gitclient.Git;
+import org.jenkinsci.plugins.gitclient.GitClient;
+
 import com.barchart.jenkins.cascade.BuildContext;
 
 public class DesignSCM {
@@ -34,9 +41,10 @@ public class DesignSCM {
 		final BranchToPush branch = new BranchToPush("origin", "integration");
 
 		final List<BranchToPush> branchList = Collections.singletonList(branch);
-		final List<TagToPush> tagList = Collections.<TagToPush> emptyList();
+		final List<TagToPush> tagList = Collections.emptyList();
+		final List<NoteToPush> noteList = Collections.emptyList();
 
-		new GitPublisher(tagList, branchList, true, true);
+		new GitPublisher(tagList, branchList, noteList, true, true);
 
 	}
 
@@ -49,15 +57,45 @@ public class DesignSCM {
 			public Boolean invoke(final File file, final VirtualChannel channel)
 					throws IOException, InterruptedException {
 
-				// GitClient git = Git.with(listener, environment)
-				// .in(workspace)
-				// .using(gitExe)
-				// .getClient();
+				final BuildListener listener = null;
+				final FilePath workspacePath = null;
+				final EnvVars environment = null;
+
+				final File workspace = null;
+
+				final String gitExe = "";
+
+				final GitClient git = Git.with(listener, environment)
+						.in(workspace).using(gitExe).getClient();
 
 				return null;
 			}
 
 		};
+
+	}
+
+	public static void scmTest() throws Exception {
+
+		final BuildListener listener = null;
+		final FilePath workspacePath = null;
+		final EnvVars environment = null;
+
+		final File workspace = null;
+
+		final String gitExe = "";
+
+		final GitClient git = Git.with(listener, environment).in(workspace)
+				.using(gitExe).getClient();
+
+		final String remoteName = "";
+		final RefSpec refspec = null;
+
+		git.fetch(remoteName, refspec);
+
+		final ObjectId rev = null;
+
+		git.merge(rev);
 
 	}
 

@@ -28,6 +28,7 @@ import java.io.Reader;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import java.util.Set;
 
 import jenkins.model.Jenkins;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.model.Dependency;
@@ -564,6 +566,35 @@ public class PluginUtilities {
 
 		return set;
 
+	}
+
+	/***/
+	public static Process executeProcess(final File workDir,
+			final String command) throws IOException, InterruptedException {
+		final String[] termArray = command.split("\\s+");
+		return executeProcess(workDir, termArray);
+	}
+
+	/***/
+	public static Process executeProcess(final File workDir,
+			final String... termArray) throws IOException, InterruptedException {
+		final List<String> termList = Arrays.asList(termArray);
+		final ProcessBuilder builder = new ProcessBuilder(termList);
+		final Process process = builder.directory(workDir).start();
+		process.waitFor();
+		return process;
+	}
+
+	/***/
+	public static String executeResult(final File workDir,
+			final String... termArray) throws IOException, InterruptedException {
+		final Process process = executeProcess(workDir, termArray);
+		final String input = IOUtils
+				.toString(process.getInputStream(), "UTF-8");
+		final String error = IOUtils
+				.toString(process.getErrorStream(), "UTF-8");
+		final String result = input + error;
+		return result;
 	}
 
 	/**

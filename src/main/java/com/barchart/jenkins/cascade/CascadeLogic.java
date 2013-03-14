@@ -451,7 +451,11 @@ public class CascadeLogic {
 		}
 
 		context.log("Update metadata before release.");
-		if (isFailure(process(context, moduleName, mavenValidateGoals(context)))) {
+		// if (isFailure(process(context, moduleName,
+		// mavenValidateGoals(context)))) {
+		// return Result.FAILURE;
+		// }
+		if (isFailure(PluginUtilitiesSCM.scmUpdate2(context, project))) {
 			return Result.FAILURE;
 		}
 
@@ -602,7 +606,11 @@ public class CascadeLogic {
 		}
 
 		context.log("Commit pom.xml changes.");
-		if (isFailure(process(context, moduleName, mavenCommitGoals(context)))) {
+		// if (isFailure(process(context, moduleName,
+		// mavenCommitGoals(context)))) {
+		// return Result.FAILURE;
+		// }
+		if (isFailure(PluginUtilitiesSCM.scmCommit2(context, project))) {
 			return Result.FAILURE;
 		}
 
