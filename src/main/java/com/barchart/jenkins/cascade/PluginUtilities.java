@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -563,6 +564,15 @@ public class PluginUtilities {
 
 		return set;
 
+	}
+
+	/**
+	 * Path relative to base.
+	 */
+	public static String relativePath(final String base, final String path) {
+		final URI baseURI = new File(base).toURI();
+		final URI pathURI = new File(path).toURI();
+		return baseURI.relativize(pathURI).getPath();
 	}
 
 	/**

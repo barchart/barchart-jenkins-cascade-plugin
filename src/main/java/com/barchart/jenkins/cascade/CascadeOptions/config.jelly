@@ -55,12 +55,12 @@
 
 		<f:entry title="Should Log Actions" field="shouldLogActions"
 			help="${help}/shouldLogActions.jelly">
-			<f:checkbox value="${it.shouldLogActions}" />
+			<f:checkbox checked="${it.shouldLogActions}" />
 		</f:entry>
 
 		<f:entry title="Should Log Dependency" field="shouldLogDependency"
 			help="${help}/shouldLogDependency.jelly">
-			<f:checkbox value="${it.shouldLogDependency}" />
+			<f:checkbox checked="${it.shouldLogDependency}" />
 		</f:entry>
 
 	</f:section>

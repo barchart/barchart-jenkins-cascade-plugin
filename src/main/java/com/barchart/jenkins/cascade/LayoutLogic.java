@@ -19,6 +19,7 @@ import hudson.model.Action;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractProject;
 import hudson.model.Cause;
+import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.ListView;
 import hudson.plugins.git.GitSCM;
@@ -445,10 +446,22 @@ public class LayoutLogic {
 
 		context.logTab("Update Maven paths.");
 		{
+			/** Member project is nested in the layout project. */
 			final String rootPOM = module.getRelativePath() + "/pom.xml";
-
 			memberProject.setRootPOM(rootPOM);
 
+			if (layoutOptions(context).getUseSharedWorkspace()) {
+				context.logTab("Member is sharing workspace with layout.");
+				final String nodeRoot = Computer.currentComputer().getNode()
+						.getRootPath().getRemote();
+				final String layoutWorkspace = context.build().getWorkspace()
+						.getRemote();
+				final String memberWorkspace = relativePath(nodeRoot,
+						layoutWorkspace);
+				memberProject.setCustomWorkspace(memberWorkspace);
+			} else {
+				context.logTab("Member is using own private workspace.");
+			}
 		}
 
 		context.logTab("Remove cascade layout action.");
@@ -608,9 +621,15 @@ public class LayoutLogic {
 
 		context.logTab("project: " + project.getAbsoluteUrl());
 
-		final Cause cause = context.build().getCauses().get(0);
+		if (layoutOptions(context).getBuildAfterLayout()) {
 
-		project.scheduleBuild2(0, cause, mavenValidateGoals(context));
+			final Cause cause = context.build().getCauses().get(0);
+
+			project.scheduleBuild2(0, cause, mavenValidateGoals(context));
+
+			context.logTab("building now");
+
+		}
 
 	}
 

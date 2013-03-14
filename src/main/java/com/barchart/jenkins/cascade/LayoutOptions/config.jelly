@@ -48,6 +48,16 @@
 				value="${h.defaulted(it.cascadeProjectName,it.CASCADE_PROJECT_NAME)}" />
 		</f:entry>
 
+		<f:entry title="Use Shared Workspace" field="useSharedWorkspace"
+			help="${help}/useSharedWorkspace.jelly">
+			<f:checkbox checked="${it.useSharedWorkspace}" />
+		</f:entry>
+
+		<f:entry title="Build Member After Layout" field="buildAfterLayout"
+			help="${help}/buildAfterLayout.jelly">
+			<f:checkbox checked="${it.buildAfterLayout}" />
+		</f:entry>
+
 	</f:section>
 
 </j:jelly>
