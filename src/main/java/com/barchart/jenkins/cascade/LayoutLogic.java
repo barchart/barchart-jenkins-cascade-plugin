@@ -451,7 +451,6 @@ public class LayoutLogic {
 			memberProject.setRootPOM(rootPOM);
 
 			if (layoutOptions(context).getUseSharedWorkspace()) {
-				context.logTab("Member is sharing workspace with layout.");
 				final String nodeRoot = Computer.currentComputer().getNode()
 						.getRootPath().getRemote();
 				final String layoutWorkspace = context.build().getWorkspace()
@@ -459,8 +458,9 @@ public class LayoutLogic {
 				final String memberWorkspace = relativePath(nodeRoot,
 						layoutWorkspace);
 				memberProject.setCustomWorkspace(memberWorkspace);
+				context.logTab("Member is sharing workspace with layout.");
 			} else {
-				context.logTab("Member is using own private workspace.");
+				context.logTab("Member is using its own private workspace.");
 			}
 		}
 
