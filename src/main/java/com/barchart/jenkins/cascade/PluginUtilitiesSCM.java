@@ -5,6 +5,7 @@ import hudson.maven.MavenModuleSet;
 import hudson.model.Result;
 import hudson.model.TaskListener;
 import hudson.model.Node;
+import hudson.plugins.git.Branch;
 import hudson.plugins.git.GitException;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.opt.PreBuildMergeOptions;
@@ -14,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.jenkinsci.plugins.gitclient.Git;
 import org.jenkinsci.plugins.gitclient.GitClient;
@@ -92,6 +95,8 @@ public class PluginUtilitiesSCM {
 		final GitClient git = Git.with(null, null).in(workspace).using(gitExe)
 				.getClient();
 
+		final String branch = gitScm.getLocalBranch();
+
 		final PreBuildMergeOptions mergeOptions = gitScm.getMergeOptions();
 
 		final RemoteConfig remote = mergeOptions.getMergeRemote();
@@ -122,9 +127,32 @@ public class PluginUtilitiesSCM {
 		final GitClient git = Git.with(null, null).in(workspace).using(gitExe)
 				.getClient();
 
+		final Branch localBranch = git.getBranches().iterator().next();
+		final Branch remoteBranch = git.getRemoteBranches().iterator().next();
+
+		final String remoteBranchName = remoteBranch.getName();
+
+		final ObjectId target = git.revParse(remoteBranchName);
+
+		final Repository repository = git.getRepository();
+
 		git.fetch(null, null);
 
-		// git.merge(null);
+		git.merge(target);
+
+		return Result.SUCCESS;
+
+	}
+
+	public static Result scmCommit3(final BuildContext<CascadeBuild> context,
+			final MavenModuleSet project) {
+
+		return Result.SUCCESS;
+
+	}
+
+	public static Result scmUpdate3(final BuildContext<CascadeBuild> context,
+			final MavenModuleSet project) throws GitException, IOException {
 
 		return Result.SUCCESS;
 
