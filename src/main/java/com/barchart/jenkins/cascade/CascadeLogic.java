@@ -14,6 +14,7 @@ import hudson.maven.MavenModuleSet;
 import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.Result;
+import hudson.model.AbstractProject;
 import hudson.model.Actionable;
 import hudson.model.Queue;
 import hudson.model.queue.QueueTaskFuture;
@@ -50,19 +51,32 @@ public class CascadeLogic {
 	 */
 	public static CascadeOptions cascadeOptions(
 			final BuildContext<CascadeBuild> context) {
-
-		final CascadeProject cascadeProject = context.build().getProject();
-
-		final ProjectIdentity property = ProjectIdentity
-				.identity(cascadeProject);
-
-		final MavenModuleSet layoutProject = property.layoutProject();
-
+		final MavenModuleSet layoutProject = layoutProject(context);
 		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
 				.wrapper(layoutProject);
-
 		return wrapper.getCascadeOptions();
+	}
 
+	/**
+	 * Find layout project form any cascade family project.
+	 */
+	public static MavenModuleSet layoutProject(final BuildContext<?> context) {
+		final AbstractProject<?, ?> currentProject = context.build()
+				.getProject();
+		final ProjectIdentity property = ProjectIdentity
+				.identity(currentProject);
+		final MavenModuleSet layoutProject = property.layoutProject();
+		return layoutProject;
+	}
+
+	/**
+	 * Extract layout options from layout build wrapper.
+	 */
+	public static LayoutOptions layoutOptions(final BuildContext<?> context) {
+		final MavenModuleSet layoutProject = layoutProject(context);
+		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
+				.wrapper(layoutProject);
+		return wrapper.getLayoutOptions();
 	}
 
 	/**
@@ -228,6 +242,7 @@ public class CascadeLogic {
 		goals.append(cascadeOptions.getMavenReleaseGoals());
 		goals.append(options);
 		final List<Action> list = new ArrayList<Action>();
+		list.add(new CheckoutSkipAction()); // XXX
 		list.add(new DoCascadeBadge());
 		list.add(new DoReleaseBadge());
 		list.add(goals);
@@ -445,18 +460,25 @@ public class CascadeLogic {
 
 		context.logTab("project: " + project.getAbsoluteUrl());
 
+		final String pomFile = project.getRootPOM(null);
+
 		if (hasModuleResult(context, moduleName)) {
 			context.logTab("Module already released: " + moduleName);
 			return Result.SUCCESS;
 		}
 
 		context.log("Update metadata before release.");
-		// if (isFailure(process(context, moduleName,
-		// mavenValidateGoals(context)))) {
-		// return Result.FAILURE;
-		// }
-		if (isFailure(PluginUtilitiesSCM.scmUpdate2(context, project))) {
-			return Result.FAILURE;
+		UPDATE: {
+
+			if (layoutOptions(context).getUseSharedWorkspace() && level > 1) {
+				context.logTab("using shared workspace - skip");
+				break UPDATE;
+			}
+
+			if (isFailure(PluginScm.scmUpdate(context, project))) {
+				return Result.FAILURE;
+			}
+
 		}
 
 		context.log("Verify project.");
@@ -528,6 +550,11 @@ public class CascadeLogic {
 				return Result.FAILURE;
 			}
 
+		}
+
+		context.log("Commit (parent update): " + pomFile);
+		if (isFailure(PluginScm.scmCommit(context, project))) {
+			return Result.FAILURE;
 		}
 
 		context.log("Process dependencies.");
@@ -605,12 +632,8 @@ public class CascadeLogic {
 
 		}
 
-		context.log("Commit pom.xml changes.");
-		// if (isFailure(process(context, moduleName,
-		// mavenCommitGoals(context)))) {
-		// return Result.FAILURE;
-		// }
-		if (isFailure(PluginUtilitiesSCM.scmCommit2(context, project))) {
+		context.log("Commit (dependency update):" + pomFile);
+		if (isFailure(PluginScm.scmCommit(context, project))) {
 			return Result.FAILURE;
 		}
 

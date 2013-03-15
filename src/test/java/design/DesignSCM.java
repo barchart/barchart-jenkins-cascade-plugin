@@ -7,12 +7,14 @@
  */
 package design;
 
+import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.plugins.git.GitPublisher;
 import hudson.plugins.git.GitPublisher.BranchToPush;
@@ -33,6 +35,7 @@ import org.jenkinsci.plugins.gitclient.Git;
 import org.jenkinsci.plugins.gitclient.GitClient;
 
 import com.barchart.jenkins.cascade.BuildContext;
+import com.barchart.jenkins.cascade.PluginScm;
 
 public class DesignSCM {
 
@@ -130,6 +133,49 @@ public class DesignSCM {
 		return scm
 				.checkout(build, launcher, workspace, listener, changelogFile);
 
+	}
+
+	public static Result scmCommit1(final BuildContext<?> context,
+			final MavenModuleSet project) throws IOException,
+			InterruptedException {
+		final SCM scm = project.getScm();
+		if (scm instanceof GitSCM) {
+			final String result = DesignSCM.gitPush(context, project);
+			context.logTab(result);
+			return Result.SUCCESS;
+		}
+		throw new IllegalStateException("Unsupported SCM");
+	}
+
+	public static Result scmUpdate1(final BuildContext<?> context,
+			final MavenModuleSet project) throws IOException,
+			InterruptedException {
+		final SCM scm = project.getScm();
+		context.logTab("### scm:" + scm);
+		if (scm instanceof GitSCM) {
+			final String result = DesignSCM.gitPull(context, project);
+			context.logTab(result);
+			return Result.SUCCESS;
+		}
+		throw new IllegalStateException("Unsupported SCM");
+	}
+
+	public static String gitPull(final BuildContext<?> context,
+			final MavenModuleSet project) throws IOException,
+			InterruptedException {
+		final String git = PluginScm.gitExe(context, project);
+		final File workDir = PluginScm.gitDir(context, project);
+		final String result = executeResult(workDir, git, "pull");
+		return result;
+	}
+
+	public static String gitPush(final BuildContext<?> context,
+			final MavenModuleSet project) throws IOException,
+			InterruptedException {
+		final String git = PluginScm.gitExe(context, project);
+		final File workDir = PluginScm.gitDir(context, project);
+		final String result = executeResult(workDir, git, "push");
+		return result;
 	}
 
 }
