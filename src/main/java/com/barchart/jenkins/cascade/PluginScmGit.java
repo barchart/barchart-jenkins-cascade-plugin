@@ -32,6 +32,30 @@ import org.eclipse.jgit.transport.RefSpec;
 public class PluginScmGit {
 
 	/**
+	 * Short name of current branch.
+	 */
+	public static String branch(final File workspace) {
+		try {
+			final Git git = Git.open(workspace);
+			return git.getRepository().getBranch();
+		} catch (final Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Spec name of current branch.
+	 */
+	public static String branchSpec(final File workspace) {
+		try {
+			final Git git = Git.open(workspace);
+			return git.getRepository().getFullBranch();
+		} catch (final Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
 	 * See {@link Git#add()}
 	 */
 	public static DirCache doAdd(final File workspace, final String pattern) {
@@ -130,30 +154,6 @@ public class PluginScmGit {
 		try {
 			final Git git = Git.open(workspace);
 			return git.status().call();
-		} catch (final Throwable e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Short name of current branch.
-	 */
-	public static String branch(final File workspace) {
-		try {
-			final Git git = Git.open(workspace);
-			return git.getRepository().getBranch();
-		} catch (final Throwable e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Spec name of current branch.
-	 */
-	public static String branchSpec(final File workspace) {
-		try {
-			final Git git = Git.open(workspace);
-			return git.getRepository().getFullBranch();
 		} catch (final Throwable e) {
 			throw new RuntimeException(e);
 		}

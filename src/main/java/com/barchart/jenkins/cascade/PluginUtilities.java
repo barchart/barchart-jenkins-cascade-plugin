@@ -165,6 +165,35 @@ public class PluginUtilities {
 		project.addProperty(property);
 	}
 
+	/***/
+	public static Process executeProcess(final File workDir,
+			final String command) throws IOException, InterruptedException {
+		final String[] termArray = command.split("\\s+");
+		return executeProcess(workDir, termArray);
+	}
+
+	/***/
+	public static Process executeProcess(final File workDir,
+			final String... termArray) throws IOException, InterruptedException {
+		final List<String> termList = Arrays.asList(termArray);
+		final ProcessBuilder builder = new ProcessBuilder(termList);
+		final Process process = builder.directory(workDir).start();
+		process.waitFor();
+		return process;
+	}
+
+	/***/
+	public static String executeResult(final File workDir,
+			final String... termArray) throws IOException, InterruptedException {
+		final Process process = executeProcess(workDir, termArray);
+		final String input = IOUtils
+				.toString(process.getInputStream(), "UTF-8");
+		final String error = IOUtils
+				.toString(process.getErrorStream(), "UTF-8");
+		final String result = input + error;
+		return result;
+	}
+
 	/**
 	 * Extract HTTP string parameter.
 	 */
@@ -566,35 +595,6 @@ public class PluginUtilities {
 
 		return set;
 
-	}
-
-	/***/
-	public static Process executeProcess(final File workDir,
-			final String command) throws IOException, InterruptedException {
-		final String[] termArray = command.split("\\s+");
-		return executeProcess(workDir, termArray);
-	}
-
-	/***/
-	public static Process executeProcess(final File workDir,
-			final String... termArray) throws IOException, InterruptedException {
-		final List<String> termList = Arrays.asList(termArray);
-		final ProcessBuilder builder = new ProcessBuilder(termList);
-		final Process process = builder.directory(workDir).start();
-		process.waitFor();
-		return process;
-	}
-
-	/***/
-	public static String executeResult(final File workDir,
-			final String... termArray) throws IOException, InterruptedException {
-		final Process process = executeProcess(workDir, termArray);
-		final String input = IOUtils
-				.toString(process.getInputStream(), "UTF-8");
-		final String error = IOUtils
-				.toString(process.getErrorStream(), "UTF-8");
-		final String result = input + error;
-		return result;
 	}
 
 	/**
