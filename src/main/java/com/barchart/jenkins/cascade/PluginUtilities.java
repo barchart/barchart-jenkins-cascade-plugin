@@ -258,9 +258,15 @@ public class PluginUtilities {
 
 	/**
 	 * Maven dependency version looks like snapshot.
+	 * <p>
+	 * Missing dependency means dependency inherited from parent.
 	 */
 	public static boolean isSnapshot(final Dependency dependency) {
-		return isSnapshot(dependency.getVersion());
+		final String version = dependency.getVersion();
+		if (version == null) {
+			return false;
+		}
+		return isSnapshot(version);
 	}
 
 	/**
