@@ -556,6 +556,9 @@ public class CascadeLogic {
 					break DEPENDENCY;
 				}
 				context.logTab("dependencies need release: " + snapshots.size());
+				if (isFailure(PluginScm.scmCommit(context, project))) {
+					return Result.FAILURE;
+				}
 				for (final Dependency dependency : snapshots) {
 					final ModuleName dependencyName = moduleName(dependency);
 					if (isFailure(process(level + 1, context, dependencyName))) {
