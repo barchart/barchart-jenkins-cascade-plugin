@@ -15,15 +15,12 @@ import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.Result;
 import hudson.model.Actionable;
-import hudson.model.Queue;
 import hudson.model.queue.QueueTaskFuture;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-
-import jenkins.model.Jenkins;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -357,7 +354,6 @@ public class CascadeLogic {
 			throws Exception {
 
 		context.logTab("module: " + moduleName);
-		logActions(context, goals);
 
 		final MavenModuleSet project = memberProject(context, moduleName);
 
@@ -366,13 +362,12 @@ public class CascadeLogic {
 			return Result.FAILURE;
 		}
 
-		final MemberBuildCause cause = cascadeCause(context);
+		final MemberQueueAction queue = new MemberQueueAction();
+		// goals.add(queue); // XXX
 
-		/** Ensure empty project build queue. */
-		final Queue queue = Jenkins.getInstance().getQueue();
-		while (queue.cancel(project)) {
-			context.logTab("removed non-cascade pending build");
-		}
+		logActions(context, goals);
+
+		final MemberBuildCause cause = cascadeCause(context);
 
 		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = project
 				.scheduleBuild2(0, cause, goals);

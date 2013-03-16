@@ -24,7 +24,7 @@ import java.util.Collections;
 @Extension
 public class MemberBuildActionFactory extends TransientProjectActionFactory {
 
-	/** Interested on in cascade member projects. */
+	/** Interested in cascade member projects. */
 	@Override
 	public Collection<? extends Action> createFor(final AbstractProject project) {
 

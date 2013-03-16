@@ -27,4 +27,9 @@ public class RunBlockCause extends CauseOfBlockage {
 		return descrpition;
 	}
 
+	@Override
+	public String toString() {
+		return descrpition;
+	}
+
 }

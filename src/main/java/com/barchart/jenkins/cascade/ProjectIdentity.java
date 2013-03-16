@@ -412,6 +412,10 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		return memberProject(this);
 	}
 
+	public List<MavenModuleSet> memberProjectList() {
+		return memberProjectList(getFamilyID());
+	}
+
 	public ProjectRole role() {
 		return ProjectRole.from(projectRole);
 	}

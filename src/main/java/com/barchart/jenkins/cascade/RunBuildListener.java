@@ -10,7 +10,10 @@ package com.barchart.jenkins.cascade;
 import hudson.Extension;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.listeners.RunListener;
+
+import java.util.logging.Logger;
 
 /**
  * Helps cascade family build mutual exclusion.
@@ -20,11 +23,15 @@ import hudson.model.listeners.RunListener;
 @Extension
 public class RunBuildListener extends RunListener<AbstractBuild<?, ?>> {
 
+	protected final static Logger log = Logger.getLogger(RunBuildListener.class
+			.getName());
+
 	@Override
 	public void onFinalized(final AbstractBuild<?, ?> build) {
 
-		final ProjectIdentity identity = ProjectIdentity.identity(build
-				.getProject());
+		final AbstractProject<?, ?> project = build.getProject();
+		final ProjectIdentity identity = ProjectIdentity.identity(project);
+		// log.info("@@@ identity: " + project.getName() + " : " + identity);
 
 		if (identity == null) {
 			return;
@@ -42,8 +49,9 @@ public class RunBuildListener extends RunListener<AbstractBuild<?, ?>> {
 	public void onStarted(final AbstractBuild<?, ?> build,
 			final TaskListener listener) {
 
-		final ProjectIdentity identity = ProjectIdentity.identity(build
-				.getProject());
+		final AbstractProject<?, ?> project = build.getProject();
+		final ProjectIdentity identity = ProjectIdentity.identity(project);
+		// log.info("@@@ identity: " + project.getName() + " : " + identity);
 
 		if (identity == null) {
 			return;

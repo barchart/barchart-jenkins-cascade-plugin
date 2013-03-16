@@ -11,10 +11,14 @@ import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Cause;
 import hudson.model.Queue;
+import hudson.model.Queue.Item;
 import hudson.model.queue.QueueTaskDispatcher;
 import hudson.model.queue.CauseOfBlockage;
 
 import java.util.List;
+import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 /**
  * Controls when cascade family project builds are permitted to run.
@@ -24,31 +28,65 @@ import java.util.List;
 @Extension
 public class RunDispatcher extends QueueTaskDispatcher {
 
+	protected final static Logger log = Logger.getLogger(RunDispatcher.class
+			.getName());
+
 	/**
 	 * Cause of no block.
 	 */
 	public static final CauseOfBlockage YES_CAN_RUN = null;
 
+	public static ProjectIdentity identity(final Item item) {
+		final AbstractProject<?, ?> project = project(item);
+		if (project == null) {
+			return null;
+		}
+		final ProjectIdentity identity = ProjectIdentity.identity(project);
+		return identity;
+	}
+
+	public static AbstractProject<?, ?> project(final Item item) {
+		if (!(item.task instanceof AbstractProject)) {
+			return null;
+		}
+		final AbstractProject<?, ?> project = (AbstractProject<?, ?>) item.task;
+		return project;
+	}
+
 	@Override
 	public CauseOfBlockage canRun(final Queue.Item item) {
 
-		/** Expect only maven and cascade projects. */
-		if (!(item.task instanceof AbstractProject)) {
-			return YES_CAN_RUN;
-		}
+		// return null;
 
-		final AbstractProject<?, ?> project = (AbstractProject<?, ?>) item.task;
-
-		final ProjectIdentity identity = ProjectIdentity.identity(project);
+		final ProjectIdentity identity = identity(item);
 
 		/** Cascade family projects must have identity. */
 		if (identity == null) {
 			return YES_CAN_RUN;
 		}
 
-		final String familyID = identity.getFamilyID();
+		final RunLock lock = RunLock.ensure(identity.getFamilyID());
 
-		final RunLock lock = RunLock.ensure(familyID);
+		synchronized (lock) {
+			final CauseOfBlockage buildCause = canRunDueBuild(identity, lock,
+					item);
+			if (buildCause != null) {
+				return buildCause;
+			}
+			final CauseOfBlockage queueCause = canRunDueQueue(identity);
+			if (queueCause != null) {
+				return queueCause;
+			}
+		}
+
+		return YES_CAN_RUN;
+
+	}
+
+	/**
+	 */
+	public CauseOfBlockage canRunDueBuild(final ProjectIdentity identity,
+			final RunLock lock, final Queue.Item item) {
 
 		switch (identity.role()) {
 
@@ -99,11 +137,8 @@ public class RunDispatcher extends QueueTaskDispatcher {
 				}
 			}
 			if (lock.hasMember()) {
-				/**
-				 * Non-cascade member build exclusion is managed by jenkins
-				 * core.
-				 */
-				return YES_CAN_RUN;
+				return new RunBlockCause(
+						"Member build is waiting on another member build.");
 			}
 			break;
 
@@ -113,6 +148,60 @@ public class RunDispatcher extends QueueTaskDispatcher {
 
 		return YES_CAN_RUN;
 
+	}
+
+	/**
+	 */
+	public CauseOfBlockage canRunDueQueue(final ProjectIdentity source) {
+
+		int sourceItemId = 0;
+		int minimumItemId = Integer.MAX_VALUE;
+
+		final String sourceId = source.getFamilyID();
+
+		final Queue queue = Jenkins.getInstance().getQueue();
+
+		final Item[] itemList = queue.getItems();
+
+		for (final Item item : itemList) {
+
+			final ProjectIdentity target = identity(item);
+
+			/** Cascade projects must have identity. */
+			if (target == null) {
+				continue;
+			}
+
+			final String targetId = target.getFamilyID();
+
+			/** Cascade project from another family. */
+			if (!sourceId.equals(targetId)) {
+				continue;
+			}
+
+			/** Found self. */
+			if (source.equals(target)) {
+				sourceItemId = item.id;
+			}
+
+			/** Found minimal id. */
+			if (item.id < minimumItemId) {
+				minimumItemId = item.id;
+			}
+
+		}
+
+		/** No cascade projects - permit to run. */
+		if (sourceItemId == 0) {
+			return null;
+		}
+
+		/** Permit to run project with minimum id. */
+		if (sourceItemId == minimumItemId) {
+			return null;
+		}
+
+		return new RunBlockCause("Project is yielding to another project.");
 	}
 
 }

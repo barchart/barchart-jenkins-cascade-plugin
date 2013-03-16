@@ -424,9 +424,8 @@ public class LayoutLogic {
 
 			}
 
-			context.logErr("###################################");
-			context.logErr("WARNING: YOU ARE USING UNTESTED SCM");
-			context.logErr("###################################");
+			throw new IllegalStateException("Unsupported SCM");
+
 		}
 
 		context.logTab("Update Maven paths.");
@@ -449,12 +448,15 @@ public class LayoutLogic {
 			}
 		}
 
-		context.logTab("Remove cascade layout action.");
+		context.logTab("Configure build wrappers.");
 		{
 			final DescribableList<BuildWrapper, Descriptor<BuildWrapper>> buildWrapperList = memberProject
 					.getBuildWrappersList();
 
 			buildWrapperList.remove(LayoutBuildWrapper.class);
+
+			// BuildWrapper item = null;
+			// buildWrapperList.add(item);
 		}
 
 		context.logTab("Ensure member identity.");

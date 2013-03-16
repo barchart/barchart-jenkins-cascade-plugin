@@ -10,18 +10,8 @@ package com.barchart.jenkins.cascade;
 import hudson.Extension;
 import hudson.model.ItemGroup;
 import hudson.model.TopLevelItem;
-import hudson.model.Descriptor.FormException;
 import hudson.model.Project;
 import hudson.model.Queue.FlyweightTask;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-
-import net.sf.json.JSONObject;
-
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Cascade orchestration project.
@@ -67,19 +57,6 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 	@Override
 	public String getPronoun() {
 		return PluginConstants.CASCADE_PROJECT_PRONOUN;
-	}
-
-	@Override
-	protected void submit(final StaplerRequest request,
-			final StaplerResponse response) throws IOException,
-			ServletException, FormException {
-
-		super.submit(request, response);
-
-		final JSONObject json = request.getSubmittedForm();
-
-		getBuildWrappers();
-
 	}
 
 }
