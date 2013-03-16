@@ -444,11 +444,11 @@ public class CascadeLogic {
 
 		context.log("Verify project.");
 		if (isRelease(mavenModel(project))) {
-			context.logErr("project is a release.");
-			context.logErr("please update project version to appropriate snapshot.");
+			context.logErr("project is a release");
+			context.logErr("please update project version to appropriate snapshot");
 			return Result.FAILURE;
 		} else {
-			context.logTab("project is a snapshot.");
+			context.logTab("project is a snapshot");
 		}
 
 		context.log("Process parent.");
@@ -458,7 +458,7 @@ public class CascadeLogic {
 			{
 				final Parent parent = mavenParent(project);
 				if (parent == null) {
-					context.logTab("project has no parent.");
+					context.logTab("project has no parent");
 					break PARENT;
 				}
 				if (isRelease(parent)) {
@@ -477,6 +477,9 @@ public class CascadeLogic {
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
 					context.logTab("parent updated: " + parent);
+					if (isFailure(PluginScm.scmCommit(context, project))) {
+						return Result.FAILURE;
+					}
 					break PARENT;
 				}
 				context.logTab("parent needs a release: " + parent);
@@ -491,6 +494,9 @@ public class CascadeLogic {
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
 					context.logTab("parent refreshed: " + parent);
+					if (isFailure(PluginScm.scmCommit(context, project))) {
+						return Result.FAILURE;
+					}
 					break PARENT;
 				}
 				context.logTab("parent needs a refresh: " + parent);
@@ -505,17 +511,15 @@ public class CascadeLogic {
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
 					context.logTab("parent verified: " + parent);
+					if (isFailure(PluginScm.scmCommit(context, project))) {
+						return Result.FAILURE;
+					}
 					break PARENT;
 				}
 				context.logErr("can not verify parent:" + parent);
 				return Result.FAILURE;
 			}
 
-		}
-
-		context.log("Commit parent update: " + pomFile);
-		if (isFailure(PluginScm.scmCommit(context, project))) {
-			return Result.FAILURE;
 		}
 
 		context.log("Process dependencies.");
@@ -526,7 +530,7 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.logTab("project has no snapshot dependencies.");
+					context.logTab("project has no snapshot dependencies");
 					break DEPENDENCY;
 				}
 				context.logTab("dependencies need update: " + snapshots.size());
@@ -545,7 +549,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.logTab("dependencies are updated.");
+					context.logTab("dependencies are updated");
+					if (isFailure(PluginScm.scmCommit(context, project))) {
+						return Result.FAILURE;
+					}
 					break DEPENDENCY;
 				}
 				context.logTab("dependencies need release: " + snapshots.size());
@@ -562,7 +569,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.logTab("dependencies are released.");
+					context.logTab("dependencies are released");
+					if (isFailure(PluginScm.scmCommit(context, project))) {
+						return Result.FAILURE;
+					}
 					break DEPENDENCY;
 				}
 				context.logTab("dependencies need refresh: " + snapshots.size());
@@ -581,7 +591,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.logTab("dependencies are verified.");
+					context.logTab("dependencies are verified");
+					if (isFailure(PluginScm.scmCommit(context, project))) {
+						return Result.FAILURE;
+					}
 					break DEPENDENCY;
 				}
 				context.logErr("failed to verify dependency: "
@@ -590,11 +603,6 @@ public class CascadeLogic {
 				return Result.FAILURE;
 			}
 
-		}
-
-		context.log("Commit dependency update: " + pomFile);
-		if (isFailure(PluginScm.scmCommit(context, project))) {
-			return Result.FAILURE;
 		}
 
 		context.log("Release project.");
