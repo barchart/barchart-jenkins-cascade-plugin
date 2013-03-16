@@ -142,28 +142,13 @@ public class LayoutLogic {
 			final BuildContext<MavenModuleSetBuild> context,
 			final TopLevelItem project) throws IOException {
 
-		final String viewName = layoutOptions(context).getLayoutViewName();
+		final String viewName = context.layoutOptions().getLayoutViewName();
 
 		final ListView view = ensureListView(viewName);
 
 		view.add(project);
 
 		context.logTab("Project view: " + view.getAbsoluteUrl());
-
-	}
-
-	/**
-	 * Extract layout options from layout build wrapper.
-	 */
-	public static LayoutOptions layoutOptions(
-			final BuildContext<MavenModuleSetBuild> context) {
-
-		final MavenModuleSet layoutProject = context.build().getProject();
-
-		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
-				.wrapper(layoutProject);
-
-		return wrapper.getLayoutOptions();
 
 	}
 
@@ -209,7 +194,7 @@ public class LayoutLogic {
 		final VariableResolver<String> resolver = new VariableResolver.Union<String>(
 				moduleResolver, buildResolver);
 
-		final String memberPattern = layoutOptions(context)
+		final String memberPattern = context.layoutOptions()
 				.getMemberProjectName();
 
 		final String memberName = Util.replaceMacro(memberPattern, resolver);
@@ -450,7 +435,7 @@ public class LayoutLogic {
 			final String rootPOM = module.getRelativePath() + "/pom.xml";
 			memberProject.setRootPOM(rootPOM);
 
-			if (layoutOptions(context).getUseSharedWorkspace()) {
+			if (context.layoutOptions().getUseSharedWorkspace()) {
 				final String nodeRoot = Computer.currentComputer().getNode()
 						.getRootPath().getRemote();
 				final String layoutWorkspace = context.build().getWorkspace()
@@ -621,7 +606,7 @@ public class LayoutLogic {
 
 		context.logTab("project: " + project.getAbsoluteUrl());
 
-		if (layoutOptions(context).getBuildAfterLayout()) {
+		if (context.layoutOptions().getBuildAfterLayout()) {
 
 			final Cause cause = context.build().getCauses().get(0);
 

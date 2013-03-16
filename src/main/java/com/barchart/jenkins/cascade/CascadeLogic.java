@@ -14,7 +14,6 @@ import hudson.maven.MavenModuleSet;
 import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.Result;
-import hudson.model.AbstractProject;
 import hudson.model.Actionable;
 import hudson.model.Queue;
 import hudson.model.queue.QueueTaskFuture;
@@ -44,39 +43,6 @@ public class CascadeLogic {
 			final BuildContext<CascadeBuild> context) {
 		final CascadeBuild build = context.build();
 		return build.getCause(MemberBuildCause.class);
-	}
-
-	/**
-	 * Extract cascade options from layout build wrapper.
-	 */
-	public static CascadeOptions cascadeOptions(
-			final BuildContext<CascadeBuild> context) {
-		final MavenModuleSet layoutProject = layoutProject(context);
-		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
-				.wrapper(layoutProject);
-		return wrapper.getCascadeOptions();
-	}
-
-	/**
-	 * Find layout project form any cascade family project.
-	 */
-	public static MavenModuleSet layoutProject(final BuildContext<?> context) {
-		final AbstractProject<?, ?> currentProject = context.build()
-				.getProject();
-		final ProjectIdentity property = ProjectIdentity
-				.identity(currentProject);
-		final MavenModuleSet layoutProject = property.layoutProject();
-		return layoutProject;
-	}
-
-	/**
-	 * Extract layout options from layout build wrapper.
-	 */
-	public static LayoutOptions layoutOptions(final BuildContext<?> context) {
-		final MavenModuleSet layoutProject = layoutProject(context);
-		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
-				.wrapper(layoutProject);
-		return wrapper.getLayoutOptions();
 	}
 
 	/**
@@ -113,7 +79,7 @@ public class CascadeLogic {
 	 */
 	public static void logActions(final BuildContext<CascadeBuild> context,
 			final List<Action> actionList) {
-		if (!cascadeOptions(context).getShouldLogActions()) {
+		if (!context.cascadeOptions().getShouldLogActions()) {
 			return;
 		}
 		for (final Action action : actionList) {
@@ -127,7 +93,7 @@ public class CascadeLogic {
 	 */
 	public static void logDependency(final BuildContext<CascadeBuild> context,
 			final List<Dependency> dependencyList) {
-		if (!cascadeOptions(context).getShouldLogDependency()) {
+		if (!context.cascadeOptions().getShouldLogDependency()) {
 			return;
 		}
 		for (final Dependency dependency : dependencyList) {
@@ -150,7 +116,7 @@ public class CascadeLogic {
 	 */
 	public static List<Action> mavenCommitGoals(
 			final BuildContext<CascadeBuild> context, final String... options) {
-		final CascadeOptions cascadeOptions = cascadeOptions(context);
+		final CascadeOptions cascadeOptions = context.cascadeOptions();
 		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(cascadeOptions.getMavenCommitGoals());
 		goals.append(options);
@@ -190,7 +156,7 @@ public class CascadeLogic {
 	 */
 	public static List<Action> mavenDependencyGoals(
 			final BuildContext<CascadeBuild> context, final String... options) {
-		final CascadeOptions cascadeOptions = cascadeOptions(context);
+		final CascadeOptions cascadeOptions = context.cascadeOptions();
 		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(cascadeOptions.getMavenDependencyGoals());
 		goals.append(options);
@@ -220,7 +186,7 @@ public class CascadeLogic {
 	 */
 	public static List<Action> mavenParentGoals(
 			final BuildContext<CascadeBuild> context, final String... options) {
-		final CascadeOptions cascadeOptions = cascadeOptions(context);
+		final CascadeOptions cascadeOptions = context.cascadeOptions();
 		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(cascadeOptions.getMavenParentGoals());
 		goals.append(options);
@@ -237,7 +203,7 @@ public class CascadeLogic {
 	 */
 	public static List<Action> mavenReleaseGoals(
 			final BuildContext<CascadeBuild> context, final String... options) {
-		final CascadeOptions cascadeOptions = cascadeOptions(context);
+		final CascadeOptions cascadeOptions = context.cascadeOptions();
 		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(cascadeOptions.getMavenReleaseGoals());
 		goals.append(options);
@@ -254,7 +220,7 @@ public class CascadeLogic {
 	 */
 	public static List<Action> mavenValidateGoals(
 			final BuildContext<CascadeBuild> context, final String... options) {
-		final CascadeOptions cascadeOptions = cascadeOptions(context);
+		final CascadeOptions cascadeOptions = context.cascadeOptions();
 		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
 		goals.append(cascadeOptions.getMavenValidateGoals());
 		goals.append(options);
@@ -364,8 +330,8 @@ public class CascadeLogic {
 		final MavenModule rootModule = memberProject.getRootModule();
 
 		if (rootModule == null) {
-			context.logErr("Maven module undefined.");
-			context.logErr("This happens when a new project is created but is never built.");
+			context.logErr("maven module undefined.");
+			context.logErr("this happens when a new project is created but is never built.");
 			return Result.NOT_BUILT;
 		}
 
@@ -412,7 +378,7 @@ public class CascadeLogic {
 				.scheduleBuild2(0, cause, goals);
 
 		if (buildFuture == null) {
-			context.logErr("Logic error: can not schedule build.");
+			context.logErr("logic error: can not schedule build.");
 			return Result.FAILURE;
 		}
 
@@ -470,8 +436,8 @@ public class CascadeLogic {
 		context.log("Update metadata before release.");
 		UPDATE: {
 
-			if (layoutOptions(context).getUseSharedWorkspace() && level > 1) {
-				context.logTab("using shared workspace - skip");
+			if (context.layoutOptions().getUseSharedWorkspace() && level > 1) {
+				context.logTab("using shared workspace - skip update");
 				break UPDATE;
 			}
 
@@ -483,11 +449,11 @@ public class CascadeLogic {
 
 		context.log("Verify project.");
 		if (isRelease(mavenModel(project))) {
-			context.logErr("Project is a release.");
-			context.logErr("Please update project version to appropriate snapshot.");
+			context.logErr("project is a release.");
+			context.logErr("please update project version to appropriate snapshot.");
 			return Result.FAILURE;
 		} else {
-			context.logTab("Project is a snapshot.");
+			context.logTab("project is a snapshot.");
 		}
 
 		context.log("Process parent.");
@@ -497,14 +463,14 @@ public class CascadeLogic {
 			{
 				final Parent parent = mavenParent(project);
 				if (parent == null) {
-					context.logTab("Project has no parent.");
+					context.logTab("project has no parent.");
 					break PARENT;
 				}
 				if (isRelease(parent)) {
-					context.logTab("Parent is a release: " + parent);
+					context.logTab("parent is a release: " + parent);
 					break PARENT;
 				}
-				context.logTab("Parent needs an update: " + parent);
+				context.logTab("parent needs an update: " + parent);
 				if (isFailure(process(context, moduleName,
 						mavenParentGoals(context, mavenParentFilter(parent))))) {
 					return Result.FAILURE;
@@ -515,10 +481,10 @@ public class CascadeLogic {
 			{
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
-					context.logTab("Parent updated: " + parent);
+					context.logTab("parent updated: " + parent);
 					break PARENT;
 				}
-				context.logTab("Parent needs a release: " + parent);
+				context.logTab("parent needs a release: " + parent);
 				final ModuleName parentName = moduleName(parent);
 				if (isFailure(process(level + 1, context, parentName))) {
 					return Result.FAILURE;
@@ -529,10 +495,10 @@ public class CascadeLogic {
 			{
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
-					context.logTab("Parent refreshed: " + parent);
+					context.logTab("parent refreshed: " + parent);
 					break PARENT;
 				}
-				context.logTab("Parent needs a refresh: " + parent);
+				context.logTab("parent needs a refresh: " + parent);
 				if (isFailure(process(context, moduleName,
 						mavenParentGoals(context, mavenParentFilter(parent))))) {
 					return Result.FAILURE;
@@ -543,16 +509,16 @@ public class CascadeLogic {
 			{
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
-					context.logTab("Parent verified: " + parent);
+					context.logTab("parent verified: " + parent);
 					break PARENT;
 				}
-				context.logErr("Can not verify parent:" + parent);
+				context.logErr("can not verify parent:" + parent);
 				return Result.FAILURE;
 			}
 
 		}
 
-		context.log("Commit (parent update): " + pomFile);
+		context.log("Commit parent update: " + pomFile);
 		if (isFailure(PluginScm.scmCommit(context, project))) {
 			return Result.FAILURE;
 		}
@@ -565,10 +531,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.logTab("Project has no snapshot dependencies.");
+					context.logTab("project has no snapshot dependencies.");
 					break DEPENDENCY;
 				}
-				context.logTab("Dependencies need update: " + snapshots.size());
+				context.logTab("dependencies need update: " + snapshots.size());
 				logDependency(context, snapshots);
 				if (isFailure(process(
 						context,
@@ -584,10 +550,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.logTab("Dependencies are updated.");
+					context.logTab("dependencies are updated.");
 					break DEPENDENCY;
 				}
-				context.logTab("Dependencies need release: " + snapshots.size());
+				context.logTab("dependencies need release: " + snapshots.size());
 				for (final Dependency dependency : snapshots) {
 					final ModuleName dependencyName = moduleName(dependency);
 					if (isFailure(process(level + 1, context, dependencyName))) {
@@ -601,11 +567,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.logTab("Dependencies are released.");
+					context.logTab("dependencies are released.");
 					break DEPENDENCY;
 				}
-				context.logTab("Dependencies needs refresh: "
-						+ snapshots.size());
+				context.logTab("dependencies need refresh: " + snapshots.size());
 				logDependency(context, snapshots);
 				if (isFailure(process(
 						context,
@@ -621,10 +586,10 @@ public class CascadeLogic {
 				final List<Dependency> snapshots = mavenDependencies(project,
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
-					context.logTab("Dependencies are verified.");
+					context.logTab("dependencies are verified.");
 					break DEPENDENCY;
 				}
-				context.logErr("Failed to verify dependency: "
+				context.logErr("failed to verify dependency: "
 						+ snapshots.size());
 				logDependency(context, snapshots);
 				return Result.FAILURE;
@@ -632,7 +597,7 @@ public class CascadeLogic {
 
 		}
 
-		context.log("Commit (dependency update):" + pomFile);
+		context.log("Commit dependency update: " + pomFile);
 		if (isFailure(PluginScm.scmCommit(context, project))) {
 			return Result.FAILURE;
 		}
@@ -687,7 +652,7 @@ public class CascadeLogic {
 		final File pomFile = new File(releaseFolder, "pom.xml");
 
 		if (!pomFile.exists()) {
-			context.logErr("Can not locate release result: " + pomFile);
+			context.logErr("can not locate release result: " + pomFile);
 			return;
 		}
 

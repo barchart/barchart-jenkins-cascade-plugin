@@ -15,7 +15,9 @@ import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
 import hudson.model.Result;
+import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
+import hudson.model.Node;
 import hudson.plugins.git.GitPublisher;
 import hudson.plugins.git.GitPublisher.BranchToPush;
 import hudson.plugins.git.GitPublisher.NoteToPush;
@@ -26,6 +28,7 @@ import hudson.scm.SCM;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +38,6 @@ import org.jenkinsci.plugins.gitclient.Git;
 import org.jenkinsci.plugins.gitclient.GitClient;
 
 import com.barchart.jenkins.cascade.BuildContext;
-import com.barchart.jenkins.cascade.PluginScm;
 
 public class DesignSCM {
 
@@ -163,8 +165,8 @@ public class DesignSCM {
 	public static String gitPull(final BuildContext<?> context,
 			final MavenModuleSet project) throws IOException,
 			InterruptedException {
-		final String git = PluginScm.gitExe(context, project);
-		final File workDir = PluginScm.gitDir(context, project);
+		final String git = DesignSCM.gitExe(context, project);
+		final File workDir = DesignSCM.gitDir(context, project);
 		final String result = executeResult(workDir, git, "pull");
 		return result;
 	}
@@ -172,10 +174,51 @@ public class DesignSCM {
 	public static String gitPush(final BuildContext<?> context,
 			final MavenModuleSet project) throws IOException,
 			InterruptedException {
-		final String git = PluginScm.gitExe(context, project);
-		final File workDir = PluginScm.gitDir(context, project);
+		final String git = DesignSCM.gitExe(context, project);
+		final File workDir = DesignSCM.gitDir(context, project);
 		final String result = executeResult(workDir, git, "push");
 		return result;
+	}
+
+	public static GitClient gitClient(final BuildContext<?> context,
+			final MavenModuleSet project) {
+	
+		final String gitExe = gitExe(context, project);
+	
+		final File workspace = gitDir(context, project);
+	
+		final EnvVars environment = new EnvVars();
+	
+		final GitClient gitClient = Git.with(context.listener(), environment)
+				.in(workspace).using(gitExe).getClient();
+	
+		return gitClient;
+	
+	}
+
+	public static File gitDir(final BuildContext<?> context,
+			final MavenModuleSet project) {
+		final File workDir = new File(project.getWorkspace().getRemote());
+		return workDir;
+	}
+
+	public static String gitExe(final BuildContext<?> context,
+			final MavenModuleSet project) {
+		final SCM scm = project.getScm();
+		final GitSCM gitScm = (GitSCM) scm;
+		final Node builtOn = context.build().getBuiltOn();
+		final TaskListener listener = context.listener();
+		return gitScm.getGitExe(builtOn, listener);
+	}
+
+	public static void log(final String title, final BuildContext<?> context,
+			final Collection<?> list) {
+		if (title != null) {
+			context.logTab("### " + title);
+		}
+		for (final Object item : list) {
+			context.logTab("### " + item);
+		}
 	}
 
 }

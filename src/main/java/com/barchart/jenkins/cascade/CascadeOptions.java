@@ -125,6 +125,7 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 
 	private boolean shouldLogActions = false;
 	private boolean shouldLogDependency = false;
+	private boolean shouldPushUpdates = false;
 
 	public CascadeOptions() {
 	}
@@ -140,7 +141,8 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 			final String mavenCommitGoals, //
 			final String mavenReleaseGoals, //
 			final boolean shouldLogActions, //
-			final boolean shouldLogDependency //
+			final boolean shouldLogDependency, //
+			final boolean shouldPushUpdates //
 	) {
 
 		this.mavenValidateGoals = mavenValidateGoals;
@@ -151,6 +153,7 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 
 		this.shouldLogActions = shouldLogActions;
 		this.shouldLogDependency = shouldLogDependency;
+		this.shouldPushUpdates = shouldPushUpdates;
 
 	}
 
@@ -180,6 +183,10 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 
 	public boolean getShouldLogDependency() {
 		return shouldLogDependency;
+	}
+
+	public boolean getShouldPushUpdates() {
+		return shouldPushUpdates;
 	}
 
 }
