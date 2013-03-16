@@ -58,10 +58,10 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 				.getAction(CheckoutSkipAction.class);
 
 		if (skipAction == null) {
-			context.log("Normal checkout.");
+			context.log("Perform checkout.");
 			super.checkout(execution);
 		} else {
-			context.log("Ignore checkout.");
+			context.log("Do not perform checkout.");
 		}
 
 	}

@@ -608,11 +608,18 @@ public class LayoutLogic {
 
 		context.logTab("project: " + project.getAbsoluteUrl());
 
-		if (context.layoutOptions().getBuildAfterLayout()) {
+		final LayoutOptions options = context.layoutOptions();
+
+		if (options.getBuildAfterLayout()) {
 
 			final Cause cause = context.build().getCauses().get(0);
 
-			project.scheduleBuild2(0, cause, mavenValidateGoals(context));
+			final List<Action> actionList = mavenValidateGoals(context);
+			if (options.getUseSharedWorkspace()) {
+				actionList.add(new CheckoutSkipAction());
+			}
+
+			project.scheduleBuild2(0, cause, actionList);
 
 			context.logTab("building now");
 

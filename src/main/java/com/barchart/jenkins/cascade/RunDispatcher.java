@@ -56,30 +56,30 @@ public class RunDispatcher extends QueueTaskDispatcher {
 	@Override
 	public CauseOfBlockage canRun(final Queue.Item item) {
 
-		// return null;
+		return null;
 
-		final ProjectIdentity identity = identity(item);
-
-		/** Cascade family projects must have identity. */
-		if (identity == null) {
-			return YES_CAN_RUN;
-		}
-
-		final RunLock lock = RunLock.ensure(identity.getFamilyID());
-
-		synchronized (lock) {
-			final CauseOfBlockage buildCause = canRunDueBuild(identity, lock,
-					item);
-			if (buildCause != null) {
-				return buildCause;
-			}
-			final CauseOfBlockage queueCause = canRunDueQueue(identity);
-			if (queueCause != null) {
-				return queueCause;
-			}
-		}
-
-		return YES_CAN_RUN;
+		// final ProjectIdentity identity = identity(item);
+		//
+		// /** Cascade family projects must have identity. */
+		// if (identity == null) {
+		// return YES_CAN_RUN;
+		// }
+		//
+		// final RunLock lock = RunLock.ensure(identity.getFamilyID());
+		//
+		// synchronized (lock) {
+		// final CauseOfBlockage buildCause = canRunDueBuild(identity, lock,
+		// item);
+		// if (buildCause != null) {
+		// return buildCause;
+		// }
+		// final CauseOfBlockage queueCause = canRunDueQueue(identity);
+		// if (queueCause != null) {
+		// return queueCause;
+		// }
+		// }
+		//
+		// return YES_CAN_RUN;
 
 	}
 
