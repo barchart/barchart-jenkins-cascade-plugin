@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class MemberBuildCause extends UserIdCause {
 
-	public static boolean hasBuildCause(final List<Cause> causeList) {
+	public static boolean hasCause(final List<Cause> causeList) {
 		if (causeList == null || causeList.isEmpty()) {
 			return false;
 		}

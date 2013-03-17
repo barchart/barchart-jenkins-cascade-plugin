@@ -459,12 +459,12 @@ public class LayoutLogic {
 			// buildWrapperList.add(item);
 		}
 
-		context.logTab("Ensure member identity.");
+		context.logTab("Ensure project identity.");
 		{
 			final ProjectIdentity memberdentity = ProjectIdentity
 					.ensureMemberIdentity(layoutProject, memberProject);
 
-			context.logTab("Project identity: " + memberdentity);
+			context.logTab("identity: " + memberdentity);
 		}
 
 		context.logTab("Provide project description.");
@@ -615,9 +615,12 @@ public class LayoutLogic {
 			final Cause cause = context.build().getCauses().get(0);
 
 			final List<Action> actionList = mavenValidateGoals(context);
+
 			if (options.getUseSharedWorkspace()) {
 				actionList.add(new CheckoutSkipAction());
 			}
+
+			actionList.add(new LayoutLogicAction());
 
 			project.scheduleBuild2(0, cause, actionList);
 

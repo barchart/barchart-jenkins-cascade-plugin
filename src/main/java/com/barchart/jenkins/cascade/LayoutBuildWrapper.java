@@ -123,7 +123,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		final BuildContext<MavenModuleSetBuild> context = new BuildContext<MavenModuleSetBuild>(
 				build, listener);
 
-		if (LayoutBuildCause.isLayoutBuild(build)) {
+		if (LayoutBuildCause.hasCause(build)) {
 
 			context.log("Start maven validation.");
 

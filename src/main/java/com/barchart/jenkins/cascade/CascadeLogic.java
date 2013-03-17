@@ -350,7 +350,7 @@ public class CascadeLogic {
 	 * Build maven module, wait for completion.
 	 */
 	public static Result process(final BuildContext<CascadeBuild> context,
-			final ModuleName moduleName, final List<Action> goals)
+			final ModuleName moduleName, final List<Action> actionList)
 			throws Exception {
 
 		context.logTab("module: " + moduleName);
@@ -362,15 +362,14 @@ public class CascadeLogic {
 			return Result.FAILURE;
 		}
 
-		final MemberQueueAction queue = new MemberQueueAction();
-		// goals.add(queue); // XXX
+		actionList.add(new CascadeLogicAction());
 
-		logActions(context, goals);
+		logActions(context, actionList);
 
 		final MemberBuildCause cause = cascadeCause(context);
 
 		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = project
-				.scheduleBuild2(0, cause, goals);
+				.scheduleBuild2(0, cause, actionList);
 
 		if (buildFuture == null) {
 			context.logErr("logic error: can not schedule build.");

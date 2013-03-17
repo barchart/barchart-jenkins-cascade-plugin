@@ -1,0 +1,41 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<!--
+	Show cascade member event log on project main page. 
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/maven-release-cascade" />
+	<j:set var="help" value="${plugin}/help/ProjectPageEventLog" />
+	<j:set var="images" value="${plugin}/images" />
+
+	<f:form>
+
+		<f:section title="Cascade Event Log">
+
+			<f:advanced>
+
+				<f:entry title="" help="${help}/eventLog.jelly">
+					<textarea disabled="true" rows="10" cols="100">
+					${it.identity().log()}
+					</textarea>
+				</f:entry>
+
+			</f:advanced>
+
+		</f:section>
+
+		<f:section title="" />
+
+	</f:form>
+
+</j:jelly>

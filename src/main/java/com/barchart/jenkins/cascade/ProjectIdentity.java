@@ -19,12 +19,12 @@ import hudson.model.Job;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import jenkins.model.Jenkins;
 
+import org.joda.time.DateTime;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -258,6 +258,8 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 
 	private final String familyID;
 
+	private String log = new DateTime() + " " + "Log started.";
+
 	private final String projectID;
 
 	private final String projectRole;
@@ -342,9 +344,11 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 
 	@Override
 	public Collection<? extends Action> getJobActions(
-			final AbstractProject project) {
-		// return Collections.singletonList(new CascadeBuildAction(project));
-		return Collections.emptyList();
+			final AbstractProject<?, ?> project) {
+		final List<Action> actionList = new ArrayList<Action>();
+		actionList.add(new ProjectPageIdentity(this));
+		actionList.add(new ProjectPageEventLog(this));
+		return actionList;
 	}
 
 	/**
@@ -403,6 +407,14 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	 */
 	public MavenModuleSet layoutProject() {
 		return layoutProject(this);
+	}
+
+	public String log() {
+		return log;
+	}
+
+	public void log(final String text) {
+		log = log + "\n" + new DateTime() + " " + text;
 	}
 
 	/**

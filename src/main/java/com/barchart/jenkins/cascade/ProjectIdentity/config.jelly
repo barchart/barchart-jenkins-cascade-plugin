@@ -8,7 +8,7 @@
 
 -->
 <!--
-	Show cascade member project identity, when applicable, on project properties page. 
+	Show cascade member project identity, when applicable, on project main page and properties page. 
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
@@ -18,39 +18,45 @@
 	<j:set var="help" value="${plugin}/help/ProjectIdentity" />
 	<j:set var="images" value="${plugin}/images" />
 
-	<!-- 	<j:if test="true"> -->
-	<j:if test="${instance.isValid()}">
+	<!-- "mainPage" is set on main page -->
+	<j:if test="${mainPage}">
+		<j:set var="identity" value="${it}" />
+	</j:if>
+
+	<!-- "instance" is set on properties page -->
+	<j:if test="${instance != null}">
+		<j:set var="identity" value="${instance}" />
+	</j:if>
+
+	<j:if test="${identity.isValid()}">
 
 		<f:section title="Cascade Identity">
 
 			<f:advanced>
 
-				<f:entry title="Role" field="projectRole"
-					help="${help}/projectRole.jelly">
-					<f:textbox disabled="true" />
+				<f:entry title="Role" help="${help}/projectRole.jelly">
+					<f:textbox disabled="true" value="${identity.projectRole}" />
 				</f:entry>
 
-				<f:entry title="Family ID" field="familyID"
-					help="${help}/familyID.jelly">
-					<f:textbox disabled="true" />
+				<f:entry title="Family ID" help="${help}/familyID.jelly">
+					<f:textbox disabled="true" value="${identity.familyID}" />
 				</f:entry>
 
-				<f:entry title="Member ID" field="projectID"
-					help="${help}/projectID.jelly">
-					<f:textbox disabled="true" />
+				<f:entry title="Member ID" help="${help}/projectID.jelly">
+					<f:textbox disabled="true" value="${identity.projectID}" />
 				</f:entry>
 
 				<f:entry title="Layout Project" help="${help}/layoutName.jelly">
-					<f:textbox disabled="true" value="${instance.layoutProject().name}" />
+					<f:textbox disabled="true" value="${identity.layoutProject().name}" />
 				</f:entry>
 
 				<f:entry title="Cascade Project" help="${help}/cascadeName.jelly">
 					<f:textbox disabled="true"
-						value="${instance.cascadeProject().name}" />
+						value="${identity.cascadeProject().name}" />
 				</f:entry>
 
 				<f:entry title="Member Project" help="${help}/memberName.jelly">
-					<f:textbox disabled="true" value="${instance.memberProject().name}" />
+					<f:textbox disabled="true" value="${identity.memberProject().name}" />
 				</f:entry>
 
 			</f:advanced>

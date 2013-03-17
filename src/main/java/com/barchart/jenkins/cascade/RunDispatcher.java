@@ -127,7 +127,7 @@ public class RunDispatcher extends QueueTaskDispatcher {
 			}
 			if (lock.hasCascade()) {
 				final List<Cause> causeList = item.getCauses();
-				if (MemberBuildCause.hasBuildCause(causeList)) {
+				if (MemberBuildCause.hasCause(causeList)) {
 					/** Cascade member build, proceed. */
 					return YES_CAN_RUN;
 				} else {
