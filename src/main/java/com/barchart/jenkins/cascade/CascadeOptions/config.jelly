@@ -24,10 +24,11 @@
 			<img src="${images}/32x32/dragon.png" alt="" />
 		</f:entry>
 
-		<f:entry title="Validation Goals" field="mavenValidateGoals"
-			help="${help}/mavenValidateGoals.jelly">
-			<f:expandableTextbox value="${it.mavenValidateGoals}" />
-		</f:entry>
+		<!-- Validation performed by layout. -->
+		<!-- 		<f:entry title="Validation Goals" field="mavenValidateGoals" -->
+		<!-- 			help="${help}/mavenValidateGoals.jelly"> -->
+		<!-- 			<f:expandableTextbox value="${it.mavenValidateGoals}" /> -->
+		<!-- 		</f:entry> -->
 
 		<f:entry title="Parent Update Goals" field="mavenParentGoals"
 			help="${help}/mavenParentGoals.jelly">
