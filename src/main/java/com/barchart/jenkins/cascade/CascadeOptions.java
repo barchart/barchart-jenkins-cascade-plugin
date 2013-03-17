@@ -99,7 +99,6 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 	"release:clean release:prepare release:perform \n"
 			+ "--define localCheckout=true \n" //
 			+ "--define arguments=\"--define skipTests=true\" \n" //
-			+ "--define resume=false \n" //
 	;
 
 	/**

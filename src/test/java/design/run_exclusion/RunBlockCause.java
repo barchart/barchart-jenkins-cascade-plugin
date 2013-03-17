@@ -5,7 +5,9 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package com.barchart.jenkins.cascade;
+package design.run_exclusion;
+
+import com.barchart.jenkins.cascade.PluginConstants;
 
 import hudson.model.queue.CauseOfBlockage;
 

@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package com.barchart.jenkins.cascade;
+package design.run_exclusion;
 
 import hudson.Extension;
 import hudson.model.AbstractProject;
@@ -17,6 +17,9 @@ import hudson.model.queue.CauseOfBlockage;
 
 import java.util.List;
 import java.util.logging.Logger;
+
+import com.barchart.jenkins.cascade.MemberBuildCause;
+import com.barchart.jenkins.cascade.ProjectIdentity;
 
 import jenkins.model.Jenkins;
 

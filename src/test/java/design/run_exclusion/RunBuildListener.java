@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package com.barchart.jenkins.cascade;
+package design.run_exclusion;
 
 import hudson.Extension;
 import hudson.model.TaskListener;
@@ -14,6 +14,8 @@ import hudson.model.AbstractProject;
 import hudson.model.listeners.RunListener;
 
 import java.util.logging.Logger;
+
+import com.barchart.jenkins.cascade.ProjectIdentity;
 
 /**
  * Helps cascade family build mutual exclusion.

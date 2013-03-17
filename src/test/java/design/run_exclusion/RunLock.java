@@ -5,12 +5,14 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package com.barchart.jenkins.cascade;
+package design.run_exclusion;
 
 import java.util.EnumMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.barchart.jenkins.cascade.ProjectRole;
 
 /**
  * Represents mutual exclusion between different cascade family project builds.

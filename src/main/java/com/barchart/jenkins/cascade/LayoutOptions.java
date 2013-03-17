@@ -92,7 +92,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	private String mavenValidateGoals = MAVEN_VALIDATE_GOALS;
 	private String memberProjectName = MEMBER_PROJECT_NAME;
 
-	private boolean buildAfterLayout = false;
+	private boolean buildAfterLayout = true;
 	private boolean useSharedWorkspace = true;
 
 	public LayoutOptions() {

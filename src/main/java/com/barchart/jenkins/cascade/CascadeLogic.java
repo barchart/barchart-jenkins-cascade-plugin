@@ -213,7 +213,24 @@ public class CascadeLogic {
 	}
 
 	/**
-	 * Update maven and jenkins metadata.
+	 * Update maven and jenkins metadata after release.
+	 */
+	public static List<Action> mavenUpdateGoals(
+			final BuildContext<CascadeBuild> context, final String... options) {
+		final CascadeOptions cascadeOptions = context.cascadeOptions();
+		// final MavenGoalsIntercept goals = new MavenGoalsIntercept(); // XXX
+		// goals.append(cascadeOptions.getMavenReleaseGoals());
+		// goals.append(options);
+		final List<Action> list = new ArrayList<Action>();
+		list.add(new CheckoutSkipAction()); // XXX
+		list.add(new DoCascadeBadge());
+		list.add(new DoValidateBadge());
+		// list.add(goals);
+		return list;
+	}
+
+	/**
+	 * Update maven and jenkins metadata before release.
 	 */
 	public static List<Action> mavenValidateGoals(
 			final BuildContext<CascadeBuild> context, final String... options) {
@@ -313,6 +330,8 @@ public class CascadeLogic {
 			return Result.NOT_BUILT;
 		}
 
+		PluginScm.scmCheckout(context);
+
 		final MavenModuleSet memberProject = memberProject(context);
 
 		if (memberProject == null) {
@@ -336,64 +355,13 @@ public class CascadeLogic {
 
 		final int level = 0;
 
-		final Result result = process(level + 1, context, memberName);
+		final Result result = processEntry(level + 1, context, memberName);
 
 		context.log("Cascade finished: " + result);
 
 		logResult(context);
 
-		return result;
-
-	}
-
-	/**
-	 * Build maven module, wait for completion.
-	 */
-	public static Result process(final BuildContext<CascadeBuild> context,
-			final ModuleName moduleName, final List<Action> actionList)
-			throws Exception {
-
-		context.logTab("module: " + moduleName);
-
-		final MavenModuleSet project = memberProject(context, moduleName);
-
-		if (project == null) {
-			context.logErr("Project not found.");
-			return Result.FAILURE;
-		}
-
-		actionList.add(new CascadeLogicAction());
-
-		logActions(context, actionList);
-
-		final MemberBuildCause cause = cascadeCause(context);
-
-		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = project
-				.scheduleBuild2(0, cause, actionList);
-
-		if (buildFuture == null) {
-			context.logErr("logic error: can not schedule build.");
-			return Result.FAILURE;
-		}
-
-		final Future<MavenModuleSetBuild> startFuture = buildFuture
-				.getStartCondition();
-
-		/** Block till build started. */
-		final MavenModuleSetBuild build = startFuture.get();
-
-		context.logTab("console: " + build.getAbsoluteUrl() + "console");
-
-		/** Block till build complete. */
-		buildFuture.get();
-
-		final Result result = build.getResult();
-
-		context.logTab("result: " + result);
-
-		if (isSuccess(result)) {
-			storeBuildResult(context, build);
-		}
+		PluginScm.scmCheckin(context);
 
 		return result;
 
@@ -402,7 +370,7 @@ public class CascadeLogic {
 	/**
 	 * Recursively release projects.
 	 */
-	public static Result process(final int level,
+	public static Result processEntry(final int level,
 			final BuildContext<CascadeBuild> context,
 			final ModuleName moduleName) throws Exception {
 
@@ -463,8 +431,9 @@ public class CascadeLogic {
 					break PARENT;
 				}
 				context.logTab("parent needs an update: " + parent);
-				if (isFailure(process(context, moduleName,
-						mavenParentGoals(context, mavenParentFilter(parent))))) {
+				if (isFailure(processMaven(context, moduleName,
+						mavenParentGoals(context, mavenParentFilter(parent)),
+						true))) {
 					return Result.FAILURE;
 				}
 			}
@@ -481,7 +450,7 @@ public class CascadeLogic {
 				}
 				context.logTab("parent needs a release: " + parent);
 				final ModuleName parentName = moduleName(parent);
-				if (isFailure(process(level + 1, context, parentName))) {
+				if (isFailure(processEntry(level + 1, context, parentName))) {
 					return Result.FAILURE;
 				}
 			}
@@ -497,8 +466,9 @@ public class CascadeLogic {
 					break PARENT;
 				}
 				context.logTab("parent needs a refresh: " + parent);
-				if (isFailure(process(context, moduleName,
-						mavenParentGoals(context, mavenParentFilter(parent))))) {
+				if (isFailure(processMaven(context, moduleName,
+						mavenParentGoals(context, mavenParentFilter(parent)),
+						true))) {
 					return Result.FAILURE;
 				}
 			}
@@ -532,11 +502,11 @@ public class CascadeLogic {
 				}
 				context.logTab("dependencies need update: " + snapshots.size());
 				logDependency(context, snapshots);
-				if (isFailure(process(
+				if (isFailure(processMaven(
 						context,
 						moduleName,
 						mavenDependencyGoals(context,
-								mavenDependencyFilter(snapshots))))) {
+								mavenDependencyFilter(snapshots)), true))) {
 					return Result.FAILURE;
 				}
 			}
@@ -558,7 +528,8 @@ public class CascadeLogic {
 				}
 				for (final Dependency dependency : snapshots) {
 					final ModuleName dependencyName = moduleName(dependency);
-					if (isFailure(process(level + 1, context, dependencyName))) {
+					if (isFailure(processEntry(level + 1, context,
+							dependencyName))) {
 						return Result.FAILURE;
 					}
 				}
@@ -577,11 +548,11 @@ public class CascadeLogic {
 				}
 				context.logTab("dependencies need refresh: " + snapshots.size());
 				logDependency(context, snapshots);
-				if (isFailure(process(
+				if (isFailure(processMaven(
 						context,
 						moduleName,
 						mavenDependencyGoals(context,
-								mavenDependencyFilter(snapshots))))) {
+								mavenDependencyFilter(snapshots)), true))) {
 					return Result.FAILURE;
 				}
 			}
@@ -606,7 +577,8 @@ public class CascadeLogic {
 		}
 
 		context.log("Release project.");
-		if (isFailure(process(context, moduleName, mavenReleaseGoals(context)))) {
+		if (isFailure(processMaven(context, moduleName,
+				mavenReleaseGoals(context), true))) {
 			return Result.FAILURE;
 		}
 
@@ -624,6 +596,59 @@ public class CascadeLogic {
 
 		context.log("Project released: " + moduleName);
 		return Result.SUCCESS;
+
+	}
+
+	/**
+	 * Build maven module, wait for completion.
+	 */
+	public static Result processMaven(final BuildContext<CascadeBuild> context,
+			final ModuleName moduleName, final List<Action> actionList,
+			final boolean isBlocking) throws Exception {
+
+		context.logTab("module: " + moduleName);
+
+		final MavenModuleSet project = memberProject(context, moduleName);
+
+		if (project == null) {
+			context.logErr("project not found");
+			return Result.FAILURE;
+		}
+
+		actionList.add(new CascadeLogicAction());
+
+		logActions(context, actionList);
+
+		final MemberBuildCause cause = cascadeCause(context);
+
+		final QueueTaskFuture<MavenModuleSetBuild> buildFuture = project
+				.scheduleBuild2(0, cause, actionList);
+
+		if (buildFuture == null) {
+			context.logErr("logic error: can not schedule build");
+			return Result.FAILURE;
+		}
+
+		final Future<MavenModuleSetBuild> startFuture = buildFuture
+				.getStartCondition();
+
+		/** Block till build started. */
+		final MavenModuleSetBuild build = startFuture.get();
+
+		context.logTab("console: " + build.getAbsoluteUrl() + "console");
+
+		/** Block till build complete. */
+		buildFuture.get();
+
+		final Result result = build.getResult();
+
+		context.logTab("result: " + result);
+
+		if (isSuccess(result)) {
+			storeBuildResult(context, build);
+		}
+
+		return result;
 
 	}
 

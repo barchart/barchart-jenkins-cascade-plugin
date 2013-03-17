@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package design;
+package design.log;
 
 import hudson.model.TaskListener;
 

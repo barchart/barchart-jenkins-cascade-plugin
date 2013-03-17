@@ -269,4 +269,14 @@ public class PluginScm {
 		return file;
 	}
 
+	public static void scmCheckout(final BuildContext<CascadeBuild> context) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public static void scmCheckin(final BuildContext<CascadeBuild> context) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

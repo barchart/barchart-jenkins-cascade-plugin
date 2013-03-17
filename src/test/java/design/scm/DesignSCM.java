@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package design;
+package design.scm;
 
 import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.EnvVars;

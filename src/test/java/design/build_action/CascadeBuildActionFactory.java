@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package design_0;
+package design.build_action;
 
 import hudson.Extension;
 import hudson.maven.MavenModuleSet;
@@ -30,7 +30,7 @@ public class CascadeBuildActionFactory extends TransientProjectActionFactory {
 
 			final MavenModuleSet mavenProject = (MavenModuleSet) project;
 
-			return Collections.singleton(new CascadeBuildAction(project));
+			return Collections.singleton(new CascadeBuildAction(mavenProject));
 
 		} else {
 
