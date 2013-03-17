@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -123,6 +124,9 @@ public class PluginUtilities {
 		}
 		if (model.getVersion() == null && parent != null) {
 			model.setVersion(parent.getVersion());
+		}
+		if (model.getDependencyManagement() == null) {
+			model.setDependencyManagement(new DependencyManagement());
 		}
 	}
 
@@ -361,18 +365,25 @@ public class PluginUtilities {
 	public static List<Dependency> mavenDependencies(final File pomFile,
 			final DependencyMatcher matcher) throws Exception {
 
-		final Model model = mavenModel(pomFile);
-
-		final List<Dependency> dependencyList = model.getDependencies();
-
 		final List<Dependency> snapshotList = new ArrayList<Dependency>();
 
-		for (final Dependency dependency : dependencyList) {
+		final Model model = mavenModel(pomFile);
 
+		final List<Dependency> managementList = model.getDependencyManagement()
+				.getDependencies();
+
+		for (final Dependency dependency : managementList) {
 			if (matcher.isMatch(dependency)) {
 				snapshotList.add(dependency);
 			}
+		}
 
+		final List<Dependency> dependencyList = model.getDependencies();
+
+		for (final Dependency dependency : dependencyList) {
+			if (matcher.isMatch(dependency)) {
+				snapshotList.add(dependency);
+			}
 		}
 
 		return snapshotList;

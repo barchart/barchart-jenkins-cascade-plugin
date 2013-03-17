@@ -421,8 +421,6 @@ public class CascadeLogic {
 
 		context.logTab("project: " + project.getAbsoluteUrl());
 
-		final String pomFile = project.getRootPOM(null);
-
 		if (hasModuleResult(context, moduleName)) {
 			context.logTab("Module already released: " + moduleName);
 			return Result.SUCCESS;
