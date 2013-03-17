@@ -422,7 +422,7 @@ public class CascadeLogic {
 		context.logTab("project: " + project.getAbsoluteUrl());
 
 		if (hasModuleResult(context, moduleName)) {
-			context.logTab("Module already released: " + moduleName);
+			context.logTab("module already released: " + moduleName);
 			return Result.SUCCESS;
 		}
 
