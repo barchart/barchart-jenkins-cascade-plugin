@@ -370,6 +370,35 @@ public class LayoutLogic {
 			final BuildContext<MavenModuleSetBuild> context,
 			final MavenModuleSet layoutProject) throws IOException {
 
+		context.logTab("Update SCM paths.");
+		SCM: {
+
+			final SCM scm = layoutProject.getScm();
+
+			if (scm instanceof GitSCM) {
+
+				final GitSCM gitScm = (GitSCM) scm;
+
+				final String includedRegions = "disabled-for-layout-project";
+
+				changeField(gitScm, "includedRegions", includedRegions);
+
+				break SCM;
+
+			}
+
+			if (scm instanceof SubversionSCM) {
+
+				final SubversionSCM svnScm = (SubversionSCM) scm;
+
+				/** TODO */
+
+			}
+
+			throw new IllegalStateException("Unsupported SCM");
+
+		}
+
 		context.logTab("Use custom checkout strategy.");
 		{
 			final SCMCheckoutStrategy strategy = new CheckoutStrategySCM();
