@@ -34,6 +34,7 @@
 				<f:section title="Configure Cascade Projects Layout" />
 
 				<f:advanced title="Layout Options" align="left">
+					<j:set var="disableLayoutOptions" value="true" />
 					<st:include it="${it.layoutOptions}" page="config.jelly" />
 				</f:advanced>
 

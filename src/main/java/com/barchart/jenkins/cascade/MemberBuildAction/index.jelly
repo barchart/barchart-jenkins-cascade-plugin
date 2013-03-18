@@ -10,8 +10,9 @@
 <!--
 	Cascade member project build startup page. 
 -->
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
 
 	<j:set var="plugin" value="/plugin/maven-release-cascade" />
 	<j:set var="help" value="${plugin}/help/MemberBuildAction" />
@@ -30,7 +31,14 @@
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Perform Cascade Project Release" name="releaseProperties">
+				<f:section title="Perform Maven Cascade Project Release" />
+
+				<f:advanced title="Cascade Options" align="left">
+					<j:set var="disableCascadeOptions" value="true" />
+					<st:include it="${it.cascadeOptions}" page="config.jelly" />
+				</f:advanced>
+
+				<f:section title="" name="releaseProperties">
 
 					<f:entry title="Layout Project">
 						<f:textbox value="${it.layoutName}" disabled="true" />
@@ -56,9 +64,7 @@
 				</f:section>
 
 				<tr>
-					<td colspan="4" align="left">
-						<f:submit value="Sumbit" />
-					</td>
+					<td colspan="4" align="left"><f:submit value="Sumbit" /></td>
 				</tr>
 
 			</f:form>

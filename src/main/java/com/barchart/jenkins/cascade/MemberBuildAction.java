@@ -104,6 +104,11 @@ public class MemberBuildAction implements Action {
 		return identity.cascadeProject().getName();
 	}
 
+	public CascadeOptions getCascadeOptions() {
+		return LayoutBuildWrapper.wrapper(identity.layoutProject())
+				.getCascadeOptions();
+	}
+
 	public String getDisplayName() {
 		return PluginConstants.MEMBER_ACTION_NAME;
 	}
@@ -118,6 +123,11 @@ public class MemberBuildAction implements Action {
 
 	public String getLayoutName() {
 		return identity.layoutProject().getName();
+	}
+
+	public LayoutOptions getLayoutOptions() {
+		return LayoutBuildWrapper.wrapper(identity.layoutProject())
+				.getLayoutOptions();
 	}
 
 	public String getMemberName() {

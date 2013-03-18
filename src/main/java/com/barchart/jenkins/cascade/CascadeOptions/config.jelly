@@ -24,51 +24,62 @@
 			<img src="${images}/32x32/dragon.png" alt="" />
 		</f:entry>
 
-		<!-- Validation performed by layout. -->
+		<!-- Validation is now performed by layout. -->
 		<!-- 		<f:entry title="Validation Goals" field="mavenValidateGoals" -->
 		<!-- 			help="${help}/mavenValidateGoals.jelly"> -->
-		<!-- 			<f:expandableTextbox value="${it.mavenValidateGoals}" /> -->
+		<!-- 			<f:textarea value="${it.mavenValidateGoals}" /> -->
 		<!-- 		</f:entry> -->
 
 		<f:entry title="Parent Update Goals" field="mavenParentGoals"
 			help="${help}/mavenParentGoals.jelly">
-			<f:expandableTextbox
+			<f:textarea id="cascade-option-1"
 				value="${h.defaulted(it.mavenParentGoals,it.MAVEN_PARENT_GOALS)}" />
 		</f:entry>
 
 		<f:entry title="Dependency Update Goals" field="mavenDependencyGoals"
 			help="${help}/mavenDependencyGoals.jelly">
-			<f:expandableTextbox
+			<f:textarea id="cascade-option-2"
 				value="${h.defaulted(it.mavenDependencyGoals,it.MAVEN_DEPENDENCY_GOALS)}" />
 		</f:entry>
 
 		<!-- SCM is now processed natively in jenkins w/o maven SCM plugin. -->
 		<!-- 		<f:entry title="SCM Commit Goals" field="mavenCommitGoals" -->
 		<!-- 			help="${help}/mavenCommitGoals.jelly"> -->
-		<!-- 			<f:expandableTextbox -->
+		<!-- 			<f:textarea -->
 		<!-- 				value="${h.defaulted(it.mavenCommitGoals,it.MAVEN_COMMIT_GOALS)}" /> -->
 		<!-- 		</f:entry> -->
 
 		<f:entry title="Release Goals" field="mavenReleaseGoals"
 			help="${help}/mavenReleaseGoals.jelly">
-			<f:expandableTextbox
+			<f:textarea id="cascade-option-3"
 				value="${h.defaulted(it.mavenReleaseGoals,it.MAVEN_RELEASE_GOALS)}" />
 		</f:entry>
 
 		<f:entry title="Should Log Actions" field="shouldLogActions"
 			help="${help}/shouldLogActions.jelly">
-			<f:checkbox checked="${it.shouldLogActions}" />
+			<f:checkbox id="cascade-option-4" checked="${it.shouldLogActions}" />
 		</f:entry>
 
 		<f:entry title="Should Log Dependency" field="shouldLogDependency"
 			help="${help}/shouldLogDependency.jelly">
-			<f:checkbox checked="${it.shouldLogDependency}" />
+			<f:checkbox id="cascade-option-5" checked="${it.shouldLogDependency}" />
 		</f:entry>
 
 		<f:entry title="Should Push Updates" field="shouldPushUpdates"
 			help="${help}/shouldPushUpdates.jelly">
-			<f:checkbox checked="${it.shouldPushUpdates}" />
+			<f:checkbox id="cascade-option-6" checked="${it.shouldPushUpdates}" />
 		</f:entry>
+
+		<j:if test="${disableCascadeOptions}">
+			<script type="text/javascript">
+				document.getElementById("cascade-option-1").disabled = "true";
+				document.getElementById("cascade-option-2").disabled = "true";
+				document.getElementById("cascade-option-3").disabled = "true";
+				document.getElementById("cascade-option-4").disabled = "true";
+				document.getElementById("cascade-option-5").disabled = "true";
+				document.getElementById("cascade-option-6").disabled = "true";
+			</script>
+		</j:if>
 
 	</f:section>
 
