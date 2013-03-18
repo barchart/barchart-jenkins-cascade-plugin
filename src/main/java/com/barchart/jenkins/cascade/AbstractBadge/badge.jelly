@@ -7,6 +7,9 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
+<!--
+	Required base implementation for a badge. 
+-->
 <j:jelly xmlns:j="jelly:core">
 
 	<j:set var="plugin" value="/plugin/maven-release-cascade" />

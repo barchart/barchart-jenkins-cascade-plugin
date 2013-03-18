@@ -8,7 +8,7 @@
 
 -->
 <!--
-	Component configuration page. 
+	Component configuration page for cascade build options. 
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"

@@ -8,7 +8,7 @@
 
 -->
 <!--
-	Displays the form to create/delete cascade projects.
+	Displays the form to create/delete/update cascade projects.
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"

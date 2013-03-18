@@ -24,10 +24,14 @@
 
 			<f:advanced>
 
-				<f:entry title="" help="${help}/eventLog.jelly">
-					<textarea disabled="true" rows="10" cols="100">
-					${it.identity().log()}
-					</textarea>
+				<f:entry help="${help}/eventLog.jelly">
+
+					<f:textarea id="event-log" value="${it.identity().log()}" />
+
+					<script type="text/javascript">
+						document.getElementById("event-log").disabled = "true";
+					</script>
+
 				</f:entry>
 
 			</f:advanced>

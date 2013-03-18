@@ -36,7 +36,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @Extension
 public class LayoutBuildWrapper extends BuildWrapper {
 
-	@Extension
 	public static class TheDescriptor extends BuildWrapperDescriptor {
 
 		@Override
@@ -56,6 +55,9 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		}
 
 	}
+
+	@Extension
+	public static final TheDescriptor META = new TheDescriptor();
 
 	public static boolean hasWrapper(final MavenModuleSet project) {
 		return wrapper(project) != null;

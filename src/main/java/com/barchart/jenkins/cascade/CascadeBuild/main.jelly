@@ -7,8 +7,9 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
-<!-- Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/> All rights 
-	reserved. Licensed under the OSI BSD License. http://www.opensource.org/licenses/bsd-license.php -->
+<!--
+	Cascade build main page. 
+-->
 <?jelly escape-by-default='true'?>
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"

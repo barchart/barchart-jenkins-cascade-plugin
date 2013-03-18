@@ -58,7 +58,6 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		public abstract boolean equals(ProjectIdentity one, ProjectIdentity two);
 	}
 
-	@Extension
 	public static class TheDescriptor extends JobPropertyDescriptor {
 
 		@Override
@@ -78,6 +77,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		}
 
 	}
+
+	@Extension
+	public static final TheDescriptor META = new TheDescriptor();
 
 	/**
 	 * Find project by role and family.
