@@ -25,7 +25,7 @@ import java.io.IOException;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * Layout project.
+ * Layout project extender.
  * <p>
  * Maven build wrapper for cascade layout management.
  * <p>
@@ -40,18 +40,37 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 		@Override
 		public String getDisplayName() {
-			return "Cascade layout and release builds";
+			return PluginConstants.PLUGIN_NAME;
 		}
 
 		/**
-		 * Interested in top level maven multi-module projects only.
+		 * Interested in non-cascade maven projects (layout candidate) or
+		 * existing layout projects.
 		 */
 		@Override
 		public boolean isApplicable(final AbstractProject<?, ?> project) {
-			if (project instanceof MavenModuleSet) {
-				return true;
+
+			final ProjectIdentity identity = ProjectIdentity.identity(project);
+
+			/** Non-cascade maven project. */
+			if (identity == null) {
+				if (project instanceof MavenModuleSet) {
+					return true;
+				} else {
+					return false;
+				}
 			}
-			return false;
+
+			/** Cascade family layout project. */
+			switch (identity.role()) {
+			case LAYOUT:
+				return true;
+			case CASCADE:
+			case MEMBER:
+			default:
+				return false;
+			}
+
 		}
 
 	}
