@@ -110,6 +110,10 @@ public class RunDecider extends QueueDecisionHandler {
 		final Queue queue = Queue.getInstance();
 
 		final CascadeProject cascadeProject = identity.cascadeProject();
+		/** Layout setup incomplete. */
+		if (cascadeProject == null) {
+			return true;
+		}
 		if (cascadeProject.isBuilding()) {
 			if (CascadeLogicAction.hasAction(actionList)) {
 				report(identity, project, actionList,
@@ -128,6 +132,10 @@ public class RunDecider extends QueueDecisionHandler {
 		}
 
 		final MavenModuleSet layoutProject = identity.layoutProject();
+		/** Layout setup incomplete. */
+		if (layoutProject == null) {
+			return true;
+		}
 		if (layoutProject.isBuilding()) {
 			if (LayoutLogicAction.hasAction(actionList)) {
 				report(identity, project, actionList,
