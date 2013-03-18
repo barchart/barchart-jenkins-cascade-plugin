@@ -1,0 +1,17 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<div>
+	Should transmit every SCM update to remote SCM repository?
+	<p/>
+	If your release is very large and fails rather often, select this option.
+	Trade-off: the overal release time will be increased due to extra SCM activity,
+	but partially released artifacts will be reflected in the relevant pom.xml
+	w/o need to traverse project tree again when you restart failed release.
+</div>

@@ -19,6 +19,7 @@ import hudson.model.Action;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractProject;
 import hudson.model.Cause;
+import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.ListView;
 import hudson.plugins.git.GitSCM;
@@ -97,7 +98,7 @@ public class LayoutLogic {
 			return false;
 		}
 
-		/** Layout project wokrspace. */
+		/** Layout project workspace. */
 		final FilePath workspace = context.build().getWorkspace();
 
 		final MavenModule layoutModule = layoutProject.getRootModule();
@@ -141,28 +142,13 @@ public class LayoutLogic {
 			final BuildContext<MavenModuleSetBuild> context,
 			final TopLevelItem project) throws IOException {
 
-		final String viewName = layoutOptions(context).getLayoutViewName();
+		final String viewName = context.layoutOptions().getLayoutViewName();
 
 		final ListView view = ensureListView(viewName);
 
 		view.add(project);
 
 		context.logTab("Project view: " + view.getAbsoluteUrl());
-
-	}
-
-	/**
-	 * Extract layout options from layout build wrapper.
-	 */
-	public static LayoutOptions layoutOptions(
-			final BuildContext<MavenModuleSetBuild> context) {
-
-		final MavenModuleSet layoutProject = context.build().getProject();
-
-		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
-				.wrapper(layoutProject);
-
-		return wrapper.getLayoutOptions();
 
 	}
 
@@ -208,7 +194,7 @@ public class LayoutLogic {
 		final VariableResolver<String> resolver = new VariableResolver.Union<String>(
 				moduleResolver, buildResolver);
 
-		final String memberPattern = layoutOptions(context)
+		final String memberPattern = context.layoutOptions()
 				.getMemberProjectName();
 
 		final String memberName = Util.replaceMacro(memberPattern, resolver);
@@ -236,13 +222,15 @@ public class LayoutLogic {
 		context.log("");
 		context.log("Layout action: " + action);
 		context.log("Layout project: " + layoutName);
-		context.logTab("Project identity: " + layoutIdentity);
+		context.logTab("project identity: " + layoutIdentity);
 
 		if (!checkModuleNesting(context, layoutProject)) {
 			return false;
 		}
 
 		ensureProjectView(context, layoutProject);
+
+		processLayout(context, layoutProject);
 
 		processCascade(context, layoutProject, action);
 
@@ -374,6 +362,52 @@ public class LayoutLogic {
 	}
 
 	/**
+	 * Handle layout project settings.
+	 * 
+	 * @throws IOException
+	 */
+	public static void processLayout(
+			final BuildContext<MavenModuleSetBuild> context,
+			final MavenModuleSet layoutProject) throws IOException {
+
+		context.logTab("Update SCM paths.");
+		SCM: {
+
+			final SCM scm = layoutProject.getScm();
+
+			if (scm instanceof GitSCM) {
+
+				final GitSCM gitScm = (GitSCM) scm;
+
+				final String includedRegions = "disabled-for-layout-project";
+
+				changeField(gitScm, "includedRegions", includedRegions);
+
+				break SCM;
+
+			}
+
+			if (scm instanceof SubversionSCM) {
+
+				final SubversionSCM svnScm = (SubversionSCM) scm;
+
+				/** TODO */
+
+			}
+
+			throw new IllegalStateException("Unsupported SCM");
+
+		}
+
+		context.logTab("Use custom checkout strategy.");
+		{
+			final SCMCheckoutStrategy strategy = new CheckoutStrategySCM();
+			layoutProject.setScmCheckoutStrategy(strategy);
+		}
+
+	}
+
+	/**
 	 * Handle member projects create/update/delete.
 	 */
 	public static boolean processMember(//
@@ -438,33 +472,47 @@ public class LayoutLogic {
 
 			}
 
-			context.logErr("###################################");
-			context.logErr("WARNING: YOU ARE USING UNTESTED SCM");
-			context.logErr("###################################");
+			throw new IllegalStateException("Unsupported SCM");
+
 		}
 
 		context.logTab("Update Maven paths.");
 		{
+			/** Member project is nested in the layout project. */
 			final String rootPOM = module.getRelativePath() + "/pom.xml";
-
 			memberProject.setRootPOM(rootPOM);
 
+			if (context.layoutOptions().getUseSharedWorkspace()) {
+				final String nodeRoot = Computer.currentComputer().getNode()
+						.getRootPath().getRemote();
+				final String layoutWorkspace = context.build().getWorkspace()
+						.getRemote();
+				final String memberWorkspace = relativePath(nodeRoot,
+						layoutWorkspace);
+				memberProject.setCustomWorkspace(memberWorkspace);
+				context.logTab("Member is sharing workspace with layout.");
+			} else {
+				context.logTab("Member is using its own private workspace.");
+			}
 		}
 
-		context.logTab("Remove cascade layout action.");
+		context.logTab("Configure build wrappers.");
 		{
 			final DescribableList<BuildWrapper, Descriptor<BuildWrapper>> buildWrapperList = memberProject
 					.getBuildWrappersList();
 
 			buildWrapperList.remove(LayoutBuildWrapper.class);
+
+			// BuildWrapper item = null;
+			// buildWrapperList.add(item);
 		}
 
-		context.logTab("Ensure member identity.");
+		context.logTab("Ensure project identity.");
 		{
 			final ProjectIdentity memberdentity = ProjectIdentity
 					.ensureMemberIdentity(layoutProject, memberProject);
 
-			context.logTab("Project identity: " + memberdentity);
+			context.logTab("identity: " + memberdentity);
 		}
 
 		context.logTab("Provide project description.");
@@ -608,9 +656,25 @@ public class LayoutLogic {
 
 		context.logTab("project: " + project.getAbsoluteUrl());
 
-		final Cause cause = context.build().getCauses().get(0);
+		final LayoutOptions options = context.layoutOptions();
 
-		project.scheduleBuild2(0, cause, mavenValidateGoals(context));
+		if (options.getBuildAfterLayout()) {
+
+			final Cause cause = context.build().getCauses().get(0);
+
+			final List<Action> actionList = mavenValidateGoals(context);
+
+			if (options.getUseSharedWorkspace()) {
+				actionList.add(new CheckoutSkipAction());
+			}
+
+			actionList.add(new LayoutLogicAction());
+
+			project.scheduleBuild2(0, cause, actionList);
+
+			context.logTab("building now");
+
+		}
 
 	}
 

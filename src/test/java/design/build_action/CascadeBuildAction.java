@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package design_1;
+package design.build_action;
 
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;

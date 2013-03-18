@@ -26,7 +26,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +37,11 @@ import java.util.Set;
 
 import jenkins.model.Jenkins;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -121,6 +126,9 @@ public class PluginUtilities {
 		if (model.getVersion() == null && parent != null) {
 			model.setVersion(parent.getVersion());
 		}
+		if (model.getDependencyManagement() == null) {
+			model.setDependencyManagement(new DependencyManagement());
+		}
 	}
 
 	public static ListView ensureListView(final String viewName)
@@ -162,6 +170,35 @@ public class PluginUtilities {
 		project.addProperty(property);
 	}
 
+	/***/
+	public static Process executeProcess(final File workDir,
+			final String command) throws IOException, InterruptedException {
+		final String[] termArray = command.split("\\s+");
+		return executeProcess(workDir, termArray);
+	}
+
+	/***/
+	public static Process executeProcess(final File workDir,
+			final String... termArray) throws IOException, InterruptedException {
+		final List<String> termList = Arrays.asList(termArray);
+		final ProcessBuilder builder = new ProcessBuilder(termList);
+		final Process process = builder.directory(workDir).start();
+		process.waitFor();
+		return process;
+	}
+
+	/***/
+	public static String executeResult(final File workDir,
+			final String... termArray) throws IOException, InterruptedException {
+		final Process process = executeProcess(workDir, termArray);
+		final String input = IOUtils
+				.toString(process.getInputStream(), "UTF-8");
+		final String error = IOUtils
+				.toString(process.getErrorStream(), "UTF-8");
+		final String result = input + error;
+		return result;
+	}
+
 	/**
 	 * Extract HTTP string parameter.
 	 */
@@ -196,7 +233,7 @@ public class PluginUtilities {
 	 * Check if project exists.
 	 */
 	public static boolean isProjectExists(final String projectName) {
-		return null != Jenkins.getInstance().getItem(projectName);
+		return projectMap().containsKey(projectName);
 	}
 
 	/**
@@ -226,9 +263,15 @@ public class PluginUtilities {
 
 	/**
 	 * Maven dependency version looks like snapshot.
+	 * <p>
+	 * Missing dependency means dependency inherited from parent.
 	 */
 	public static boolean isSnapshot(final Dependency dependency) {
-		return isSnapshot(dependency.getVersion());
+		final String version = dependency.getVersion();
+		if (version == null) {
+			return false;
+		}
+		return isSnapshot(version);
 	}
 
 	/**
@@ -318,23 +361,30 @@ public class PluginUtilities {
 	}
 
 	/**
-	 * Collect matching dependencies form a pom.xml file.
+	 * Collect matching dependencies from a pom.xml file.
 	 */
 	public static List<Dependency> mavenDependencies(final File pomFile,
 			final DependencyMatcher matcher) throws Exception {
 
-		final Model model = mavenModel(pomFile);
-
-		final List<Dependency> dependencyList = model.getDependencies();
-
 		final List<Dependency> snapshotList = new ArrayList<Dependency>();
 
-		for (final Dependency dependency : dependencyList) {
+		final Model model = mavenModel(pomFile);
 
+		final List<Dependency> managementList = model.getDependencyManagement()
+				.getDependencies();
+
+		for (final Dependency dependency : managementList) {
 			if (matcher.isMatch(dependency)) {
 				snapshotList.add(dependency);
 			}
+		}
 
+		final List<Dependency> dependencyList = model.getDependencies();
+
+		for (final Dependency dependency : dependencyList) {
+			if (matcher.isMatch(dependency)) {
+				snapshotList.add(dependency);
+			}
 		}
 
 		return snapshotList;
@@ -481,7 +531,7 @@ public class PluginUtilities {
 	 * Find top level maven jenkins job with a project name.
 	 */
 	public static MavenModuleSet mavenProject(final String projectName) {
-		final TopLevelItem item = Jenkins.getInstance().getItem(projectName);
+		final TopLevelItem item = projectMap().get(projectName);
 		if (item instanceof MavenModuleSet) {
 			return (MavenModuleSet) item;
 		}
@@ -493,10 +543,7 @@ public class PluginUtilities {
 	 */
 	public static List<MavenModuleSet> mavenProjectList() {
 
-		final Jenkins jenkins = Jenkins.getInstance();
-
-		final List<TopLevelItem> itemList = jenkins
-				.getAllItems(TopLevelItem.class);
+		final Collection<TopLevelItem> itemList = projectList();
 
 		final List<MavenModuleSet> projectList = Util.createSubList(itemList,
 				MavenModuleSet.class);
@@ -563,6 +610,33 @@ public class PluginUtilities {
 
 		return set;
 
+	}
+
+	/**
+	 * List of all projects in jenkins.
+	 * <p>
+	 * Note: not affected by security filters.
+	 */
+	public static Collection<TopLevelItem> projectList() {
+		return projectMap().values();
+	}
+
+	/**
+	 * Map of all projects in jenkins.
+	 * <p>
+	 * Note: not affected by security filters.
+	 */
+	public static Map<String, TopLevelItem> projectMap() {
+		return Jenkins.getInstance().getItemMap();
+	}
+
+	/**
+	 * Path relative to base.
+	 */
+	public static String relativePath(final String base, final String path) {
+		final URI baseURI = new File(base).toURI();
+		final URI pathURI = new File(path).toURI();
+		return baseURI.relativize(pathURI).getPath();
 	}
 
 	/**

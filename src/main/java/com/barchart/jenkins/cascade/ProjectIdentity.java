@@ -19,12 +19,10 @@ import hudson.model.Job;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import jenkins.model.Jenkins;
-
+import org.joda.time.DateTime;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -33,27 +31,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @author Andrei Pozolotin
  */
 public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
-
-	@Extension
-	public static class TheDescriptor extends JobPropertyDescriptor {
-
-		@Override
-		public String getDisplayName() {
-			return PluginConstants.MEMBER_ACTION_NAME;
-		}
-
-		@Override
-		public boolean isApplicable(final Class<? extends Job> projectClass) {
-			if (MavenModuleSet.class.isAssignableFrom(projectClass)) {
-				return true;
-			}
-			if (CascadeProject.class.isAssignableFrom(projectClass)) {
-				return true;
-			}
-			return false;
-		}
-
-	}
 
 	public enum Mode {
 		ROLE() {
@@ -81,6 +58,88 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		public abstract boolean equals(ProjectIdentity one, ProjectIdentity two);
 	}
 
+	@Extension
+	public static class TheDescriptor extends JobPropertyDescriptor {
+
+		@Override
+		public String getDisplayName() {
+			return PluginConstants.MEMBER_ACTION_NAME;
+		}
+
+		@Override
+		public boolean isApplicable(final Class<? extends Job> projectClass) {
+			if (MavenModuleSet.class.isAssignableFrom(projectClass)) {
+				return true;
+			}
+			if (CascadeProject.class.isAssignableFrom(projectClass)) {
+				return true;
+			}
+			return false;
+		}
+
+	}
+
+	/**
+	 * Find project by role and family.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static AbstractProject abstractProject(final ProjectIdentity one,
+			final Mode mode) {
+		for (final TopLevelItem item : PluginUtilities.projectList()) {
+			if (item instanceof AbstractProject) {
+				final AbstractProject project = (AbstractProject) item;
+				final ProjectIdentity two = identity(project);
+				if (two == null) {
+					continue;
+				}
+				if (mode.equals(one, two)) {
+					return project;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Find project.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static AbstractProject abstractProject(final ProjectRole role,
+			final String familyID, final String projectID, final Mode mode) {
+		final ProjectIdentity identity = new ProjectIdentity(role, familyID,
+				projectID);
+		return abstractProject(identity, mode);
+	}
+
+	/**
+	 * Find cascade project by role, family.
+	 */
+	public static CascadeProject cascadeProject(final ProjectIdentity identity) {
+		return (CascadeProject) abstractProject(ProjectRole.CASCADE,
+				identity.getFamilyID(), identity.getProjectID(),
+				Mode.ROLE_FAMILY);
+	}
+
+	/**
+	 * Generate unique identity for cascade project.
+	 */
+	public static ProjectIdentity ensureCascadeIdentity(
+			final AbstractProject layoutProject,
+			final AbstractProject cascadeProject) throws IOException {
+
+		final ProjectRole role = ProjectRole.CASCADE;
+		final String familyID = familyID(layoutProject);
+		final String projectID = UUID.randomUUID().toString();
+
+		final ProjectIdentity cascadeIdentity = new ProjectIdentity(role,
+				familyID, projectID);
+
+		PluginUtilities.ensureProperty(cascadeProject, cascadeIdentity);
+
+		return cascadeIdentity;
+
+	}
+
 	/**
 	 * Generate unique identity for layout project.
 	 */
@@ -105,26 +164,6 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	}
 
 	/**
-	 * Generate unique identity for cascade project.
-	 */
-	public static ProjectIdentity ensureCascadeIdentity(
-			final AbstractProject layoutProject,
-			final AbstractProject cascadeProject) throws IOException {
-
-		final ProjectRole role = ProjectRole.CASCADE;
-		final String familyID = familyID(layoutProject);
-		final String projectID = UUID.randomUUID().toString();
-
-		final ProjectIdentity cascadeIdentity = new ProjectIdentity(role,
-				familyID, projectID);
-
-		PluginUtilities.ensureProperty(cascadeProject, cascadeIdentity);
-
-		return cascadeIdentity;
-
-	}
-
-	/**
 	 * Generate unique identity for member project.
 	 */
 	public static ProjectIdentity ensureMemberIdentity(
@@ -145,46 +184,52 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	}
 
 	/**
-	 * Find project by role and family.
+	 * Extract family id from the project.
 	 */
-	public static AbstractProject abstractProject(final ProjectIdentity one,
-			final Mode mode) {
-		for (final TopLevelItem item : Jenkins.getInstance().getItems()) {
+	public static String familyID(final AbstractProject<?, ?> project) {
+		final ProjectIdentity identity = identity(project);
+		if (identity == null) {
+			return null;
+		}
+		return identity.getFamilyID();
+	}
+
+	/**
+	 * Find all cascade family projects.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static List<AbstractProject> familyProjectList(final String familyID) {
+		final List<AbstractProject> memberList = new ArrayList<AbstractProject>();
+		for (final TopLevelItem item : PluginUtilities.projectList()) {
 			if (item instanceof AbstractProject) {
 				final AbstractProject project = (AbstractProject) item;
-				final ProjectIdentity two = identity(project);
-				if (mode.equals(one, two)) {
-					return project;
+				if (familyID.equals(familyID(project))) {
+					memberList.add(project);
 				}
 			}
 		}
-		return null;
+		return memberList;
 	}
 
 	/**
-	 * Find project.
+	 * Verify a project has this property with all component fields.
 	 */
-	public static AbstractProject abstractProject(final ProjectRole role,
-			final String cascadeID, final String projectID, final Mode mode) {
-		final ProjectIdentity cascadeProperty = new ProjectIdentity(role,
-				cascadeID, projectID);
-		return abstractProject(cascadeProperty, mode);
+	public static boolean hasIdentity(final AbstractProject project) {
+		if (project == null) {
+			return false;
+		}
+		final ProjectIdentity identity = identity(project);
+		if (identity == null) {
+			return false;
+		}
+		return identity.isValid();
 	}
 
 	/**
-	 * Find cascade project by role, family.
+	 * Extract this property from project.
 	 */
-	public static CascadeProject cascadeProject(final ProjectIdentity identity) {
-		return (CascadeProject) abstractProject(ProjectRole.CASCADE,
-				identity.getFamilyID(), identity.getProjectID(),
-				Mode.ROLE_FAMILY);
-	}
-
-	/**
-	 * Find cascade project by role, family.
-	 */
-	public CascadeProject cascadeProject() {
-		return cascadeProject(this);
+	public static ProjectIdentity identity(final AbstractProject<?, ?> project) {
+		return project.getProperty(ProjectIdentity.class);
 	}
 
 	/**
@@ -194,13 +239,6 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		return (MavenModuleSet) abstractProject(ProjectRole.LAYOUT,
 				identity.getFamilyID(), identity.getProjectID(),
 				Mode.ROLE_FAMILY);
-	}
-
-	/**
-	 * Find layout project by family.
-	 */
-	public MavenModuleSet layoutProject() {
-		return layoutProject(this);
 	}
 
 	/**
@@ -238,46 +276,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		return memberList;
 	}
 
-	/**
-	 * Find member project by family.
-	 */
-	public MavenModuleSet memberProject() {
-		return memberProject(this);
-	}
-
-	/**
-	 * Verify a project has this property with all component fields.
-	 */
-	public static boolean hasIdentity(final AbstractProject project) {
-		if (project == null) {
-			return false;
-		}
-		final ProjectIdentity identity = identity(project);
-		if (identity == null) {
-			return false;
-		}
-		return identity.isValid();
-	}
-
-	/**
-	 * Extract this property from project.
-	 */
-	public static ProjectIdentity identity(final AbstractProject<?, ?> project) {
-		return project.getProperty(ProjectIdentity.class);
-	}
-
-	/**
-	 * Extract family id from the project.
-	 */
-	public static String familyID(final AbstractProject<?, ?> project) {
-		final ProjectIdentity property = identity(project);
-		if (property == null) {
-			return null;
-		}
-		return property.getFamilyID();
-	}
-
 	private final String familyID;
+
+	private String log = new DateTime() + " " + "Log started.";
 
 	private final String projectID;
 
@@ -304,19 +305,10 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	}
 
 	/**
-	 * Verify all component fields present.
+	 * Find cascade project by role, family.
 	 */
-	public boolean isValid() {
-		if (getProjectRole() == null || getProjectRole().isEmpty()) {
-			return false;
-		}
-		if (getFamilyID() == null || getFamilyID().isEmpty()) {
-			return false;
-		}
-		if (getProjectID() == null || getProjectID().isEmpty()) {
-			return false;
-		}
-		return true;
+	public CascadeProject cascadeProject() {
+		return cascadeProject(this);
 	}
 
 	@Override
@@ -363,18 +355,12 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		return false;
 	}
 
-	@Override
-	public Collection<? extends Action> getJobActions(
-			final AbstractProject project) {
-		// return Collections.singletonList(new CascadeBuildAction(project));
-		return Collections.emptyList();
-	}
-
 	/**
-	 * Project role in the family.
+	 * Find all cascade family projects.
 	 */
-	public String getProjectRole() {
-		return projectRole;
+	@SuppressWarnings("rawtypes")
+	public List<AbstractProject> familyProjectList() {
+		return familyProjectList(this.getFamilyID());
 	}
 
 	/**
@@ -384,6 +370,15 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		return familyID;
 	}
 
+	@Override
+	public Collection<? extends Action> getJobActions(
+			final AbstractProject<?, ?> project) {
+		final List<Action> actionList = new ArrayList<Action>();
+		actionList.add(new ProjectPageIdentity(this));
+		actionList.add(new ProjectPageEventLog(this));
+		return actionList;
+	}
+
 	/**
 	 * ID of a member project.
 	 */
@@ -391,9 +386,11 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		return projectID;
 	}
 
-	@Override
-	public String toString() {
-		return identityRoleFamilyProject();
+	/**
+	 * Project role in the family.
+	 */
+	public String getProjectRole() {
+		return projectRole;
 	}
 
 	/**
@@ -415,6 +412,57 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	 */
 	public String identityRoleFamilyProject() {
 		return identityRoleFamily() + "/project=" + getProjectID();
+	}
+
+	/**
+	 * Verify all component fields present.
+	 */
+	public boolean isValid() {
+		if (getProjectRole() == null || getProjectRole().isEmpty()) {
+			return false;
+		}
+		if (getFamilyID() == null || getFamilyID().isEmpty()) {
+			return false;
+		}
+		if (getProjectID() == null || getProjectID().isEmpty()) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Find layout project by family.
+	 */
+	public MavenModuleSet layoutProject() {
+		return layoutProject(this);
+	}
+
+	public String log() {
+		return log;
+	}
+
+	public void log(final String text) {
+		log = log + "\n" + new DateTime() + " " + text;
+	}
+
+	/**
+	 * Find member project by family.
+	 */
+	public MavenModuleSet memberProject() {
+		return memberProject(this);
+	}
+
+	public List<MavenModuleSet> memberProjectList() {
+		return memberProjectList(getFamilyID());
+	}
+
+	public ProjectRole role() {
+		return ProjectRole.from(projectRole);
+	}
+
+	@Override
+	public String toString() {
+		return identityRoleFamilyProject();
 	}
 
 }

@@ -7,8 +7,10 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 
 /**
  * Build context bean.
@@ -33,6 +35,26 @@ public class BuildContext<B extends AbstractBuild> {
 		return (B) build;
 	}
 
+	/**
+	 * Extract cascade options from layout build wrapper.
+	 */
+	public CascadeOptions cascadeOptions() {
+		final MavenModuleSet layoutProject = layoutProject();
+		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
+				.wrapper(layoutProject);
+		return wrapper.getCascadeOptions();
+	}
+
+	/**
+	 * Extract layout options from layout build wrapper.
+	 */
+	public LayoutOptions layoutOptions() {
+		final MavenModuleSet layoutProject = layoutProject();
+		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
+				.wrapper(layoutProject);
+		return wrapper.getLayoutOptions();
+	}
+
 	public BuildListener listener() {
 		return listener;
 	}
@@ -55,6 +77,17 @@ public class BuildContext<B extends AbstractBuild> {
 	/** Log text with plug-in prefix and a tab. */
 	public void logTab(final String text) {
 		log("\t" + text);
+	}
+
+	/**
+	 * Find layout project form any cascade family project.
+	 */
+	public MavenModuleSet layoutProject() {
+		final AbstractProject<?, ?> currentProject = build().getProject();
+		final ProjectIdentity property = ProjectIdentity
+				.identity(currentProject);
+		final MavenModuleSet layoutProject = property.layoutProject();
+		return layoutProject;
 	}
 
 }

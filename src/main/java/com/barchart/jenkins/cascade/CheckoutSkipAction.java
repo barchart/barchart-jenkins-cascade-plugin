@@ -7,6 +7,7 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.model.AbstractBuild;
 
 /**
  * Action used to skip SCM checkout.
@@ -14,6 +15,13 @@ package com.barchart.jenkins.cascade;
  * @author Andrei Pozolotin
  */
 public class CheckoutSkipAction extends AbstractAction {
+
+	/**
+	 * Check if build has skip action.
+	 */
+	public static boolean hasAction(final AbstractBuild<?, ?> build) {
+		return build.getAction(CheckoutSkipAction.class) != null;
+	}
 
 	@Override
 	public String toString() {

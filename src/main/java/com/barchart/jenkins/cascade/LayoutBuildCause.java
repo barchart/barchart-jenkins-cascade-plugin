@@ -21,7 +21,7 @@ public class LayoutBuildCause extends UserIdCause {
 	 * Build originated by layout action.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static boolean isLayoutBuild(final AbstractBuild build) {
+	public static boolean hasCause(final AbstractBuild build) {
 		return build.getCause(LayoutBuildCause.class) != null;
 	}
 

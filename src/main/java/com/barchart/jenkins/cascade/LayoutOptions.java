@@ -72,7 +72,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 			.getName());
 
 	public static final String MAVEN_VALIDATE_GOALS = //
-	"clean validate \n" //
+	"validate \n" //
 	;
 
 	public static final String MEMBER_PROJECT_NAME = //
@@ -92,6 +92,9 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	private String mavenValidateGoals = MAVEN_VALIDATE_GOALS;
 	private String memberProjectName = MEMBER_PROJECT_NAME;
 
+	private boolean buildAfterLayout = true;
+	private boolean useSharedWorkspace = true;
+
 	public LayoutOptions() {
 	}
 
@@ -103,12 +106,23 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 			final String mavenValidateGoals, //
 			final String memberProjectName, //
 			final String layoutViewName, //
-			final String cascadeProjectName //
+			final String cascadeProjectName, //
+			final boolean useSharedWorkspace, //
+			final boolean buildAfterLayout //
 	) {
 		this.mavenValidateGoals = mavenValidateGoals;
 		this.memberProjectName = memberProjectName;
 		this.layoutViewName = layoutViewName;
 		this.cascadeProjectName = cascadeProjectName;
+		this.useSharedWorkspace = useSharedWorkspace;
+		this.buildAfterLayout = buildAfterLayout;
+	}
+
+	/**
+	 * Build new member projects after layout.
+	 */
+	public boolean getBuildAfterLayout() {
+		return buildAfterLayout;
 	}
 
 	/**
@@ -138,6 +152,13 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	 */
 	public String getMemberProjectName() {
 		return memberProjectName;
+	}
+
+	/**
+	 * Layout and member projects share work space.
+	 */
+	public boolean getUseSharedWorkspace() {
+		return useSharedWorkspace;
 	}
 
 }

@@ -5,7 +5,7 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
-package design_1;
+package design.project;
 
 import hudson.Extension;
 import hudson.model.Action;
