@@ -101,6 +101,7 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 		} else {
 			context.log("Using individual workspace.");
 			context.log("Perform default checkout.");
+			super.checkout(execution);
 			return;
 		}
 
