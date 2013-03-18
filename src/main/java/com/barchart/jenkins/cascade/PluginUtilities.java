@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -232,7 +233,7 @@ public class PluginUtilities {
 	 * Check if project exists.
 	 */
 	public static boolean isProjectExists(final String projectName) {
-		return null != Jenkins.getInstance().getItem(projectName);
+		return projectMap().containsKey(projectName);
 	}
 
 	/**
@@ -530,7 +531,7 @@ public class PluginUtilities {
 	 * Find top level maven jenkins job with a project name.
 	 */
 	public static MavenModuleSet mavenProject(final String projectName) {
-		final TopLevelItem item = Jenkins.getInstance().getItem(projectName);
+		final TopLevelItem item = projectMap().get(projectName);
 		if (item instanceof MavenModuleSet) {
 			return (MavenModuleSet) item;
 		}
@@ -542,10 +543,7 @@ public class PluginUtilities {
 	 */
 	public static List<MavenModuleSet> mavenProjectList() {
 
-		final Jenkins jenkins = Jenkins.getInstance();
-
-		final List<TopLevelItem> itemList = jenkins
-				.getAllItems(TopLevelItem.class);
+		final Collection<TopLevelItem> itemList = projectList();
 
 		final List<MavenModuleSet> projectList = Util.createSubList(itemList,
 				MavenModuleSet.class);
@@ -612,6 +610,20 @@ public class PluginUtilities {
 
 		return set;
 
+	}
+
+	/**
+	 * List of all projects in jenkins.
+	 */
+	public static Collection<TopLevelItem> projectList() {
+		return projectMap().values();
+	}
+
+	/**
+	 * Map of all projects in jenkins.
+	 */
+	public static Map<String, TopLevelItem> projectMap() {
+		return Jenkins.getInstance().getItemMap();
 	}
 
 	/**

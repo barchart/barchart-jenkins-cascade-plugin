@@ -22,8 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import jenkins.model.Jenkins;
-
 import org.joda.time.DateTime;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -87,7 +85,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	@SuppressWarnings("rawtypes")
 	public static AbstractProject abstractProject(final ProjectIdentity one,
 			final Mode mode) {
-		for (final TopLevelItem item : Jenkins.getInstance().getItems()) {
+		for (final TopLevelItem item : PluginUtilities.projectList()) {
 			if (item instanceof AbstractProject) {
 				final AbstractProject project = (AbstractProject) item;
 				final ProjectIdentity two = identity(project);
@@ -202,7 +200,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	@SuppressWarnings("rawtypes")
 	public static List<AbstractProject> familyProjectList(final String familyID) {
 		final List<AbstractProject> memberList = new ArrayList<AbstractProject>();
-		for (final TopLevelItem item : Jenkins.getInstance().getItems()) {
+		for (final TopLevelItem item : PluginUtilities.projectList()) {
 			if (item instanceof AbstractProject) {
 				final AbstractProject project = (AbstractProject) item;
 				if (familyID.equals(familyID(project))) {
