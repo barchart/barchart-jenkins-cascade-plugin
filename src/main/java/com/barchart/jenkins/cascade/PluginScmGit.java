@@ -8,13 +8,19 @@
 package com.barchart.jenkins.cascade;
 
 import java.io.File;
+import java.util.Set;
 
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CheckoutResult;
 import org.eclipse.jgit.api.CommitCommand;
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -23,6 +29,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.util.FileUtils;
 
 /**
  * Plugin SCM GIT utilities.
@@ -70,10 +78,49 @@ public class PluginScmGit {
 	/**
 	 * See {@link Git#checkout()}
 	 */
-	public static Ref doCheckout(final File workspace, final String branch) {
+	public static CheckoutResult doCheckout(final File workspace,
+			final String localBranch, final String remoteName,
+			final String remoteBranch) {
 		try {
 			final Git git = Git.open(workspace);
-			return git.checkout().setName(branch).call();
+			final CheckoutCommand command = git.checkout().setName(localBranch)
+					.setForce(true);
+			if (findRef(workspace, localBranch) == null) {
+				command.setCreateBranch(true)
+						.setUpstreamMode(SetupUpstreamMode.TRACK)
+						.setStartPoint(remote(remoteName, remoteBranch)).call();
+			} else {
+				command.call();
+			}
+			return command.getResult();
+		} catch (final Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Remove untracked files.
+	 */
+	public static Set<String> doClean(final File workspace) {
+		try {
+			final Git git = Git.open(workspace);
+			return git.clean().call();
+		} catch (final Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Destroy workspace and clone from scratch.
+	 */
+	public static Git doClone(final File workspace, final String uri,
+			final String remote) {
+		try {
+			FileUtils.delete(workspace, FileUtils.RECURSIVE
+					| FileUtils.IGNORE_ERRORS);
+			FileUtils.mkdirs(workspace, true);
+			return Git.cloneRepository().setURI(uri).setRemote(remote)
+					.setNoCheckout(true).setDirectory(workspace).call();
 		} catch (final Throwable e) {
 			throw new RuntimeException(e);
 		}
@@ -148,6 +195,32 @@ public class PluginScmGit {
 	}
 
 	/**
+	 * Verify if workspace has git repository.
+	 */
+	public static boolean doRepoTest(final File workspace) {
+		try {
+			final Git git = Git.open(workspace);
+			return true;
+		} catch (final RepositoryNotFoundException e) {
+			return false;
+		} catch (final Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Reset repository state.
+	 */
+	public static Ref doReset(final File workspace) {
+		try {
+			final Git git = Git.open(workspace);
+			return git.reset().setMode(ResetType.HARD).call();
+		} catch (final Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
 	 * See {@link Git#status()}
 	 */
 	public static Status doStatus(final File workspace) {
@@ -168,6 +241,25 @@ public class PluginScmGit {
 			return git.getRepository().getRef(name);
 		} catch (final Throwable e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public static boolean isSuccess(final CheckoutResult.Status checkoutStatus) {
+		switch (checkoutStatus) {
+		case OK:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	public static boolean isSuccess(final RemoteRefUpdate.Status pushStatus) {
+		switch (pushStatus) {
+		case OK:
+		case UP_TO_DATE:
+			return true;
+		default:
+			return false;
 		}
 	}
 
@@ -202,6 +294,17 @@ public class PluginScmGit {
 	}
 
 	/**
+	 * Source:Target branch reference for fetch with fast-forward.
+	 * <p>
+	 * Example: +refs/heads/master:refs/remotes/origin/master
+	 */
+	public static RefSpec refFetch(final String remoteBranchName,
+			final String remoteName, final String remoteTrackingBranchName) {
+		return new RefSpec(ref(true, remoteBranchName, remoteName,
+				remoteTrackingBranchName));
+	}
+
+	/**
 	 * Head branch reference.
 	 * <p>
 	 * Example: refs/heads/master
@@ -211,34 +314,28 @@ public class PluginScmGit {
 	}
 
 	/**
+	 * Source:Target branch reference for push w/o fast-forward.
+	 * <p>
+	 * Example: refs/heads/master:refs/heads/master
+	 */
+	public static RefSpec refPush(final String localBranchName,
+			final String remoteBranchName) {
+		return new RefSpec(ref(false, localBranchName, remoteBranchName));
+	}
+
+	/**
 	 * Local remote tracking branch reference.
 	 * <p>
 	 * Example: refs/remotes/origin/master
 	 */
 	public static String refRemotes(final String remoteName,
 			final String remoteBranchName) {
-		return Constants.R_REMOTES + remoteName + "/" + remoteBranchName;
+		return Constants.R_REMOTES + remote(remoteName, remoteBranchName);
 	}
 
-	/**
-	 * Source:Target branch reference for push w/o fast-forward.
-	 * <p>
-	 * Example: refs/heads/master:refs/heads/master
-	 */
-	public static RefSpec refSpec(final String localBranchName,
-			final String remoteBranchName) {
-		return new RefSpec(ref(false, localBranchName, remoteBranchName));
-	}
-
-	/**
-	 * Source:Target branch reference for fetch with fast-forward.
-	 * <p>
-	 * Example: +refs/heads/master:refs/remotes/origin/master
-	 */
-	public static RefSpec refSpec(final String remoteBranchName,
-			final String remoteName, final String remoteTrackingBranchName) {
-		return new RefSpec(ref(true, remoteBranchName, remoteName,
-				remoteTrackingBranchName));
+	public static String remote(final String remoteName,
+			final String remoteBranch) {
+		return remoteName + "/" + remoteBranch;
 	}
 
 }

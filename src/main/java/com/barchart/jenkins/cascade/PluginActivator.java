@@ -7,7 +7,6 @@
  */
 package com.barchart.jenkins.cascade;
 
-import design.run_exclusion.RunLock;
 import hudson.Extension;
 import hudson.Plugin;
 import hudson.model.Describable;
@@ -45,7 +44,6 @@ public class PluginActivator extends Plugin implements
 	public void start() throws Exception {
 		super.start();
 		load();
-		RunLock.init();
 	}
 
 	@Override

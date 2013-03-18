@@ -330,20 +330,21 @@ public class CascadeLogic {
 			return Result.NOT_BUILT;
 		}
 
-		PluginScm.scmCheckout(context);
+		final MavenModuleSet project = memberProject(context);
 
-		final MavenModuleSet memberProject = memberProject(context);
-
-		if (memberProject == null) {
+		if (project == null) {
 			context.logErr("Project not found.");
 			return Result.FAILURE;
 		}
 
-		final String projectName = memberProject.getName();
+		final String projectName = project.getName();
 
 		context.log("Cascade started: " + projectName);
 
-		final MavenModule rootModule = memberProject.getRootModule();
+		context.log("Check-out SCM.");
+		PluginScm.scmCheckout(context, project);
+
+		final MavenModule rootModule = project.getRootModule();
 
 		if (rootModule == null) {
 			context.logErr("maven module undefined.");
@@ -361,7 +362,8 @@ public class CascadeLogic {
 
 		logResult(context);
 
-		PluginScm.scmCheckin(context);
+		context.log("Check-in SCM.");
+		PluginScm.scmCheckin(context, project);
 
 		return result;
 
@@ -393,24 +395,19 @@ public class CascadeLogic {
 			return Result.SUCCESS;
 		}
 
-		context.log("Update metadata before release.");
-		UPDATE: {
-
-			if (context.layoutOptions().getUseSharedWorkspace() && level > 1) {
-				context.logTab("using shared workspace - skip update");
-				break UPDATE;
-			}
-
-			if (isFailure(PluginScm.scmUpdate(context, project))) {
-				return Result.FAILURE;
-			}
-
-		}
+		context.log("Update before release.");
+		/** TODO parse poms */
+		scmRead(level, context, project);
 
 		context.log("Verify project.");
 		if (isRelease(mavenModel(project))) {
 			context.logErr("project is a release");
-			context.logErr("please update project version to appropriate snapshot");
+			context.logErr("this is likely due to failed release:perform phase");
+			context.logErr("please update project version to the appropriate snapshot");
+			context.logErr("you can correct it as follows:");
+			context.logErr("1) revert version commit");
+			context.logErr("2) wipeout workspace");
+			context.logErr("3) restart cascade");
 			return Result.FAILURE;
 		} else {
 			context.logTab("project is a snapshot");
@@ -431,7 +428,7 @@ public class CascadeLogic {
 					break PARENT;
 				}
 				context.logTab("parent needs an update: " + parent);
-				if (isFailure(processMaven(context, moduleName,
+				if (isFailure(processMaven(context, project,
 						mavenParentGoals(context, mavenParentFilter(parent)),
 						true))) {
 					return Result.FAILURE;
@@ -443,9 +440,7 @@ public class CascadeLogic {
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
 					context.logTab("parent updated: " + parent);
-					if (isFailure(PluginScm.scmCommit(context, project))) {
-						return Result.FAILURE;
-					}
+					scmWrite(level, context, project);
 					break PARENT;
 				}
 				context.logTab("parent needs a release: " + parent);
@@ -460,13 +455,11 @@ public class CascadeLogic {
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
 					context.logTab("parent refreshed: " + parent);
-					if (isFailure(PluginScm.scmCommit(context, project))) {
-						return Result.FAILURE;
-					}
+					scmWrite(level, context, project);
 					break PARENT;
 				}
 				context.logTab("parent needs a refresh: " + parent);
-				if (isFailure(processMaven(context, moduleName,
+				if (isFailure(processMaven(context, project,
 						mavenParentGoals(context, mavenParentFilter(parent)),
 						true))) {
 					return Result.FAILURE;
@@ -478,9 +471,7 @@ public class CascadeLogic {
 				final Parent parent = mavenParent(project);
 				if (isRelease(parent)) {
 					context.logTab("parent verified: " + parent);
-					if (isFailure(PluginScm.scmCommit(context, project))) {
-						return Result.FAILURE;
-					}
+					scmWrite(level, context, project);
 					break PARENT;
 				}
 				context.logErr("can not verify parent:" + parent);
@@ -504,7 +495,7 @@ public class CascadeLogic {
 				logDependency(context, snapshots);
 				if (isFailure(processMaven(
 						context,
-						moduleName,
+						project,
 						mavenDependencyGoals(context,
 								mavenDependencyFilter(snapshots)), true))) {
 					return Result.FAILURE;
@@ -517,15 +508,11 @@ public class CascadeLogic {
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
 					context.logTab("dependencies are updated");
-					if (isFailure(PluginScm.scmCommit(context, project))) {
-						return Result.FAILURE;
-					}
+					scmWrite(level, context, project);
 					break DEPENDENCY;
 				}
+				scmWrite(level, context, project);
 				context.logTab("dependencies need release: " + snapshots.size());
-				if (isFailure(PluginScm.scmCommit(context, project))) {
-					return Result.FAILURE;
-				}
 				for (final Dependency dependency : snapshots) {
 					final ModuleName dependencyName = moduleName(dependency);
 					if (isFailure(processEntry(level + 1, context,
@@ -541,16 +528,14 @@ public class CascadeLogic {
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
 					context.logTab("dependencies are released");
-					if (isFailure(PluginScm.scmCommit(context, project))) {
-						return Result.FAILURE;
-					}
+					scmWrite(level, context, project);
 					break DEPENDENCY;
 				}
 				context.logTab("dependencies need refresh: " + snapshots.size());
 				logDependency(context, snapshots);
 				if (isFailure(processMaven(
 						context,
-						moduleName,
+						project,
 						mavenDependencyGoals(context,
 								mavenDependencyFilter(snapshots)), true))) {
 					return Result.FAILURE;
@@ -563,9 +548,7 @@ public class CascadeLogic {
 						MATCH_SNAPSHOT);
 				if (snapshots.isEmpty()) {
 					context.logTab("dependencies are verified");
-					if (isFailure(PluginScm.scmCommit(context, project))) {
-						return Result.FAILURE;
-					}
+					scmWrite(level, context, project);
 					break DEPENDENCY;
 				}
 				context.logErr("failed to verify dependency: "
@@ -577,22 +560,16 @@ public class CascadeLogic {
 		}
 
 		context.log("Release project.");
-		if (isFailure(processMaven(context, moduleName,
+		if (isFailure(processMaven(context, project,
 				mavenReleaseGoals(context), true))) {
 			return Result.FAILURE;
 		}
 
-		/**
-		 * Ensure next non-cascade release will pick up the change.
-		 * 
-		 * TODO to it once, optionally, at the end of cascade, for all released
-		 * modules.
-		 */
-		// context.log("Update metadata after release.");
-		// if (isFailure(process(context, moduleName,
-		// mavenValidateGoals(context)))) {
-		// return Result.FAILURE;
-		// }
+		context.log("Update after release.");
+		if (isFailure(processMaven(context, project, mavenUpdateGoals(context),
+				false))) {
+			return Result.FAILURE;
+		}
 
 		context.log("Project released: " + moduleName);
 		return Result.SUCCESS;
@@ -600,20 +577,13 @@ public class CascadeLogic {
 	}
 
 	/**
-	 * Build maven module, wait for completion.
+	 * Build maven module.
 	 */
 	public static Result processMaven(final BuildContext<CascadeBuild> context,
-			final ModuleName moduleName, final List<Action> actionList,
+			final MavenModuleSet project, final List<Action> actionList,
 			final boolean isBlocking) throws Exception {
 
-		context.logTab("module: " + moduleName);
-
-		final MavenModuleSet project = memberProject(context, moduleName);
-
-		if (project == null) {
-			context.logErr("project not found");
-			return Result.FAILURE;
-		}
+		context.logTab("module: " + project.getRootModule().getName());
 
 		actionList.add(new CascadeLogicAction());
 
@@ -627,6 +597,10 @@ public class CascadeLogic {
 		if (buildFuture == null) {
 			context.logErr("logic error: can not schedule build");
 			return Result.FAILURE;
+		}
+
+		if (!isBlocking) {
+			return Result.SUCCESS;
 		}
 
 		final Future<MavenModuleSetBuild> startFuture = buildFuture
@@ -649,6 +623,42 @@ public class CascadeLogic {
 		}
 
 		return result;
+
+	}
+
+	/**
+	 * Perform optional update.
+	 */
+	public static void scmRead(final int level,
+			final BuildContext<CascadeBuild> context,
+			final MavenModuleSet project) throws Exception {
+
+		if (context.layoutOptions().getUseSharedWorkspace() && level > 1) {
+			context.logTab("scm: skip update for shared workspace");
+			return;
+		}
+
+		PluginScm.scmUpdate(context, project);
+
+	}
+
+	/**
+	 * Perform commit and optional check-in.
+	 */
+	public static void scmWrite(final int level,
+			final BuildContext<CascadeBuild> context,
+			final MavenModuleSet project) throws Exception {
+
+		final String pattern = project.getRootPOM(null);
+
+		PluginScm.scmCommit(context, project, pattern);
+
+		if (!context.cascadeOptions().getShouldPushUpdates()) {
+			context.logTab("scm: skip checkin till cascade finish");
+			return;
+		}
+
+		PluginScm.scmCheckin(context, project);
 
 	}
 
