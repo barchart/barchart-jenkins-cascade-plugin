@@ -112,6 +112,8 @@ public class RunDecider extends QueueDecisionHandler {
 		final CascadeProject cascadeProject = identity.cascadeProject();
 		/** Layout setup incomplete. */
 		if (cascadeProject == null) {
+			report(identity, project, actionList,
+					"Permit task while there is no cascade project.");
 			return true;
 		}
 		if (cascadeProject.isBuilding()) {
@@ -134,6 +136,8 @@ public class RunDecider extends QueueDecisionHandler {
 		final MavenModuleSet layoutProject = identity.layoutProject();
 		/** Layout setup incomplete. */
 		if (layoutProject == null) {
+			report(identity, project, actionList,
+					"Permit task while there is no layout project.");
 			return true;
 		}
 		if (layoutProject.isBuilding()) {
@@ -152,6 +156,8 @@ public class RunDecider extends QueueDecisionHandler {
 					"Layout  project is pending, drop task.");
 			return false;
 		}
+
+		report(identity, project, actionList, "Unkown condition, permit task.");
 
 		return true;
 
