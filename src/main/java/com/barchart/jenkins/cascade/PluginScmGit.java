@@ -338,4 +338,7 @@ public class PluginScmGit {
 		return remoteName + "/" + remoteBranch;
 	}
 
+	private PluginScmGit() {
+	}
+
 }

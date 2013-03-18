@@ -361,7 +361,7 @@ public class PluginUtilities {
 	}
 
 	/**
-	 * Collect matching dependencies form a pom.xml file.
+	 * Collect matching dependencies from a pom.xml file.
 	 */
 	public static List<Dependency> mavenDependencies(final File pomFile,
 			final DependencyMatcher matcher) throws Exception {
@@ -614,6 +614,8 @@ public class PluginUtilities {
 
 	/**
 	 * List of all projects in jenkins.
+	 * <p>
+	 * Note: not affected by security filters.
 	 */
 	public static Collection<TopLevelItem> projectList() {
 		return projectMap().values();
@@ -621,6 +623,8 @@ public class PluginUtilities {
 
 	/**
 	 * Map of all projects in jenkins.
+	 * <p>
+	 * Note: not affected by security filters.
 	 */
 	public static Map<String, TopLevelItem> projectMap() {
 		return Jenkins.getInstance().getItemMap();

@@ -368,4 +368,7 @@ public class PluginScm {
 		return file;
 	}
 
+	private PluginScm() {
+	}
+
 }
