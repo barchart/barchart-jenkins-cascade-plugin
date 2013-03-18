@@ -98,7 +98,7 @@ public class LayoutLogic {
 			return false;
 		}
 
-		/** Layout project wokrspace. */
+		/** Layout project workspace. */
 		final FilePath workspace = context.build().getWorkspace();
 
 		final MavenModule layoutModule = layoutProject.getRootModule();
@@ -222,13 +222,15 @@ public class LayoutLogic {
 		context.log("");
 		context.log("Layout action: " + action);
 		context.log("Layout project: " + layoutName);
-		context.logTab("Project identity: " + layoutIdentity);
+		context.logTab("project identity: " + layoutIdentity);
 
 		if (!checkModuleNesting(context, layoutProject)) {
 			return false;
 		}
 
 		ensureProjectView(context, layoutProject);
+
+		processLayout(context, layoutProject);
 
 		processCascade(context, layoutProject, action);
 
@@ -355,6 +357,23 @@ public class LayoutLogic {
 			projectDelete.run();
 			projectCreate.run();
 			break;
+		}
+
+	}
+
+	/**
+	 * Handle layout project settings.
+	 * 
+	 * @throws IOException
+	 */
+	public static void processLayout(
+			final BuildContext<MavenModuleSetBuild> context,
+			final MavenModuleSet layoutProject) throws IOException {
+
+		context.logTab("Use custom checkout strategy.");
+		{
+			final SCMCheckoutStrategy strategy = new CheckoutStrategySCM();
+			layoutProject.setScmCheckoutStrategy(strategy);
 		}
 
 	}

@@ -84,6 +84,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	/**
 	 * Find project by role and family.
 	 */
+	@SuppressWarnings("rawtypes")
 	public static AbstractProject abstractProject(final ProjectIdentity one,
 			final Mode mode) {
 		for (final TopLevelItem item : Jenkins.getInstance().getItems()) {
@@ -101,11 +102,12 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	/**
 	 * Find project.
 	 */
+	@SuppressWarnings("rawtypes")
 	public static AbstractProject abstractProject(final ProjectRole role,
-			final String cascadeID, final String projectID, final Mode mode) {
-		final ProjectIdentity cascadeProperty = new ProjectIdentity(role,
-				cascadeID, projectID);
-		return abstractProject(cascadeProperty, mode);
+			final String familyID, final String projectID, final Mode mode) {
+		final ProjectIdentity identity = new ProjectIdentity(role, familyID,
+				projectID);
+		return abstractProject(identity, mode);
 	}
 
 	/**
