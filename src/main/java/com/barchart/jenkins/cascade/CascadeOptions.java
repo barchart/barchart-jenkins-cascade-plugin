@@ -117,15 +117,15 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 	public static final String NAME = "cascadeOptions";
 
 	private String mavenCommitGoals = MAVEN_COMMIT_GOALS;
+
 	private String mavenDependencyGoals = MAVEN_DEPENDENCY_GOALS;
 	private String mavenParentGoals = MAVEN_PARENT_GOALS;
 	private String mavenReleaseGoals = MAVEN_RELEASE_GOALS;
 	private String mavenValidateGoals = MAVEN_VALIDATE_GOALS;
-
 	private boolean shouldLogActions = false;
+
 	private boolean shouldLogDependency = false;
 	private boolean shouldPushUpdates = false;
-
 	public CascadeOptions() {
 	}
 
@@ -154,6 +154,11 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 		this.shouldLogDependency = shouldLogDependency;
 		this.shouldPushUpdates = shouldPushUpdates;
 
+	}
+
+	@Override
+	public TheDescriptor getDescriptor() {
+		return META;
 	}
 
 	public String getMavenCommitGoals() {

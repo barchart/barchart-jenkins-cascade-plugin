@@ -87,14 +87,14 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	 */
 	public static final String NAME = "layoutOptions";
 
+	private boolean buildAfterLayout = true;
+
 	private String cascadeProjectName = CASCADE_PROJECT_NAME;
 	private String layoutViewName = LAYOUT_VIEW_NAME;
 	private String mavenValidateGoals = MAVEN_VALIDATE_GOALS;
 	private String memberProjectName = MEMBER_PROJECT_NAME;
 
-	private boolean buildAfterLayout = true;
 	private boolean useSharedWorkspace = true;
-
 	public LayoutOptions() {
 	}
 
@@ -130,6 +130,11 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	 */
 	public String getCascadeProjectName() {
 		return cascadeProjectName;
+	}
+
+	@Override
+	public TheDescriptor getDescriptor() {
+		return META;
 	}
 
 	/**

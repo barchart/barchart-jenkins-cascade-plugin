@@ -8,5 +8,6 @@
 
 -->
 <div>
-	Cacade project build. 
+	Name of the project which will coordinate the release cascade 
+	and report on released artifacts of the member projects. 
 </div>

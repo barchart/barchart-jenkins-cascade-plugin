@@ -40,23 +40,26 @@
 
 				<f:section title="" name="releaseProperties">
 
-					<f:entry title="Layout Project">
+					<f:entry title="Layout Project" help="${help}/layoutProject.jelly">
 						<f:textbox value="${it.layoutName}" disabled="true" />
 					</f:entry>
-					<f:entry title="Cascade Project">
+					<f:entry title="Cascade Project"
+						help="${help}/cascadeProject.jelly">
 						<f:textbox value="${it.cascadeName}" disabled="true" />
 					</f:entry>
-					<f:entry title="Member Project">
+					<f:entry title="Member Project" help="${help}/memberProject.jelly">
 						<f:textbox value="${it.memberName}" disabled="true" />
 					</f:entry>
 
 					<p />
 
-					<f:entry title="Release Version" field="releaseVersion">
+					<f:entry title="Release Version" field="releaseVersion"
+						help="${help}/releaseVersion.jelly">
 						<f:textbox disabled="true"
 							value="${h.defaulted(it.releaseVersion,it.defaultReleaseVersion())}" />
 					</f:entry>
-					<f:entry title="Snapshot Version" field="snapshotVersion">
+					<f:entry title="Snapshot Version" field="snapshotVersion"
+						help="${help}/snapshotVersion.jelly">
 						<f:textbox disabled="true"
 							value="${h.defaulted(it.snapshotVersion,it.defaultSnapshotVersion())}" />
 					</f:entry>

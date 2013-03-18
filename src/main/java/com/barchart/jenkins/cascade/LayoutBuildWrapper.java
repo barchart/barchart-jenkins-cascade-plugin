@@ -101,6 +101,11 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		return cascadeOptions;
 	}
 
+	@Override
+	public TheDescriptor getDescriptor() {
+		return META;
+	}
+
 	public LayoutOptions getLayoutOptions() {
 		if (layoutOptions == null) {
 			layoutOptions = LayoutOptions.META.global();

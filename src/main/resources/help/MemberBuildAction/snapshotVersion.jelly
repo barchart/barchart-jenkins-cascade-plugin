@@ -8,5 +8,6 @@
 
 -->
 <div>
-	Cacade project build. 
+	Select snapshot version for the artifact after successful release.
+	All other snapshot versions in the cascade will be set by default rules.
 </div>

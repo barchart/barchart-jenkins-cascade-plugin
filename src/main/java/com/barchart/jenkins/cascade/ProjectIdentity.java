@@ -365,6 +365,11 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		return familyProjectList(this.getFamilyID());
 	}
 
+	@Override
+	public TheDescriptor getDescriptor() {
+		return META;
+	}
+
 	/**
 	 * Cascade project family id.
 	 */

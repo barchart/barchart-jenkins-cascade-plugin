@@ -106,4 +106,9 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 		}
 
 	}
+
+	@Override
+	public TheDescriptor getDescriptor() {
+		return META;
+	}
 }
