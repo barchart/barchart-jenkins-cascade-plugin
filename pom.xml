@@ -23,7 +23,7 @@
 
 	<groupId>com.barchart.jenkins</groupId>
 	<artifactId>maven-release-cascade</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 
 	<name>Maven Cascade Release Plugin</name>
