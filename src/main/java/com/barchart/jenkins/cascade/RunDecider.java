@@ -20,6 +20,8 @@ import hudson.model.Queue.QueueDecisionHandler;
 import hudson.model.Queue.Task;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 /**
@@ -91,6 +93,24 @@ public class RunDecider extends QueueDecisionHandler {
 		identity.log(message + " " + actionText);
 	}
 
+	/**
+	 * Report family projects.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static void report(final ProjectIdentity identity) {
+		identity.log("##############");
+		identity.log("Family Report:");
+		final List<AbstractProject> list = identity.familyProjectList();
+		final Set<String> set = new TreeSet<String>();
+		for (final AbstractProject project : list) {
+			set.add(project.getName());
+		}
+		for (final String name : set) {
+			identity.log("\t" + name);
+		}
+		identity.log("##############");
+	}
+
 	@Override
 	public boolean shouldSchedule(final Task task, final List<Action> actionList) {
 
@@ -114,6 +134,7 @@ public class RunDecider extends QueueDecisionHandler {
 		if (cascadeProject == null) {
 			report(identity, project, actionList,
 					"Permit task while there is no cascade project.");
+			report(identity);
 			return true;
 		}
 		if (cascadeProject.isBuilding()) {

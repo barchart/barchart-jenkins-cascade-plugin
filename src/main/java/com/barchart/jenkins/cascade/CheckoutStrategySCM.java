@@ -33,7 +33,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @Extension
 public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 
-	@Extension
 	public static class TheDescriptor extends SCMCheckoutStrategyDescriptor {
 		@Override
 		public String getDisplayName() {
@@ -45,6 +44,9 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 			return ProjectIdentity.identity(project) != null;
 		}
 	}
+
+	@Extension
+	public static final TheDescriptor META = new TheDescriptor();
 
 	@DataBoundConstructor
 	public CheckoutStrategySCM() {
@@ -62,6 +64,8 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 
 		final BuildContext context = new BuildContext(build, listener);
 
+		context.log(META.getDisplayName());
+
 		final ProjectIdentity identity = ProjectIdentity.identity(project);
 
 		if (identity == null) {
@@ -71,7 +75,7 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 			return;
 		}
 
-		context.log("Cascade project:");
+		context.log("Cascade family project.");
 
 		if (CheckoutSkipAction.hasAction(build)) {
 			context.log("Found " + CheckoutSkipAction.class.getSimpleName());

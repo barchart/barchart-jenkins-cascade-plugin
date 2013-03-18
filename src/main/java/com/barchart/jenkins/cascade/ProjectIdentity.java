@@ -91,6 +91,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 			if (item instanceof AbstractProject) {
 				final AbstractProject project = (AbstractProject) item;
 				final ProjectIdentity two = identity(project);
+				if (two == null) {
+					continue;
+				}
 				if (mode.equals(one, two)) {
 					return project;
 				}
@@ -186,11 +189,28 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	 * Extract family id from the project.
 	 */
 	public static String familyID(final AbstractProject<?, ?> project) {
-		final ProjectIdentity property = identity(project);
-		if (property == null) {
+		final ProjectIdentity identity = identity(project);
+		if (identity == null) {
 			return null;
 		}
-		return property.getFamilyID();
+		return identity.getFamilyID();
+	}
+
+	/**
+	 * Find all cascade family projects.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static List<AbstractProject> familyProjectList(final String familyID) {
+		final List<AbstractProject> memberList = new ArrayList<AbstractProject>();
+		for (final TopLevelItem item : Jenkins.getInstance().getItems()) {
+			if (item instanceof AbstractProject) {
+				final AbstractProject project = (AbstractProject) item;
+				if (familyID.equals(familyID(project))) {
+					memberList.add(project);
+				}
+			}
+		}
+		return memberList;
 	}
 
 	/**
@@ -335,6 +355,14 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 			return thisId.equals(thatId);
 		}
 		return false;
+	}
+
+	/**
+	 * Find all cascade family projects.
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<AbstractProject> familyProjectList() {
+		return familyProjectList(this.getFamilyID());
 	}
 
 	/**
