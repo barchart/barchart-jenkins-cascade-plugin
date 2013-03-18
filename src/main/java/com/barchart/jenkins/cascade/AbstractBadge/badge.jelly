@@ -9,6 +9,8 @@
 -->
 <!--
 	Required base implementation for a badge. 
+	
+	@author Andrei Pozolotin
 -->
 <j:jelly xmlns:j="jelly:core">
 

@@ -9,6 +9,8 @@
 -->
 <!--
 	Cascade member project build startup page. 
+
+	@author Andrei Pozolotin
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
@@ -31,7 +33,7 @@
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Perform Maven Cascade Project Release" />
+				<f:section title="Perform Maven Cascade Release" />
 
 				<f:advanced title="Cascade Options" align="left">
 					<j:set var="disableCascadeOptions" value="true" />

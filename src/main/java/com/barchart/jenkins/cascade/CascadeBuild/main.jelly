@@ -9,6 +9,8 @@
 -->
 <!--
 	Cascade build main page. 
+
+	@author Andrei Pozolotin
 -->
 <?jelly escape-by-default='true'?>
 

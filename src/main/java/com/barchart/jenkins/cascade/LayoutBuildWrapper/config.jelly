@@ -9,6 +9,8 @@
 -->
 <!--
 	Show cascade build wrapper sections on the project configuraton page.  
+
+	@author Andrei Pozolotin
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
@@ -28,7 +30,7 @@
 			<j:set var="images" value="${plugin}/images" />
 
 			<f:entry>
-				<img src="${images}/32x32/dragon.png" alt="" />
+				<img src="${images}/32x32/red-matreshka-head.png" alt="" />
 			</f:entry>
 
 			<f:entry title="Notice" help="${help}/section.jelly">

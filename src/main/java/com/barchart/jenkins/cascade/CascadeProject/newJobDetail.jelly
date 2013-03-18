@@ -9,6 +9,8 @@
 -->
 <!--
 	Show project type description on "new job" page. 
+ 
+ 	@author Andrei Pozolotin
  -->
 <?jelly escape-by-default='true'?>
 <div>
