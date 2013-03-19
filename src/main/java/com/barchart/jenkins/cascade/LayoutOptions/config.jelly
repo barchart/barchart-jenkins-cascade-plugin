@@ -38,16 +38,16 @@
 				value="${h.defaulted(it.layoutViewName,it.LAYOUT_VIEW_NAME)}" />
 		</f:entry>
 
-		<f:entry title="Member Project Name" field="memberProjectName"
-			help="${help}/memberProjectName.jelly">
-			<f:textbox id="layout-option-3"
-				value="${h.defaulted(it.memberProjectName,it.MEMBER_PROJECT_NAME)}" />
-		</f:entry>
-
 		<f:entry title="Cascade Project Name" field="cascadeProjectName"
 			help="${help}/cascadeProjectName.jelly">
-			<f:textbox id="layout-option-4"
+			<f:textbox id="layout-option-3"
 				value="${h.defaulted(it.cascadeProjectName,it.CASCADE_PROJECT_NAME)}" />
+		</f:entry>
+
+		<f:entry title="Member Project Name" field="memberProjectName"
+			help="${help}/memberProjectName.jelly">
+			<f:textbox id="layout-option-4"
+				value="${h.defaulted(it.memberProjectName,it.MEMBER_PROJECT_NAME)}" />
 		</f:entry>
 
 		<f:entry title="Use Shared Workspace" field="useSharedWorkspace"
