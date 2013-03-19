@@ -36,7 +36,7 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 	public static class TheDescriptor extends SCMCheckoutStrategyDescriptor {
 		@Override
 		public String getDisplayName() {
-			return "Maven Cascade Release Plugin Strategy for SCM";
+			return PluginConstants.PLUGIN_NAME + " Checkout Strategy for SCM";
 		}
 
 		@Override
