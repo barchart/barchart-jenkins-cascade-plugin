@@ -36,7 +36,7 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 	public static class TheDescriptor extends SCMCheckoutStrategyDescriptor {
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.PLUGIN_NAME + " Checkout Strategy for SCM";
+			return PluginConstants.PLUGIN_NAME + " Checkout Strategy";
 		}
 
 		@Override
