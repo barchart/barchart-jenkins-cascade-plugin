@@ -76,7 +76,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	;
 
 	public static final String MEMBER_PROJECT_NAME = //
-	tokenVariable(MavenTokenMacro.TOKEN_ARTIFACT_ID) //
+	tokenVariable(MavenTokenMacro.TOKEN_ARTIFACT_ID) + "_MEMBER"//
 	;
 
 	@Extension
