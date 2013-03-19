@@ -30,7 +30,7 @@
 		}
 	</style>
 
-	<j:set var="resultSize" value="${it.resultSet().size()}" />
+	<j:set var="resultSize" value="${it.resultSet.size()}" />
 
 	<h3>
 		Cascade Result:
@@ -38,7 +38,7 @@
 	</h3>
 
 	<ul style="list-style-type: none;">
-		<j:forEach var="result" items="${it.resultSet()}">
+		<j:forEach var="result" items="${it.resultSet}">
 			<li>
 				<img src="${images}/16x16/package.png" alt="" />
 				<a href="${result.buildURL}" class="model-link">

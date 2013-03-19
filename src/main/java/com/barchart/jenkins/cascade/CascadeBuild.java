@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
  * Cascade build.
@@ -24,6 +25,9 @@ import java.util.TreeSet;
  * @author Andrei Pozolotin
  */
 public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
+
+	protected final static Logger log = Logger.getLogger(CascadeBuild.class
+			.getName());
 
 	protected class CascadeExecution extends RunExecution {
 
@@ -47,7 +51,7 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 
 	}
 
-	private final Set<CascadeResult> resultSet = new TreeSet<CascadeResult>();
+	private Set<CascadeResult> resultSet;
 
 	/** New build form UI. */
 	public CascadeBuild(final CascadeProject project) throws IOException {
@@ -55,7 +59,7 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		setup(project);
 	}
 
-	/** Old Build from history file. */
+	/** Old Build from job/build.xml file. */
 	public CascadeBuild(final CascadeProject project, final File buildDir)
 			throws IOException {
 		super(project, buildDir);
@@ -65,7 +69,7 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 	/**
 	 * Artifacts release in this cascade build.
 	 */
-	public Set<CascadeResult> resultSet() {
+	public Set<CascadeResult> getResultSet() {
 		return resultSet;
 	}
 
@@ -74,7 +78,13 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		execute(new CascadeExecution());
 	}
 
+	/**
+	 * Required for legacy xstream serializer to work.
+	 */
 	private void setup(final CascadeProject project) {
+		if (resultSet == null) {
+			resultSet = new TreeSet<CascadeResult>();
+		}
 	}
 
 }

@@ -56,7 +56,7 @@ public class CascadeLogic {
 	public static boolean hasModuleResult(
 			final BuildContext<CascadeBuild> context,
 			final ModuleName moduleName) {
-		for (final CascadeResult result : context.build().resultSet()) {
+		for (final CascadeResult result : context.build().getResultSet()) {
 			if (moduleName(result.getArtifact()).equals(moduleName)) {
 				return true;
 			}
@@ -102,7 +102,7 @@ public class CascadeLogic {
 
 		context.log("Cascade result: ");
 
-		for (final CascadeResult result : context.build().resultSet()) {
+		for (final CascadeResult result : context.build().getResultSet()) {
 			context.logTab(result.toString());
 		}
 
@@ -699,7 +699,7 @@ public class CascadeLogic {
 
 		final CascadeResult result = new CascadeResult(artifact, buildURL);
 
-		context.build().resultSet().add(result);
+		context.build().getResultSet().add(result);
 
 	}
 
