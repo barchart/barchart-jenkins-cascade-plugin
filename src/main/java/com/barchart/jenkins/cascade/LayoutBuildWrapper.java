@@ -91,6 +91,8 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 	/**
 	 * Validate project configuration against cascade assumptions.
+	 * 
+	 * @jelly
 	 */
 	public static String validateConfig(final String projectName) {
 
@@ -111,6 +113,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 		final String messageScm = PluginScm.checkScm(project);
 
 		if (messageScm != null) {
+			log.severe(messageScm);
 			return messageScm;
 		}
 
@@ -138,7 +141,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	/**
-	 * Jelly form submit.
+	 * @jelly
 	 */
 	@DataBoundConstructor
 	public LayoutBuildWrapper( //
