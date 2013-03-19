@@ -7,9 +7,8 @@
  */
 package com.barchart.jenkins.cascade;
 
-import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.maven.MavenModuleSet;
-import hudson.model.Result;
+import hudson.model.AbstractProject;
 import hudson.plugins.git.BranchSpec;
 import hudson.plugins.git.GitSCM;
 import hudson.scm.SCM;
@@ -43,45 +42,57 @@ import org.eclipse.jgit.transport.TrackingRefUpdate;
 public class PluginScm {
 
 	/**
-	 * Verify jenkins git scm assumptions.
+	 * Verify jenkins scm assumptions for cascade to work.
 	 */
-	public static Result checkGitScm(final BuildContext<?> context,
-			final MavenModuleSet project) {
+	public static String checkScm(final AbstractProject<?, ?> project) {
 
 		final SCM scm = project.getScm();
 
 		if (!(scm instanceof GitSCM)) {
-			context.logErr("Unsupported SCM.");
-			return Result.FAILURE;
+			return "Unsupported SCM: " + scm;
 		}
 
 		final GitSCM gitScm = (GitSCM) scm;
 
 		final List<RemoteConfig> repositoryList = gitScm.getRepositories();
-		// log("repositoryList", context, repositoryList);
 
 		if (repositoryList.size() != 1) {
-			context.logErr("Cascade build needs single repository.");
-			return Result.FAILURE;
+			return "Cascade build needs single remote repository;"
+					+ " current count=" + repositoryList.size();
 		}
 
 		final List<BranchSpec> branchList = gitScm.getBranches();
-		// log("branchList", context, branchList);
 
 		if (branchList.size() != 1) {
-			context.logErr("Cascade build needs single branch.");
-			return Result.FAILURE;
+			return "Cascade build needs single remote branch;"
+					+ " current count=" + branchList.size();
+		}
+
+		final String remoteBranchName = branchList.get(0).getName();
+
+		if (remoteBranchName == null || remoteBranchName.length() == 0) {
+			return "Cascade build needs remote branch;"
+					+ " current remoteBranchName=" + remoteBranchName;
+		}
+
+		if (remoteBranchName.contains("*")) {
+			return "Cascade remote branch can not be a wildcard;"
+					+ " current remoteBranchName=" + remoteBranchName;
 		}
 
 		final String localBranchName = gitScm.getLocalBranch();
-		// context.logTab("### localBranchName: " + localBranchName);
 
 		if (localBranchName == null || localBranchName.length() == 0) {
-			context.logErr("Cascade build needs local branch.");
-			return Result.FAILURE;
+			return "Cascade build needs local branch;"
+					+ " current localBranchName=" + localBranchName;
 		}
 
-		return Result.SUCCESS;
+		if (localBranchName.contains("*")) {
+			return "Cascade local branch can not be a wildcard;"
+					+ " current localBranchName=" + localBranchName;
+		}
+
+		return null;
 
 	}
 
@@ -125,8 +136,10 @@ public class PluginScm {
 	public static void scmCheckin(final BuildContext<CascadeBuild> context,
 			final MavenModuleSet project) {
 
-		if (isFailure(checkGitScm(context, project))) {
-			throw new IllegalStateException("Unexpected");
+		final String message = checkScm(project);
+
+		if (message != null) {
+			throw new IllegalStateException(message);
 		}
 
 		final GitSCM gitScm = (GitSCM) project.getScm();
@@ -165,8 +178,10 @@ public class PluginScm {
 	public static void scmCheckout(final BuildContext<CascadeBuild> context,
 			final MavenModuleSet project) {
 
-		if (isFailure(checkGitScm(context, project))) {
-			throw new IllegalStateException("Unexpected");
+		final String message = checkScm(project);
+
+		if (message != null) {
+			throw new IllegalStateException(message);
 		}
 
 		final GitSCM gitScm = (GitSCM) project.getScm();
@@ -259,8 +274,10 @@ public class PluginScm {
 	public static void scmCommit(final BuildContext<?> context,
 			final MavenModuleSet project, final String pattern) {
 
-		if (isFailure(checkGitScm(context, project))) {
-			throw new IllegalStateException("Unexpected");
+		final String message = checkScm(project);
+
+		if (message != null) {
+			throw new IllegalStateException(message);
 		}
 
 		final GitSCM gitScm = (GitSCM) project.getScm();
@@ -279,11 +296,11 @@ public class PluginScm {
 		final DirCache addResult = PluginScmGit.doAdd(workspace, pattern);
 		context.logTab("added: " + pattern);
 
-		final String message = "[cascade]" + " " + pattern;
+		final String commitMessage = "[cascade]" + " " + pattern;
 		final PersonIdent person = person(gitScm);
 
 		final RevCommit commitResult = PluginScmGit.doCommit(workspace, person,
-				message);
+				commitMessage);
 		context.logTab("commit: " + commitResult.name());
 
 	}
@@ -294,8 +311,10 @@ public class PluginScm {
 	public static void scmUpdate(final BuildContext<CascadeBuild> context,
 			final MavenModuleSet project) throws Exception {
 
-		if (isFailure(checkGitScm(context, project))) {
-			throw new IllegalStateException("Unexpected");
+		final String message = checkScm(project);
+
+		if (message != null) {
+			throw new IllegalStateException(message);
 		}
 
 		final GitSCM gitScm = (GitSCM) project.getScm();

@@ -15,12 +15,16 @@ import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
+import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
+import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -75,11 +79,42 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 	}
 
+	protected final static Logger log = Logger
+			.getLogger(LayoutBuildWrapper.class.getName());
+
 	@Extension
 	public static final TheDescriptor META = new TheDescriptor();
 
 	public static boolean hasWrapper(final MavenModuleSet project) {
 		return wrapper(project) != null;
+	}
+
+	/**
+	 * Validate project configuration against cascade assumptions.
+	 */
+	public static String validateConfig(final String projectName) {
+
+		final TopLevelItem item = Jenkins.getInstance().getItem(projectName);
+
+		if (item == null) {
+			log.severe("Project is missing: " + item);
+			return "Project is missing";
+		}
+
+		if (!(item instanceof MavenModuleSet)) {
+			log.severe("Project is of wrong type: " + item);
+			return "Project is of wrong type";
+		}
+
+		final MavenModuleSet project = (MavenModuleSet) item;
+
+		final String messageScm = PluginScm.checkScm(project);
+
+		if (messageScm != null) {
+			return messageScm;
+		}
+
+		return null;
 	}
 
 	public static LayoutBuildWrapper wrapper(final MavenModuleSet project) {
@@ -91,9 +126,10 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 	}
 
-	private CascadeOptions cascadeOptions = CascadeOptions.META.global();
+	private CascadeOptions cascadeOptions;
+	private LayoutOptions layoutOptions;
 
-	private LayoutOptions layoutOptions = LayoutOptions.META.global();
+	private String projectName;
 
 	/**
 	 * Required for injection.
@@ -107,10 +143,12 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	@DataBoundConstructor
 	public LayoutBuildWrapper( //
 			final CascadeOptions cascadeOptions, //
-			final LayoutOptions layoutOptions //
+			final LayoutOptions layoutOptions, //
+			final String projectName//
 	) {
 		this.cascadeOptions = cascadeOptions;
 		this.layoutOptions = layoutOptions;
+		this.projectName = projectName;
 	}
 
 	public CascadeOptions getCascadeOptions() {
