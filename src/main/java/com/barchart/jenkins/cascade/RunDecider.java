@@ -40,6 +40,14 @@ public class RunDecider extends QueueDecisionHandler {
 	}
 
 	/**
+	 * Verify if project is present in the build queue.
+	 */
+	public static boolean queueHas(final AbstractProject<?, ?> project) {
+		final Queue queue = Queue.getInstance();
+		return queue.getItem(project) != null;
+	}
+
+	/**
 	 * Render action list for logging.
 	 */
 	public static String render(final List<Action> actionList) {
@@ -83,17 +91,6 @@ public class RunDecider extends QueueDecisionHandler {
 	}
 
 	/**
-	 * Report decision in jenkins log and instance log.
-	 */
-	public static void report(final ProjectIdentity identity,
-			final AbstractProject<?, ?> project, final List<Action> actionList,
-			final String message) {
-		final String actionText = render(actionList);
-		log(message + " " + project.getName() + " " + actionText);
-		identity.log(message + " " + actionText);
-	}
-
-	/**
 	 * Report family projects.
 	 */
 	@SuppressWarnings("rawtypes")
@@ -111,9 +108,21 @@ public class RunDecider extends QueueDecisionHandler {
 		identity.log("##############");
 	}
 
+	/**
+	 * Report decision in jenkins log and instance log.
+	 */
+	public static void report(final ProjectIdentity identity,
+			final AbstractProject<?, ?> project, final List<Action> actionList,
+			final String message) {
+		final String actionText = render(actionList);
+		log(message + " " + project.getName() + " " + actionText);
+		identity.log(message + " " + actionText);
+	}
+
 	@Override
 	public boolean shouldSchedule(final Task task, final List<Action> actionList) {
 
+		/** Project type not managed here. */
 		if (!(task instanceof AbstractProject)) {
 			return true;
 		}
@@ -127,58 +136,58 @@ public class RunDecider extends QueueDecisionHandler {
 			return true;
 		}
 
-		final Queue queue = Queue.getInstance();
-
+		final MavenModuleSet layoutProject = identity.layoutProject();
 		final CascadeProject cascadeProject = identity.cascadeProject();
-		/** Layout setup incomplete. */
+
+		/** Layout project constraint. */
+		if (layoutProject == null) {
+			report(identity, project, actionList,
+					"Unexpected: layout project is missing, drop the task.");
+			return false;
+		}
+		if (layoutProject.isBuilding()) {
+			if (LayoutLogicAction.hasAction(actionList)) {
+				report(identity, project, actionList,
+						"Permit task started by layout project.");
+				return true;
+			} else {
+				report(identity, project, actionList,
+						"Layout  project is building, drop the task.");
+				return false;
+			}
+		}
+		if (queueHas(layoutProject)) {
+			report(identity, project, actionList,
+					"Layout  project is pending, drop the task.");
+			return false;
+		}
+
+		/** Cascade project constraint. */
 		if (cascadeProject == null) {
 			report(identity, project, actionList,
 					"Permit task while there is no cascade project.");
-			report(identity);
+			// report(identity);
 			return true;
 		}
 		if (cascadeProject.isBuilding()) {
 			if (CascadeLogicAction.hasAction(actionList)) {
 				report(identity, project, actionList,
-						"Permit task started by cascade.");
+						"Permit task started by cascade project.");
 				return true;
 			} else {
 				report(identity, project, actionList,
-						"Cascade project is building, drop task.");
+						"Cascade project is building, drop the task.");
 				return false;
 			}
 		}
-		if (queue.getItem(cascadeProject) != null) {
+		if (queueHas(cascadeProject)) {
 			report(identity, project, actionList,
-					"Cascade project is pending, drop task.");
+					"Cascade project is pending, drop the task.");
 			return false;
 		}
 
-		final MavenModuleSet layoutProject = identity.layoutProject();
-		/** Layout setup incomplete. */
-		if (layoutProject == null) {
-			report(identity, project, actionList,
-					"Permit task while there is no layout project.");
-			return true;
-		}
-		if (layoutProject.isBuilding()) {
-			if (LayoutLogicAction.hasAction(actionList)) {
-				report(identity, project, actionList,
-						"Permit task started by layout.");
-				return true;
-			} else {
-				report(identity, project, actionList,
-						"Layout  project is building, drop task.");
-				return false;
-			}
-		}
-		if (queue.getItem(layoutProject) != null) {
-			report(identity, project, actionList,
-					"Layout  project is pending, drop task.");
-			return false;
-		}
-
-		report(identity, project, actionList, "Unkown condition, permit task.");
+		report(identity, project, actionList,
+				"Unconstrained condition, permit the task.");
 
 		return true;
 

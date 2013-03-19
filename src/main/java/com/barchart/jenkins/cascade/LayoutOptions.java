@@ -83,7 +83,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	public final static TheDescriptor META = new TheDescriptor();
 
 	/**
-	 * Collect fields of this bean as given JSON object.
+	 * Collect fields of this bean as named JSON object.
 	 */
 	public static final String NAME = "layoutOptions";
 
@@ -95,6 +95,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	private String memberProjectName = MEMBER_PROJECT_NAME;
 
 	private boolean useSharedWorkspace = true;
+
 	public LayoutOptions() {
 	}
 

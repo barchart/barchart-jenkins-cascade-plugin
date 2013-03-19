@@ -78,8 +78,8 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 	 */
 	public static final String MAVEN_DEPENDENCY_GOALS = //
 	"versions:use-latest-versions \n" //
-			+ "--define generateBackupPoms=false \n" //
 			+ "--define excludeReactor=false \n" //
+			+ "--define generateBackupPoms=false \n" //
 			+ "--define allowMajorUpdates=false \n" //
 			+ "--define allowMinorUpdates=false \n" //
 			+ "--define allowIncrementalUpdates=true \n" //
@@ -98,7 +98,7 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 	public static final String MAVEN_RELEASE_GOALS = //
 	"release:clean release:prepare release:perform \n"
 			+ "--define localCheckout=true \n" //
-			+ "--define arguments=\"--define skipTests=true\" \n" //
+			+ "--define arguments=-DskipTests \n" //
 	;
 
 	/**
@@ -112,7 +112,7 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 	public final static TheDescriptor META = new TheDescriptor();
 
 	/**
-	 * Collect fields of this bean as given JSON object.
+	 * Collect fields of this bean as named JSON object.
 	 */
 	public static final String NAME = "cascadeOptions";
 
@@ -126,6 +126,7 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 
 	private boolean shouldLogDependency = false;
 	private boolean shouldPushUpdates = false;
+
 	public CascadeOptions() {
 	}
 
