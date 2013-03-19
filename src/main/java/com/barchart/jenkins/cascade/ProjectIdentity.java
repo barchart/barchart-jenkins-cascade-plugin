@@ -319,6 +319,19 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	}
 
 	/**
+	 * Equality by family id.
+	 */
+	public boolean equalsFamily(final Object other) {
+		if (other instanceof ProjectIdentity) {
+			final ProjectIdentity that = (ProjectIdentity) other;
+			final String thisId = this.getFamilyID();
+			final String thatId = that.getFamilyID();
+			return thisId.equals(thatId);
+		}
+		return false;
+	}
+
+	/**
 	 * Equality by role.
 	 */
 	public boolean equalsRole(final Object other) {

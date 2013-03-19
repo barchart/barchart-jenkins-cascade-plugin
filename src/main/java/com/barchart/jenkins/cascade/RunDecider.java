@@ -11,6 +11,7 @@ import hudson.Extension;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
 import hudson.model.ParameterValue;
+import hudson.model.TopLevelItem;
 import hudson.model.AbstractProject;
 import hudson.model.Cause;
 import hudson.model.CauseAction;
@@ -20,7 +21,9 @@ import hudson.model.Queue.QueueDecisionHandler;
 import hudson.model.Queue.Task;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
@@ -117,6 +120,37 @@ public class RunDecider extends QueueDecisionHandler {
 		final String actionText = render(actionList);
 		log(message + " " + project.getName() + " " + actionText);
 		identity.log(message + " " + actionText);
+	}
+
+	/**
+	 * Report any cascade family projects are pending or building.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static Map<String, AbstractProject> reportActiveFamilyProjects(
+			final ProjectIdentity source) {
+		final Map<String, AbstractProject> map = new TreeMap<String, AbstractProject>();
+		for (final TopLevelItem item : PluginUtilities.projectList()) {
+			if (item instanceof AbstractProject) {
+				final AbstractProject project = (AbstractProject) item;
+				final ProjectIdentity target = ProjectIdentity
+						.identity(project);
+				if (target == null) {
+					continue;
+				}
+				if (!source.equalsFamily(target)) {
+					continue;
+				}
+				if (project.isBuilding()) {
+					map.put(project.getName(), project);
+					continue;
+				}
+				if (queueHas(project)) {
+					map.put(project.getName(), project);
+					continue;
+				}
+			}
+		}
+		return map;
 	}
 
 	@Override

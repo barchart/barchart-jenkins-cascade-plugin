@@ -10,7 +10,9 @@ package com.barchart.jenkins.cascade;
 import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
+import hudson.model.AbstractProject;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 import net.sf.json.JSONObject;
@@ -31,7 +33,7 @@ public class MemberBuildAction implements Action {
 	private static final Logger log = Logger.getLogger(MemberBuildAction.class
 			.getName());
 
-	final private ProjectIdentity identity;
+	private final ProjectIdentity identity;
 
 	private String releaseVersion;
 
@@ -77,10 +79,19 @@ public class MemberBuildAction implements Action {
 	}
 
 	/**
+	 * Report any cascade family projects are pending or building.
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map<String, AbstractProject> reportActiveFamilyProjects() {
+		return RunDecider.reportActiveFamilyProjects(identity);
+	}
+
+	/**
 	 * Jelly form submit.
 	 * <p>
 	 * Start cascade build.
 	 */
+	@SuppressWarnings("rawtypes")
 	public void doSubmit(final StaplerRequest request,
 			final StaplerResponse response) throws Exception {
 
@@ -89,14 +100,32 @@ public class MemberBuildAction implements Action {
 		releaseVersion = props.getString("releaseVersion");
 		snapshotVersion = props.getString("snapshotVersion");
 
-		final CascadeProject project = identity.cascadeProject();
+		final CascadeProject cascadeProject = identity.cascadeProject();
+		final MavenModuleSet memberProject = identity.memberProject();
+
+		// final Map<String, AbstractProject> map =
+		// reportActiveFamilyProjects();
+		// if (map.isEmpty()) {
+		// response.sendRedirect(request.getContextPath() + '/'
+		// + memberProject.getUrl() + '/' + getUrlName()
+		// + "/failedActive");
+		// return;
+		// }
 
 		final MemberBuildCause cause = new MemberBuildCause();
 		final DoCascadeBadge badge = new DoCascadeBadge();
 
-		project.scheduleBuild(0, cause, this, badge);
+		final boolean isScheduled = cascadeProject.scheduleBuild(0, cause,
+				this, badge);
 
-		response.sendRedirect(request.getContextPath() + '/' + project.getUrl());
+		if (isScheduled) {
+			response.sendRedirect(request.getContextPath() + '/'
+					+ cascadeProject.getUrl());
+		} else {
+			response.sendRedirect(request.getContextPath() + '/'
+					+ memberProject.getUrl() + '/' + getUrlName()
+					+ "/failedSchedule");
+		}
 
 	}
 
