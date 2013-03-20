@@ -7,34 +7,58 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
-<!-- Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/> All rights 
-	reserved. Licensed under the OSI BSD License. http://www.opensource.org/licenses/bsd-license.php -->
-<!-- Per-project configuration. -->
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<!--
+	Show cascade build wrapper sections on the project configuraton page.  
+
+	@author Andrei Pozolotin
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/maven-release-cascade" />
+	<j:set var="help" value="${plugin}/help/LayoutBuildWrapper" />
+	<j:set var="images" value="${plugin}/images" />
 
 	<!-- Wrapper instance is not created by default. -->
 	<j:choose>
 
 		<j:when test="${instance != null}">
+
+			<f:entry title="Project Config" help="${help}/verify.jelly"
+				field="projectName">
+
+				<j:set var="validateMessage"
+					value="${instance.validateConfig(it.name)}" />
+				<j:choose>
+					<j:when test="${validateMessage != null}">
+						<f:textbox disabled="true" clazz="error"
+							value="${validateMessage}" />
+					</j:when>
+					<j:otherwise>
+						<f:textbox disabled="true" clazz="info" value="OK" />
+					</j:otherwise>
+				</j:choose>
+
+			</f:entry>
+
 			<st:include it="${instance.layoutOptions}" page="config.jelly" />
+
 			<st:include it="${instance.cascadeOptions}" page="config.jelly" />
+
 		</j:when>
 
 		<j:otherwise>
 
-			<j:set var="plugin" value="/plugin/maven-release-cascade" />
-			<j:set var="help" value="${plugin}/help/LayoutBuildWrapper" />
-			<j:set var="images" value="${plugin}/images" />
-
 			<f:entry>
-				<img src="${images}/32x32/dragon.png" alt="" />
+				<img src="${images}/32x32/red-matreshka-head.png" alt="" />
 			</f:entry>
 
-			<f:entry title="Notice" help="${help}/section.jelly">
+			<f:entry title="Advanced Feature" help="${help}/advanced.jelly">
 				<f:textbox disabled="true" clazz="warning"
-					value="This is advanced feature. Click SAVE and LOAD if you really mean it. Otherwise click for help --->" />
+					value="This is an advanced feature. Click SAVE and LOAD if you really mean it. Otherwise read help --->" />
 			</f:entry>
+
 		</j:otherwise>
 
 	</j:choose>

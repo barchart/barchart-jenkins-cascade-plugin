@@ -15,17 +15,21 @@ import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
+import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
+import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * Layout project.
+ * Layout project extender.
  * <p>
  * Maven build wrapper for cascade layout management.
  * <p>
@@ -36,29 +40,84 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @Extension
 public class LayoutBuildWrapper extends BuildWrapper {
 
-	@Extension
 	public static class TheDescriptor extends BuildWrapperDescriptor {
 
 		@Override
 		public String getDisplayName() {
-			return "Cascade layout and release builds";
+			return PluginConstants.PLUGIN_NAME;
 		}
 
 		/**
-		 * Interested in top level maven multi-module projects only.
+		 * Interested in non-cascade maven projects (layout candidate) or
+		 * existing layout projects.
 		 */
 		@Override
 		public boolean isApplicable(final AbstractProject<?, ?> project) {
-			if (project instanceof MavenModuleSet) {
-				return true;
+
+			final ProjectIdentity identity = ProjectIdentity.identity(project);
+
+			/** Non-cascade maven project. */
+			if (identity == null) {
+				if (project instanceof MavenModuleSet) {
+					return true;
+				} else {
+					return false;
+				}
 			}
-			return false;
+
+			/** Cascade family layout project. */
+			switch (identity.role()) {
+			case LAYOUT:
+				return true;
+			case CASCADE:
+			case MEMBER:
+			default:
+				return false;
+			}
+
 		}
 
 	}
 
+	protected final static Logger log = Logger
+			.getLogger(LayoutBuildWrapper.class.getName());
+
+	@Extension
+	public static final TheDescriptor META = new TheDescriptor();
+
 	public static boolean hasWrapper(final MavenModuleSet project) {
 		return wrapper(project) != null;
+	}
+
+	/**
+	 * Validate project configuration against cascade assumptions.
+	 * 
+	 * @jelly
+	 */
+	public static String validateConfig(final String projectName) {
+
+		final TopLevelItem item = Jenkins.getInstance().getItem(projectName);
+
+		if (item == null) {
+			log.severe("Project is missing: " + item);
+			return "Project is missing";
+		}
+
+		if (!(item instanceof MavenModuleSet)) {
+			log.severe("Project is of wrong type: " + item);
+			return "Project is of wrong type";
+		}
+
+		final MavenModuleSet project = (MavenModuleSet) item;
+
+		final String messageScm = PluginScm.checkScm(project);
+
+		if (messageScm != null) {
+			log.severe(messageScm);
+			return messageScm;
+		}
+
+		return null;
 	}
 
 	public static LayoutBuildWrapper wrapper(final MavenModuleSet project) {
@@ -70,9 +129,10 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 	}
 
-	private CascadeOptions cascadeOptions = CascadeOptions.META.global();
+	private CascadeOptions cascadeOptions;
+	private LayoutOptions layoutOptions;
 
-	private LayoutOptions layoutOptions = LayoutOptions.META.global();
+	private String projectName;
 
 	/**
 	 * Required for injection.
@@ -81,15 +141,17 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	}
 
 	/**
-	 * Jelly form submit.
+	 * @jelly
 	 */
 	@DataBoundConstructor
 	public LayoutBuildWrapper( //
 			final CascadeOptions cascadeOptions, //
-			final LayoutOptions layoutOptions //
+			final LayoutOptions layoutOptions, //
+			final String projectName//
 	) {
 		this.cascadeOptions = cascadeOptions;
 		this.layoutOptions = layoutOptions;
+		this.projectName = projectName;
 	}
 
 	public CascadeOptions getCascadeOptions() {
@@ -97,6 +159,11 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			cascadeOptions = CascadeOptions.META.global();
 		}
 		return cascadeOptions;
+	}
+
+	@Override
+	public TheDescriptor getDescriptor() {
+		return META;
 	}
 
 	public LayoutOptions getLayoutOptions() {
@@ -121,7 +188,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	) throws IOException {
 
 		final BuildContext<MavenModuleSetBuild> context = new BuildContext<MavenModuleSetBuild>(
-				build, listener);
+				build, launcher, listener);
 
 		if (LayoutBuildCause.hasCause(build)) {
 

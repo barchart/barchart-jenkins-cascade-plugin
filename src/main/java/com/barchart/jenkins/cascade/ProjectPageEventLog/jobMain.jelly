@@ -9,6 +9,8 @@
 -->
 <!--
 	Show cascade member event log on project main page. 
+
+	@author Andrei Pozolotin
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
@@ -24,10 +26,14 @@
 
 			<f:advanced>
 
-				<f:entry title="" help="${help}/eventLog.jelly">
-					<textarea disabled="true" rows="10" cols="100">
-					${it.identity().log()}
-					</textarea>
+				<f:entry help="${help}/eventLog.jelly">
+
+					<f:textarea id="event-log" value="${it.identity().log()}" />
+
+					<script type="text/javascript">
+						document.getElementById("event-log").disabled = "true";
+					</script>
+
 				</f:entry>
 
 			</f:advanced>

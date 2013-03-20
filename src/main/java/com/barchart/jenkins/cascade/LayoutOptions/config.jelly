@@ -8,7 +8,9 @@
 
 -->
 <!--
-	Component configuration page. 
+	Component configuration page for layout options. 
+
+	@author Andrei Pozolotin
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
@@ -26,37 +28,48 @@
 
 		<f:entry title="Validation Goals" field="mavenValidateGoals"
 			help="${help}/mavenValidateGoals.jelly">
-			<f:expandableTextbox
+			<f:textarea id="layout-option-1"
 				value="${h.defaulted(it.mavenValidateGoals,it.MAVEN_VALIDATE_GOALS)}" />
 		</f:entry>
 
 		<f:entry title="Layout View Name" field="layoutViewName"
 			help="${help}/layoutViewName.jelly">
-			<f:textbox
+			<f:textbox id="layout-option-2"
 				value="${h.defaulted(it.layoutViewName,it.LAYOUT_VIEW_NAME)}" />
-		</f:entry>
-
-		<f:entry title="Member Project Name" field="memberProjectName"
-			help="${help}/memberProjectName.jelly">
-			<f:textbox
-				value="${h.defaulted(it.memberProjectName,it.MEMBER_PROJECT_NAME)}" />
 		</f:entry>
 
 		<f:entry title="Cascade Project Name" field="cascadeProjectName"
 			help="${help}/cascadeProjectName.jelly">
-			<f:textbox
+			<f:textbox id="layout-option-3"
 				value="${h.defaulted(it.cascadeProjectName,it.CASCADE_PROJECT_NAME)}" />
+		</f:entry>
+
+		<f:entry title="Member Project Name" field="memberProjectName"
+			help="${help}/memberProjectName.jelly">
+			<f:textbox id="layout-option-4"
+				value="${h.defaulted(it.memberProjectName,it.MEMBER_PROJECT_NAME)}" />
 		</f:entry>
 
 		<f:entry title="Use Shared Workspace" field="useSharedWorkspace"
 			help="${help}/useSharedWorkspace.jelly">
-			<f:checkbox checked="${it.useSharedWorkspace}" />
+			<f:checkbox id="layout-option-5" checked="${it.useSharedWorkspace}" />
 		</f:entry>
 
 		<f:entry title="Build Member After Layout" field="buildAfterLayout"
 			help="${help}/buildAfterLayout.jelly">
-			<f:checkbox checked="${it.buildAfterLayout}" />
+			<f:checkbox id="layout-option-6" checked="${it.buildAfterLayout}" />
 		</f:entry>
+
+		<j:if test="${disableLayoutOptions}">
+			<script type="text/javascript">
+				document.getElementById("layout-option-1").disabled = "true";
+				document.getElementById("layout-option-2").disabled = "true";
+				document.getElementById("layout-option-3").disabled = "true";
+				document.getElementById("layout-option-4").disabled = "true";
+				document.getElementById("layout-option-5").disabled = "true";
+				document.getElementById("layout-option-6").disabled = "true";
+			</script>
+		</j:if>
 
 	</f:section>
 

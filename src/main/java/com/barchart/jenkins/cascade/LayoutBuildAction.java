@@ -42,12 +42,47 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 		this.layoutProject = layoutProject;
 	}
 
+	/**
+	 * Jelly form submit.
+	 * <p>
+	 * Start layout build.
+	 */
+	public void doSubmit(final StaplerRequest request,
+			final StaplerResponse response) throws Exception {
+
+		final Map<?, ?> params = request.getParameterMap();
+
+		final List<ParameterValue> values = new ArrayList<ParameterValue>();
+		final Action parameters = new ParametersAction(values);
+
+		final String configAction = httpStringParam("configAction", params);
+		final Action arguments = new LayoutArgumentsAction(configAction);
+
+		final DoLayoutBadge layoutBadge = new DoLayoutBadge();
+		final Action projectBadge = ProjectAction.form(configAction).badge();
+
+		layoutProject.scheduleBuild(0, new LayoutBuildCause(), parameters,
+				arguments, layoutBadge, projectBadge);
+
+		response.sendRedirect(request.getContextPath() + '/'
+				+ layoutProject.getUrl());
+
+	}
+
+	public CascadeOptions getCascadeOptions() {
+		return LayoutBuildWrapper.wrapper(layoutProject).getCascadeOptions();
+	}
+
 	public String getDisplayName() {
 		return PluginConstants.LAYOUT_ACTION_NAME;
 	}
 
 	public String getIconFileName() {
 		return PluginConstants.LAYOUT_ACTION_ICON;
+	}
+
+	public LayoutOptions getLayoutOptions() {
+		return LayoutBuildWrapper.wrapper(layoutProject).getLayoutOptions();
 	}
 
 	public Collection<MavenModule> getModules() {
@@ -83,37 +118,6 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 
 	public String getUrlName() {
 		return PluginConstants.LAYOUT_ACTION_URL;
-	}
-
-	/**
-	 * Jelly form submit.
-	 * <p>
-	 * Start layout build.
-	 */
-	public void doSubmit(final StaplerRequest request,
-			final StaplerResponse response) throws Exception {
-
-		final Map<?, ?> params = request.getParameterMap();
-
-		final List<ParameterValue> values = new ArrayList<ParameterValue>();
-		final Action parameters = new ParametersAction(values);
-
-		final String configAction = httpStringParam("configAction", params);
-		final Action arguments = new LayoutArgumentsAction(configAction);
-
-		final DoLayoutBadge layoutBadge = new DoLayoutBadge();
-		final Action projectBadge = ProjectAction.form(configAction).badge();
-
-		layoutProject.scheduleBuild(0, new LayoutBuildCause(), parameters,
-				arguments, layoutBadge, projectBadge);
-
-		response.sendRedirect(request.getContextPath() + '/'
-				+ layoutProject.getUrl());
-
-	}
-
-	public LayoutOptions getLayoutOptions() {
-		return LayoutBuildWrapper.wrapper(layoutProject).getLayoutOptions();
 	}
 
 }

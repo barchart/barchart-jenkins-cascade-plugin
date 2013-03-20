@@ -29,7 +29,6 @@ import hudson.tasks.BuildWrapper;
 import hudson.util.DescribableList;
 import hudson.util.VariableResolver;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,21 +111,23 @@ public class LayoutLogic {
 				/** Layout project module */
 				continue;
 			} else {
-				/** Member project module */
+
+				/** Relative path of this project in SCM repository. */
 				final String modulePath = module.getRelativePath();
-				final String moduleFolder = workspace.child(modulePath)
-						.getRemote();
-				final File pomFile = new File(moduleFolder, "pom.xml");
-				if (!pomFile.exists()) {
-					context.logErr("Project pom.xml is missing: " + pomFile);
-					return false;
-				}
+
+				final FilePath moduleFolder = workspace.child(modulePath);
+
+				final FilePath pomFile = moduleFolder.child("pom.xml");
+
 				final Model moduleModel = mavenModel(pomFile);
+
 				if (moduleModel.getModules().isEmpty()) {
 					continue;
 				}
+
 				context.logErr("Project contains <module/>: " + moduleModel);
 				context.logErr("Cascade member projects must not be using  <module/> entries.");
+
 				return false;
 			}
 		}
@@ -483,16 +484,23 @@ public class LayoutLogic {
 			memberProject.setRootPOM(rootPOM);
 
 			if (context.layoutOptions().getUseSharedWorkspace()) {
-				final String nodeRoot = Computer.currentComputer().getNode()
-						.getRootPath().getRemote();
-				final String layoutWorkspace = context.build().getWorkspace()
-						.getRemote();
-				final String memberWorkspace = relativePath(nodeRoot,
-						layoutWorkspace);
+
+				final FilePath nodeRoot = Computer.currentComputer().getNode()
+						.getRootPath();
+
+				final FilePath layoutWorkspace = context.build().getWorkspace();
+
+				final String memberWorkspace = relativePath(
+						nodeRoot.getRemote(), layoutWorkspace.getRemote());
+
 				memberProject.setCustomWorkspace(memberWorkspace);
+
 				context.logTab("Member is sharing workspace with layout.");
+
 			} else {
+
 				context.logTab("Member is using its own private workspace.");
+
 			}
 		}
 

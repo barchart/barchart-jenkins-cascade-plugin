@@ -58,7 +58,6 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		public abstract boolean equals(ProjectIdentity one, ProjectIdentity two);
 	}
 
-	@Extension
 	public static class TheDescriptor extends JobPropertyDescriptor {
 
 		@Override
@@ -78,6 +77,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 		}
 
 	}
+
+	@Extension
+	public static final TheDescriptor META = new TheDescriptor();
 
 	/**
 	 * Find project by role and family.
@@ -317,6 +319,19 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	}
 
 	/**
+	 * Equality by family id.
+	 */
+	public boolean equalsFamily(final Object other) {
+		if (other instanceof ProjectIdentity) {
+			final ProjectIdentity that = (ProjectIdentity) other;
+			final String thisId = this.getFamilyID();
+			final String thatId = that.getFamilyID();
+			return thisId.equals(thatId);
+		}
+		return false;
+	}
+
+	/**
 	 * Equality by role.
 	 */
 	public boolean equalsRole(final Object other) {
@@ -361,6 +376,11 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 	@SuppressWarnings("rawtypes")
 	public List<AbstractProject> familyProjectList() {
 		return familyProjectList(this.getFamilyID());
+	}
+
+	@Override
+	public TheDescriptor getDescriptor() {
+		return META;
 	}
 
 	/**

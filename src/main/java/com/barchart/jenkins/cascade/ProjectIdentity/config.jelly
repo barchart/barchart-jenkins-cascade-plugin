@@ -9,6 +9,8 @@
 -->
 <!--
 	Show cascade member project identity, when applicable, on project main page and properties page. 
+
+	@author Andrei Pozolotin
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"

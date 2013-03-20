@@ -8,7 +8,9 @@
 
 -->
 <!--
-	Displays the form to create/delete cascade projects.
+	Displays the form to create/delete/update cascade projects.
+
+	@author Andrei Pozolotin
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
@@ -31,9 +33,10 @@
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Configure Cascade Projects Layout" />
+				<f:section title="Perform Cascade Family Layout" />
 
 				<f:advanced title="Layout Options" align="left">
+					<j:set var="disableLayoutOptions" value="true" />
 					<st:include it="${it.layoutOptions}" page="config.jelly" />
 				</f:advanced>
 

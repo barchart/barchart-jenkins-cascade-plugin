@@ -8,5 +8,7 @@
 
 -->
 <div>
-	Cacade project build. 
+	<b>Maven Cascade Release Plugin</b>
+	<p />
+	This text box shows project configuration verification result aganst cascade buld assumptions. 
 </div>

@@ -7,7 +7,7 @@
  */
 package design.scm;
 
-import static com.barchart.jenkins.cascade.PluginUtilities.*;
+import static design.process.ProcessUtil.*;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
@@ -182,18 +182,18 @@ public class DesignSCM {
 
 	public static GitClient gitClient(final BuildContext<?> context,
 			final MavenModuleSet project) {
-	
+
 		final String gitExe = gitExe(context, project);
-	
+
 		final File workspace = gitDir(context, project);
-	
+
 		final EnvVars environment = new EnvVars();
-	
+
 		final GitClient gitClient = Git.with(context.listener(), environment)
 				.in(workspace).using(gitExe).getClient();
-	
+
 		return gitClient;
-	
+
 	}
 
 	public static File gitDir(final BuildContext<?> context,

@@ -7,11 +7,14 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
-<!-- Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/> All rights 
-	reserved. Licensed under the OSI BSD License. http://www.opensource.org/licenses/bsd-license.php -->
-<!-- -->
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<!--
+	Cascade member project build startup page. 
+
+	@author Andrei Pozolotin
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
 
 	<j:set var="plugin" value="/plugin/maven-release-cascade" />
 	<j:set var="help" value="${plugin}/help/MemberBuildAction" />
@@ -30,25 +33,35 @@
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Perform Cascade Project Release" name="releaseProperties">
+				<f:section title="Perform Maven Cascade Release" />
 
-					<f:entry title="Layout Project">
+				<f:advanced title="Cascade Options" align="left">
+					<j:set var="disableCascadeOptions" value="true" />
+					<st:include it="${it.cascadeOptions}" page="config.jelly" />
+				</f:advanced>
+
+				<f:section title="" name="releaseProperties">
+
+					<f:entry title="Layout Project" help="${help}/layoutProject.jelly">
 						<f:textbox value="${it.layoutName}" disabled="true" />
 					</f:entry>
-					<f:entry title="Cascade Project">
+					<f:entry title="Cascade Project"
+						help="${help}/cascadeProject.jelly">
 						<f:textbox value="${it.cascadeName}" disabled="true" />
 					</f:entry>
-					<f:entry title="Member Project">
+					<f:entry title="Member Project" help="${help}/memberProject.jelly">
 						<f:textbox value="${it.memberName}" disabled="true" />
 					</f:entry>
 
 					<p />
 
-					<f:entry title="Release Version" field="releaseVersion">
+					<f:entry title="Release Version" field="releaseVersion"
+						help="${help}/releaseVersion.jelly">
 						<f:textbox disabled="true"
 							value="${h.defaulted(it.releaseVersion,it.defaultReleaseVersion())}" />
 					</f:entry>
-					<f:entry title="Snapshot Version" field="snapshotVersion">
+					<f:entry title="Snapshot Version" field="snapshotVersion"
+						help="${help}/snapshotVersion.jelly">
 						<f:textbox disabled="true"
 							value="${h.defaulted(it.snapshotVersion,it.defaultSnapshotVersion())}" />
 					</f:entry>
@@ -56,9 +69,7 @@
 				</f:section>
 
 				<tr>
-					<td colspan="4" align="left">
-						<f:submit value="Sumbit" />
-					</td>
+					<td colspan="4" align="left"><f:submit value="Sumbit" /></td>
 				</tr>
 
 			</f:form>

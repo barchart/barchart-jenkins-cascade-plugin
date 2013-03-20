@@ -8,6 +8,7 @@
 package com.barchart.jenkins.cascade;
 
 import static com.barchart.jenkins.cascade.PluginUtilities.*;
+import hudson.FilePath;
 import hudson.maven.ModuleName;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
@@ -17,7 +18,6 @@ import hudson.model.Result;
 import hudson.model.Actionable;
 import hudson.model.queue.QueueTaskFuture;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -56,7 +56,7 @@ public class CascadeLogic {
 	public static boolean hasModuleResult(
 			final BuildContext<CascadeBuild> context,
 			final ModuleName moduleName) {
-		for (final CascadeResult result : context.build().resultSet()) {
+		for (final CascadeResult result : context.build().getResultSet()) {
 			if (moduleName(result.getArtifact()).equals(moduleName)) {
 				return true;
 			}
@@ -102,7 +102,7 @@ public class CascadeLogic {
 
 		context.log("Cascade result: ");
 
-		for (final CascadeResult result : context.build().resultSet()) {
+		for (final CascadeResult result : context.build().getResultSet()) {
 			context.logTab(result.toString());
 		}
 
@@ -679,27 +679,22 @@ public class CascadeLogic {
 		/** Relative path of this project in SCM repository. */
 		final String modulePath = project.getRootModule().getRelativePath();
 
-		/** Location of SCM checkout repository during the release. */
+		/** Relative path of SCM checkout repository during the release. */
 		final String releaseRepo = "target/checkout";
 
-		/** Absolute path of this project during the release. */
-		final String releaseFolder = build.getWorkspace().child(modulePath)
-				.child(releaseRepo).child(modulePath).getRemote();
+		/** Absolute path of module project during the release. */
+		final FilePath releaseFolder = build.getWorkspace().child(modulePath)
+				.child(releaseRepo).child(modulePath);
 
 		/** Maven pom.xml which was released in this build. */
-		final File pomFile = new File(releaseFolder, "pom.xml");
-
-		if (!pomFile.exists()) {
-			context.logErr("can not locate release result: " + pomFile);
-			return;
-		}
+		final FilePath pomFile = releaseFolder.child("pom.xml");
 
 		final Artifact artifact = mavenArtifact(mavenModel(pomFile));
 		final String buildURL = build.getAbsoluteUrl();
 
 		final CascadeResult result = new CascadeResult(artifact, buildURL);
 
-		context.build().resultSet().add(result);
+		context.build().getResultSet().add(result);
 
 	}
 

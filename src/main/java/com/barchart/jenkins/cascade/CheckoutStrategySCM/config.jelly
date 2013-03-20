@@ -7,6 +7,12 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
-<!-- nothing to configure -->
+<!--
+	Required SCM strategy component page.
+	
+	Nothing to configure.
+
+	@author Andrei Pozolotin
+-->
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" />

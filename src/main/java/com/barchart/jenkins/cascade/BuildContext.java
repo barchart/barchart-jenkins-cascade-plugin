@@ -7,9 +7,11 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuild.AbstractBuildExecution;
 import hudson.model.AbstractProject;
 
 /**
@@ -17,20 +19,32 @@ import hudson.model.AbstractProject;
  * 
  * @author Andrei Pozolotin
  */
-public class BuildContext<B extends AbstractBuild> {
+public class BuildContext<B extends AbstractBuild> extends BuildLogger {
+
+	private static final long serialVersionUID = 1L;
 
 	private final AbstractBuild build;
-
-	private final BuildListener listener;
+	private final Launcher launcher;
 
 	public BuildContext(//
 			final AbstractBuild build, //
+			final Launcher launcher, //
 			final BuildListener listener //
 	) {
+		super(listener);
 		this.build = build;
-		this.listener = listener;
+		this.launcher = launcher;
 	}
 
+	public BuildContext(final AbstractBuildExecution execution) {
+		super(execution.getListener());
+		this.build = (AbstractBuild) execution.getBuild();
+		this.launcher = execution.getLauncher();
+	}
+
+	/**
+	 * Context build.
+	 */
 	public B build() {
 		return (B) build;
 	}
@@ -46,6 +60,20 @@ public class BuildContext<B extends AbstractBuild> {
 	}
 
 	/**
+	 * Project identity of the context build.
+	 */
+	public ProjectIdentity identity() {
+		return ProjectIdentity.identity(build().getProject());
+	}
+
+	/**
+	 * Context launcher.
+	 */
+	public Launcher launcher() {
+		return launcher;
+	}
+
+	/**
 	 * Extract layout options from layout build wrapper.
 	 */
 	public LayoutOptions layoutOptions() {
@@ -53,30 +81,6 @@ public class BuildContext<B extends AbstractBuild> {
 		final LayoutBuildWrapper wrapper = LayoutBuildWrapper
 				.wrapper(layoutProject);
 		return wrapper.getLayoutOptions();
-	}
-
-	public BuildListener listener() {
-		return listener;
-	}
-
-	/** Log text with plug-in prefix. */
-	public void log(final String text) {
-		listener.getLogger()
-				.println(PluginConstants.LOGGER_PREFIX + " " + text);
-	}
-
-	/** Log error with plug-in prefix. */
-	public void logErr(final String text) {
-		listener.error(PluginConstants.LOGGER_PREFIX + " " + text);
-	}
-
-	public void logExc(final Throwable e) {
-		e.printStackTrace(listener().getLogger());
-	}
-
-	/** Log text with plug-in prefix and a tab. */
-	public void logTab(final String text) {
-		log("\t" + text);
 	}
 
 	/**
@@ -88,6 +92,13 @@ public class BuildContext<B extends AbstractBuild> {
 				.identity(currentProject);
 		final MavenModuleSet layoutProject = property.layoutProject();
 		return layoutProject;
+	}
+
+	/**
+	 * Remote-friendly logger for the same context.
+	 */
+	public BuildLogger logger() {
+		return new BuildLogger(listener());
 	}
 
 }

@@ -7,14 +7,17 @@
  */
 package com.barchart.jenkins.cascade;
 
-import static com.barchart.jenkins.cascade.PluginUtilities.*;
+import hudson.FilePath;
+import hudson.FilePath.FileCallable;
 import hudson.maven.MavenModuleSet;
-import hudson.model.Result;
+import hudson.model.AbstractProject;
 import hudson.plugins.git.BranchSpec;
 import hudson.plugins.git.GitSCM;
+import hudson.remoting.VirtualChannel;
 import hudson.scm.SCM;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -43,45 +46,57 @@ import org.eclipse.jgit.transport.TrackingRefUpdate;
 public class PluginScm {
 
 	/**
-	 * Verify jenkins git scm assumptions.
+	 * Verify jenkins scm assumptions for cascade to work.
 	 */
-	public static Result checkGitScm(final BuildContext<?> context,
-			final MavenModuleSet project) {
+	public static String checkScm(final AbstractProject<?, ?> project) {
 
 		final SCM scm = project.getScm();
 
 		if (!(scm instanceof GitSCM)) {
-			context.logErr("Unsupported SCM.");
-			return Result.FAILURE;
+			return "Unsupported SCM: " + scm;
 		}
 
 		final GitSCM gitScm = (GitSCM) scm;
 
 		final List<RemoteConfig> repositoryList = gitScm.getRepositories();
-		// log("repositoryList", context, repositoryList);
 
 		if (repositoryList.size() != 1) {
-			context.logErr("Cascade build needs single repository.");
-			return Result.FAILURE;
+			return "Cascade build needs single remote repository;"
+					+ " current count=" + repositoryList.size();
 		}
 
 		final List<BranchSpec> branchList = gitScm.getBranches();
-		// log("branchList", context, branchList);
 
 		if (branchList.size() != 1) {
-			context.logErr("Cascade build needs single branch.");
-			return Result.FAILURE;
+			return "Cascade build needs single remote branch;"
+					+ " current count=" + branchList.size();
+		}
+
+		final String remoteBranchName = branchList.get(0).getName();
+
+		if (remoteBranchName == null || remoteBranchName.length() == 0) {
+			return "Cascade build needs remote branch;"
+					+ " current remoteBranchName=" + remoteBranchName;
+		}
+
+		if (remoteBranchName.contains("*")) {
+			return "Cascade remote branch can not be a wildcard;"
+					+ " current remoteBranchName=" + remoteBranchName;
 		}
 
 		final String localBranchName = gitScm.getLocalBranch();
-		// context.logTab("### localBranchName: " + localBranchName);
 
 		if (localBranchName == null || localBranchName.length() == 0) {
-			context.logErr("Cascade build needs local branch.");
-			return Result.FAILURE;
+			return "Cascade build needs local branch;"
+					+ " current localBranchName=" + localBranchName;
 		}
 
-		return Result.SUCCESS;
+		if (localBranchName.contains("*")) {
+			return "Cascade local branch can not be a wildcard;"
+					+ " current localBranchName=" + localBranchName;
+		}
+
+		return null;
 
 	}
 
@@ -123,39 +138,59 @@ public class PluginScm {
 	 * Transmit into remote.
 	 */
 	public static void scmCheckin(final BuildContext<CascadeBuild> context,
-			final MavenModuleSet project) {
+			final MavenModuleSet project) throws IOException,
+			InterruptedException {
 
-		if (isFailure(checkGitScm(context, project))) {
-			throw new IllegalStateException("Unexpected");
+		final String message = checkScm(project);
+
+		if (message != null) {
+			throw new IllegalStateException(message);
 		}
 
 		final GitSCM gitScm = (GitSCM) project.getScm();
+		final FilePath workspace = workspace(context, project);
+
+		/** Remote objects. */
+		final BuildLogger logger = context.logger();
 		final String localBranch = localBranchName(gitScm);
 		final String remoteName = remoteName(gitScm);
 		final String remoteBranch = remoteBranchName(gitScm);
 
-		final File workspace = workspace(context, project);
+		/** Remote operation. */
+		final FileCallable<Void> callable = new FileCallable<Void>() {
 
-		final RefSpec pushSpec = PluginScmGit
-				.refPush(localBranch, remoteBranch);
+			private static final long serialVersionUID = 1L;
 
-		final Iterable<PushResult> pushResultList = PluginScmGit.doPush(
-				workspace, remoteName, pushSpec);
+			public Void invoke(final File basedir, final VirtualChannel channel)
+					throws IOException, InterruptedException {
 
-		final PushResult pushResult = pushResultList.iterator().next();
+				final RefSpec pushSpec = PluginScmGit.refPush(localBranch,
+						remoteBranch);
 
-		final String refHeads = PluginScmGit.refHeads(remoteBranch);
+				final Iterable<PushResult> pushResultList = PluginScmGit
+						.doPush(basedir, remoteName, pushSpec);
 
-		final RemoteRefUpdate remoteUpdate = pushResult
-				.getRemoteUpdate(refHeads);
+				final PushResult pushResult = pushResultList.iterator().next();
 
-		final RemoteRefUpdate.Status pushStatus = remoteUpdate.getStatus();
+				final String refHeads = PluginScmGit.refHeads(remoteBranch);
 
-		context.logTab("push status: " + pushStatus);
+				final RemoteRefUpdate remoteUpdate = pushResult
+						.getRemoteUpdate(refHeads);
 
-		if (!PluginScmGit.isSuccess(pushStatus)) {
-			throw new IllegalStateException("Unexpected");
-		}
+				final RemoteRefUpdate.Status pushStatus = remoteUpdate
+						.getStatus();
+
+				logger.logTab("push status: " + pushStatus);
+
+				if (!PluginScmGit.isSuccess(pushStatus)) {
+					throw new IllegalStateException("Unexpected");
+				}
+
+				return null;
+			}
+		};
+
+		workspace.act(callable);
 
 	}
 
@@ -163,93 +198,116 @@ public class PluginScm {
 	 * Copy from remote into local.
 	 */
 	public static void scmCheckout(final BuildContext<CascadeBuild> context,
-			final MavenModuleSet project) {
+			final MavenModuleSet project) throws IOException,
+			InterruptedException {
 
-		if (isFailure(checkGitScm(context, project))) {
-			throw new IllegalStateException("Unexpected");
+		final String message = checkScm(project);
+
+		if (message != null) {
+			throw new IllegalStateException(message);
 		}
 
 		final GitSCM gitScm = (GitSCM) project.getScm();
+		final FilePath workspace = workspace(context, project);
+
+		/** Remote objects. */
+		final BuildLogger logger = context.logger();
 		final String localBranch = localBranchName(gitScm);
 		final String remoteURI = remoteURI(gitScm);
 		final String remoteName = remoteName(gitScm);
 		final String remoteBranch = remoteBranchName(gitScm);
 
-		final File workspace = workspace(context, project);
+		/** Remote operation. */
+		final FileCallable<String> callable = new FileCallable<String>() {
 
-		final boolean hasRepo = PluginScmGit.doRepoTest(workspace);
+			private static final long serialVersionUID = 1L;
 
-		if (hasRepo) {
+			public String invoke(final File basedir,
+					final VirtualChannel channel) throws IOException,
+					InterruptedException {
 
-			context.logTab("repository present");
+				final boolean hasRepo = PluginScmGit.doRepoTest(basedir);
 
-			final Status status = PluginScmGit.doStatus(workspace);
+				if (hasRepo) {
 
-			if (!status.isClean()) {
-				context.logTab("repository needs cleanup");
-				PluginScmGit.doReset(workspace);
+					logger.logTab("repository present");
+
+					final Status status = PluginScmGit.doStatus(basedir);
+
+					if (!status.isClean()) {
+						logger.logTab("repository needs cleanup");
+						PluginScmGit.doReset(basedir);
+					}
+
+					/** Spec for the fetch mapping. */
+					final RefSpec fetchSpec = PluginScmGit.refFetch(
+							remoteBranch, remoteName, remoteBranch);
+
+					final FetchResult fetchResult = PluginScmGit.doFetch(
+							basedir, remoteName, fetchSpec);
+
+					logger.logTab("fetch result: "
+							+ fetchResult.getTrackingRefUpdates().size());
+
+					/** Spec of the head of the remote branch. */
+					final String refHead = PluginScmGit.refHeads(remoteBranch);
+
+					/** Reference to head of the remote branch. */
+					final Ref remoteHead = fetchResult
+							.getAdvertisedRef(refHead);
+					if (remoteHead == null) {
+						logger.logErr("remote branch not found: " + refHead);
+						throw new IllegalStateException("Unexpected");
+					}
+
+					final ObjectId commit = remoteHead.getObjectId();
+
+					final MergeResult mergeResult = PluginScmGit.doMerge(
+							basedir, commit);
+
+					final MergeStatus mergeStatus = mergeResult
+							.getMergeStatus();
+
+					logger.logTab("merge result: " + mergeStatus);
+
+					if (!mergeStatus.isSuccessful()) {
+						logger.logTab("repository needs clone");
+						PluginScmGit.doClone(basedir, remoteURI, remoteName);
+					}
+
+				} else {
+
+					logger.logTab("repository needs clone");
+					PluginScmGit.doClone(basedir, remoteURI, remoteName);
+
+				}
+
+				final CheckoutResult checkoutResult = PluginScmGit.doCheckout(
+						basedir, localBranch, remoteName, remoteBranch);
+
+				final CheckoutResult.Status checkoutStatus = checkoutResult
+						.getStatus();
+
+				logger.logTab("checkout status: " + checkoutStatus);
+
+				if (!PluginScmGit.isSuccess(checkoutStatus)) {
+					throw new IllegalStateException("Unexpected");
+				}
+
+				/** FIXME checkout does not work */
+				PluginScmGit.doReset(basedir);
+
+				final Ref ref = PluginScmGit.findRef(basedir, localBranch);
+
+				logger.logTab(localBranch + ": " + ref.getObjectId().name());
+
+				/** TODO delete local tags */
+
+				return null;
 			}
+		};
 
-			/** Spec for the fetch mapping. */
-			final RefSpec fetchSpec = PluginScmGit.refFetch(remoteBranch,
-					remoteName, remoteBranch);
-
-			final FetchResult fetchResult = PluginScmGit.doFetch(workspace,
-					remoteName, fetchSpec);
-
-			context.logTab("fetch result: "
-					+ fetchResult.getTrackingRefUpdates().size());
-
-			/** Spec of the head of the remote branch. */
-			final String refHead = PluginScmGit.refHeads(remoteBranch);
-
-			/** Reference to head of the remote branch. */
-			final Ref remoteHead = fetchResult.getAdvertisedRef(refHead);
-			if (remoteHead == null) {
-				context.logErr("remote branch not found: " + refHead);
-				throw new IllegalStateException("Unexpected");
-			}
-
-			final ObjectId commit = remoteHead.getObjectId();
-
-			final MergeResult mergeResult = PluginScmGit.doMerge(workspace,
-					commit);
-
-			final MergeStatus mergeStatus = mergeResult.getMergeStatus();
-
-			context.logTab("merge result: " + mergeStatus);
-
-			if (!mergeStatus.isSuccessful()) {
-				context.logTab("repository needs clone");
-				PluginScmGit.doClone(workspace, remoteURI, remoteName);
-			}
-
-		} else {
-
-			context.logTab("repository needs clone");
-			PluginScmGit.doClone(workspace, remoteURI, remoteName);
-
-		}
-
-		final CheckoutResult checkoutResult = PluginScmGit.doCheckout(
-				workspace, localBranch, remoteName, remoteBranch);
-
-		final CheckoutResult.Status checkoutStatus = checkoutResult.getStatus();
-
-		context.logTab("checkout status: " + checkoutStatus);
-
-		if (!PluginScmGit.isSuccess(checkoutStatus)) {
-			throw new IllegalStateException("Unexpected");
-		}
-
-		/** FIXME checkout does not work */
-		PluginScmGit.doReset(workspace);
-
-		final Ref ref = PluginScmGit.findRef(workspace, localBranch);
-
-		context.logTab(localBranch + ": " + ref.getObjectId().name());
-
-		/** TODO delete local tags */
+		workspace.act(callable);
 
 	}
 
@@ -257,34 +315,53 @@ public class PluginScm {
 	 * Commit into local.
 	 */
 	public static void scmCommit(final BuildContext<?> context,
-			final MavenModuleSet project, final String pattern) {
+			final MavenModuleSet project, final String pattern)
+			throws IOException, InterruptedException {
 
-		if (isFailure(checkGitScm(context, project))) {
-			throw new IllegalStateException("Unexpected");
+		final String message = checkScm(project);
+
+		if (message != null) {
+			throw new IllegalStateException(message);
 		}
 
 		final GitSCM gitScm = (GitSCM) project.getScm();
+		final FilePath workspace = workspace(context, project);
 
-		final File workspace = workspace(context, project);
-
-		final Status status = PluginScmGit.doStatus(workspace);
-		final Set<String> modifiedSet = status.getModified();
-		// context.logTab("modifiedSet: " + modifiedSet);
-
-		if (!modifiedSet.contains(pattern)) {
-			context.logTab("no change: " + pattern);
-			return;
-		}
-
-		final DirCache addResult = PluginScmGit.doAdd(workspace, pattern);
-		context.logTab("added: " + pattern);
-
-		final String message = "[cascade]" + " " + pattern;
+		/** Remote objects. */
+		final BuildLogger logger = context.logger();
 		final PersonIdent person = person(gitScm);
 
-		final RevCommit commitResult = PluginScmGit.doCommit(workspace, person,
-				message);
-		context.logTab("commit: " + commitResult.name());
+		/** Remote operation. */
+		final FileCallable<Void> callable = new FileCallable<Void>() {
+
+			private static final long serialVersionUID = 1L;
+
+			public Void invoke(final File basedir, final VirtualChannel channel)
+					throws IOException, InterruptedException {
+
+				final Status status = PluginScmGit.doStatus(basedir);
+				final Set<String> modifiedSet = status.getModified();
+				// logger.logTab("modifiedSet: " + modifiedSet);
+
+				if (!modifiedSet.contains(pattern)) {
+					logger.logTab("no change: " + pattern);
+					return null;
+				}
+
+				final DirCache addResult = PluginScmGit.doAdd(basedir, pattern);
+				logger.logTab("added: " + pattern);
+
+				final String commitMessage = "[cascade]" + " " + pattern;
+
+				final RevCommit commitResult = PluginScmGit.doCommit(basedir,
+						person, commitMessage);
+				logger.logTab("commit: " + commitResult.name());
+
+				return null;
+			}
+		};
+
+		workspace.act(callable);
 
 	}
 
@@ -292,80 +369,99 @@ public class PluginScm {
 	 * Update from remote.
 	 */
 	public static void scmUpdate(final BuildContext<CascadeBuild> context,
-			final MavenModuleSet project) throws Exception {
+			final MavenModuleSet project) throws IOException,
+			InterruptedException {
 
-		if (isFailure(checkGitScm(context, project))) {
-			throw new IllegalStateException("Unexpected");
+		final String message = checkScm(project);
+
+		if (message != null) {
+			throw new IllegalStateException(message);
 		}
 
 		final GitSCM gitScm = (GitSCM) project.getScm();
+		final FilePath workspace = workspace(context, project);
+
+		/** Remote objects. */
+		final BuildLogger logger = context.logger();
 		final String localBranch = localBranchName(gitScm);
 		final String remoteName = remoteName(gitScm);
 		final String remoteBranch = remoteBranchName(gitScm);
 
-		final File workspace = workspace(context, project);
+		/** Remote operation. */
+		final FileCallable<Void> callable = new FileCallable<Void>() {
 
-		final String localBranchCurrent = PluginScmGit.branch(workspace);
+			private static final long serialVersionUID = 1L;
 
-		if (!localBranchCurrent.equals(localBranch)) {
-			context.logErr("branch mismatch: " + localBranchCurrent + "/"
-					+ localBranch);
-			throw new IllegalStateException("Unexpected");
-		}
+			public Void invoke(final File basedir, final VirtualChannel channel)
+					throws IOException, InterruptedException {
 
-		/** Spec for the fetch mapping. */
-		final RefSpec fetchSpec = PluginScmGit.refFetch(remoteBranch,
-				remoteName, remoteBranch);
+				final String localBranchCurrent = PluginScmGit.branch(basedir);
 
-		final FetchResult fetchResult = PluginScmGit.doFetch(workspace,
-				remoteName, fetchSpec);
+				if (!localBranchCurrent.equals(localBranch)) {
+					logger.logErr("branch mismatch: " + localBranchCurrent
+							+ "/" + localBranch);
+					throw new IllegalStateException("Unexpected");
+				}
 
-		/** Spec of the head of the remote branch. */
-		final String refHead = PluginScmGit.refHeads(remoteBranch);
+				/** Spec for the fetch mapping. */
+				final RefSpec fetchSpec = PluginScmGit.refFetch(remoteBranch,
+						remoteName, remoteBranch);
 
-		/** Spec of the head of the local remote tracking branch. */
-		final String refRemote = PluginScmGit.refRemotes(remoteName,
-				remoteBranch);
+				final FetchResult fetchResult = PluginScmGit.doFetch(basedir,
+						remoteName, fetchSpec);
 
-		final TrackingRefUpdate trackingUpdate = fetchResult
-				.getTrackingRefUpdate(refRemote);
+				/** Spec of the head of the remote branch. */
+				final String refHead = PluginScmGit.refHeads(remoteBranch);
 
-		if (trackingUpdate == null) {
-			context.logTab("fetch status: " + "no update");
-			return;
-		} else {
-			final RefUpdate.Result fetchStatus = trackingUpdate.getResult();
-			context.logTab("fetch status: " + fetchStatus);
-			if (fetchStatus == RefUpdate.Result.NO_CHANGE) {
-				return;
+				/** Spec of the head of the local remote tracking branch. */
+				final String refRemote = PluginScmGit.refRemotes(remoteName,
+						remoteBranch);
+
+				final TrackingRefUpdate trackingUpdate = fetchResult
+						.getTrackingRefUpdate(refRemote);
+
+				if (trackingUpdate == null) {
+					logger.logTab("fetch status: " + "no update");
+					return null;
+				} else {
+					final RefUpdate.Result fetchStatus = trackingUpdate
+							.getResult();
+					logger.logTab("fetch status: " + fetchStatus);
+					if (fetchStatus == RefUpdate.Result.NO_CHANGE) {
+						return null;
+					}
+				}
+
+				/** Reference to head of the remote branch. */
+				final Ref remoteHead = fetchResult.getAdvertisedRef(refHead);
+
+				final ObjectId commit = remoteHead.getObjectId();
+				// logger.logTab("commit: " + commit);
+
+				final MergeResult mergeResult = PluginScmGit.doMerge(basedir,
+						commit);
+
+				final MergeStatus mergeStatus = mergeResult.getMergeStatus();
+				logger.logTab("merge status: " + mergeStatus);
+
+				if (!mergeStatus.isSuccessful()) {
+					throw new IllegalStateException("Unexpected");
+				}
+
+				return null;
 			}
-		}
+		};
 
-		/** Reference to head of the remote branch. */
-		final Ref remoteHead = fetchResult.getAdvertisedRef(refHead);
-
-		final ObjectId commit = remoteHead.getObjectId();
-		// context.logTab("commit: " + commit);
-
-		final MergeResult mergeResult = PluginScmGit.doMerge(workspace, commit);
-
-		final MergeStatus mergeStatus = mergeResult.getMergeStatus();
-		context.logTab("merge status: " + mergeStatus);
-
-		if (!mergeStatus.isSuccessful()) {
-			throw new IllegalStateException("Unexpected");
-		}
+		workspace.act(callable);
 
 	}
 
 	/**
 	 * Find workspace for a project.
 	 */
-	public static File workspace(final BuildContext<?> context,
+	public static FilePath workspace(final BuildContext<?> context,
 			final MavenModuleSet project) {
-		final String path = project.getWorkspace().getRemote();
-		final File file = new File(path);
-		return file;
+		return project.getWorkspace();
 	}
 
 	private PluginScm() {

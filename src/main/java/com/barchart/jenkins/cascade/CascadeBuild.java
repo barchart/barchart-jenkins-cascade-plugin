@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
  * Cascade build.
@@ -25,29 +26,23 @@ import java.util.TreeSet;
  */
 public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 
-	protected class CascadeExecution extends RunExecution {
+	protected final static Logger log = Logger.getLogger(CascadeBuild.class
+			.getName());
 
-		@Override
-		public void cleanUp(final BuildListener listener) throws Exception {
-		}
-
-		@Override
-		public void post(final BuildListener listener) throws Exception {
-
-		}
+	protected class CascadeExecution extends BuildExecution {
 
 		@Override
 		public Result run(final BuildListener listener) throws Exception {
 
 			final BuildContext<CascadeBuild> context = new BuildContext<CascadeBuild>(
-					CascadeBuild.this, listener);
+					CascadeBuild.this, getLauncher(), listener);
 
 			return CascadeLogic.process(context);
 		}
 
 	}
 
-	private final Set<CascadeResult> resultSet = new TreeSet<CascadeResult>();
+	private Set<CascadeResult> resultSet;
 
 	/** New build form UI. */
 	public CascadeBuild(final CascadeProject project) throws IOException {
@@ -55,7 +50,7 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		setup(project);
 	}
 
-	/** Old Build from history file. */
+	/** Old Build from job/build.xml file. */
 	public CascadeBuild(final CascadeProject project, final File buildDir)
 			throws IOException {
 		super(project, buildDir);
@@ -65,7 +60,7 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 	/**
 	 * Artifacts release in this cascade build.
 	 */
-	public Set<CascadeResult> resultSet() {
+	public Set<CascadeResult> getResultSet() {
 		return resultSet;
 	}
 
@@ -74,7 +69,13 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 		execute(new CascadeExecution());
 	}
 
+	/**
+	 * Required for legacy xstream serializer to work.
+	 */
 	private void setup(final CascadeProject project) {
+		if (resultSet == null) {
+			resultSet = new TreeSet<CascadeResult>();
+		}
 	}
 
 }

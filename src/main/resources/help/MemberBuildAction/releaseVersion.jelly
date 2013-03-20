@@ -8,5 +8,6 @@
 
 -->
 <div>
-	HELLO HELP. 
+	Select release version for this project.
+	All other release versions in the cascade will be set by default rules.
 </div>
