@@ -69,7 +69,7 @@
 				</f:section>
 
 				<tr>
-					<td colspan="4" align="left"><f:submit value="Sumbit" /></td>
+					<td colspan="4" align="left"><f:submit value="Submit" /></td>
 				</tr>
 
 			</f:form>
