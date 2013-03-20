@@ -19,26 +19,27 @@ import hudson.model.AbstractProject;
  * 
  * @author Andrei Pozolotin
  */
-public class BuildContext<B extends AbstractBuild> {
+public class BuildContext<B extends AbstractBuild> extends BuildLogger {
+
+	private static final long serialVersionUID = 1L;
 
 	private final AbstractBuild build;
 	private final Launcher launcher;
-	private final BuildListener listener;
-
-	public BuildContext(final AbstractBuildExecution execution) {
-		this.build = (AbstractBuild) execution.getBuild();
-		this.launcher = execution.getLauncher();
-		this.listener = execution.getListener();
-	}
 
 	public BuildContext(//
 			final AbstractBuild build, //
 			final Launcher launcher, //
 			final BuildListener listener //
 	) {
+		super(listener);
 		this.build = build;
 		this.launcher = launcher;
-		this.listener = listener;
+	}
+
+	public BuildContext(final AbstractBuildExecution execution) {
+		super(execution.getListener());
+		this.build = (AbstractBuild) execution.getBuild();
+		this.launcher = execution.getLauncher();
 	}
 
 	/**
@@ -94,30 +95,10 @@ public class BuildContext<B extends AbstractBuild> {
 	}
 
 	/**
-	 * Context listener.
+	 * Remote-friendly logger for the same context.
 	 */
-	public BuildListener listener() {
-		return listener;
-	}
-
-	/** Log text with plug-in prefix. */
-	public void log(final String text) {
-		listener.getLogger()
-				.println(PluginConstants.LOGGER_PREFIX + " " + text);
-	}
-
-	/** Log error with plug-in prefix. */
-	public void logErr(final String text) {
-		listener.error(PluginConstants.LOGGER_PREFIX + " " + text);
-	}
-
-	public void logExc(final Throwable e) {
-		e.printStackTrace(listener().getLogger());
-	}
-
-	/** Log text with plug-in prefix and a tab. */
-	public void logTab(final String text) {
-		log("\t" + text);
+	public BuildLogger logger() {
+		return new BuildLogger(listener());
 	}
 
 }
