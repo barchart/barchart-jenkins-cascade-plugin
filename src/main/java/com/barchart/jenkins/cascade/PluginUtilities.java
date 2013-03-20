@@ -7,6 +7,7 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.FilePath;
 import hudson.Util;
 import hudson.maven.ModuleName;
 import hudson.maven.MavenBuild;
@@ -22,13 +23,10 @@ import hudson.model.ListView;
 import hudson.model.View;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +35,6 @@ import java.util.Set;
 
 import jenkins.model.Jenkins;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.model.Dependency;
@@ -168,35 +165,6 @@ public class PluginUtilities {
 		}
 		/** Will do save(). */
 		project.addProperty(property);
-	}
-
-	/***/
-	public static Process executeProcess(final File workDir,
-			final String command) throws IOException, InterruptedException {
-		final String[] termArray = command.split("\\s+");
-		return executeProcess(workDir, termArray);
-	}
-
-	/***/
-	public static Process executeProcess(final File workDir,
-			final String... termArray) throws IOException, InterruptedException {
-		final List<String> termList = Arrays.asList(termArray);
-		final ProcessBuilder builder = new ProcessBuilder(termList);
-		final Process process = builder.directory(workDir).start();
-		process.waitFor();
-		return process;
-	}
-
-	/***/
-	public static String executeResult(final File workDir,
-			final String... termArray) throws IOException, InterruptedException {
-		final Process process = executeProcess(workDir, termArray);
-		final String input = IOUtils
-				.toString(process.getInputStream(), "UTF-8");
-		final String error = IOUtils
-				.toString(process.getErrorStream(), "UTF-8");
-		final String result = input + error;
-		return result;
 	}
 
 	/**
@@ -363,7 +331,7 @@ public class PluginUtilities {
 	/**
 	 * Collect matching dependencies from a pom.xml file.
 	 */
-	public static List<Dependency> mavenDependencies(final File pomFile,
+	public static List<Dependency> mavenDependencies(final FilePath pomFile,
 			final DependencyMatcher matcher) throws Exception {
 
 		final List<Dependency> snapshotList = new ArrayList<Dependency>();
@@ -405,14 +373,12 @@ public class PluginUtilities {
 	/**
 	 * Parse pom.xml file into maven model.
 	 */
-	public static Model mavenModel(final File pomFile) throws IOException {
+	public static Model mavenModel(final FilePath pomFile) throws IOException {
 		try {
 
 			final MavenXpp3Reader xmlReader = new MavenXpp3Reader();
 
-			final Reader fileReader = new FileReader(pomFile);
-
-			final Model model = xmlReader.read(fileReader);
+			final Model model = xmlReader.read(pomFile.read());
 
 			ensureFields(model);
 
@@ -428,8 +394,8 @@ public class PluginUtilities {
 	 */
 	public static Model mavenModel(final MavenModuleSet project)
 			throws IOException {
-
-		return mavenModel(mavenPomFile(project));
+		final FilePath file = mavenPomFile(project);
+		return mavenModel(file);
 
 	}
 
@@ -455,7 +421,7 @@ public class PluginUtilities {
 	/**
 	 * Extract maven parent form a pom.xml file.
 	 */
-	public static Parent mavenParent(final File pomFile) throws Exception {
+	public static Parent mavenParent(final FilePath pomFile) throws Exception {
 
 		final Model model = mavenModel(pomFile);
 
@@ -484,14 +450,11 @@ public class PluginUtilities {
 	/**
 	 * Project pom.xml file.
 	 */
-	public static File mavenPomFile(final MavenModuleSet project) {
+	public static FilePath mavenPomFile(final MavenModuleSet project) {
 
 		final String relativePath = project.getRootPOM(null);
 
-		final String absolutePath = project.getWorkspace().child(relativePath)
-				.getRemote();
-
-		final File pomFile = new File(absolutePath);
+		final FilePath pomFile = project.getWorkspace().child(relativePath);
 
 		return pomFile;
 	}
@@ -636,6 +599,13 @@ public class PluginUtilities {
 	public static String relativePath(final String base, final String path) {
 		final URI baseURI = new File(base).toURI();
 		final URI pathURI = new File(path).toURI();
+		return baseURI.relativize(pathURI).getPath();
+	}
+
+	/**
+	 * Path relative to base.
+	 */
+	public static String relativePath(final URI baseURI, final URI pathURI) {
 		return baseURI.relativize(pathURI).getPath();
 	}
 

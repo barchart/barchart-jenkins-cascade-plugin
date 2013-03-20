@@ -7,9 +7,11 @@
  */
 package com.barchart.jenkins.cascade;
 
+import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuild.AbstractBuildExecution;
 import hudson.model.AbstractProject;
 
 /**
@@ -20,17 +22,28 @@ import hudson.model.AbstractProject;
 public class BuildContext<B extends AbstractBuild> {
 
 	private final AbstractBuild build;
-
+	private final Launcher launcher;
 	private final BuildListener listener;
+
+	public BuildContext(final AbstractBuildExecution execution) {
+		this.build = (AbstractBuild) execution.getBuild();
+		this.launcher = execution.getLauncher();
+		this.listener = execution.getListener();
+	}
 
 	public BuildContext(//
 			final AbstractBuild build, //
+			final Launcher launcher, //
 			final BuildListener listener //
 	) {
 		this.build = build;
+		this.launcher = launcher;
 		this.listener = listener;
 	}
 
+	/**
+	 * Context build.
+	 */
 	public B build() {
 		return (B) build;
 	}
@@ -46,6 +59,20 @@ public class BuildContext<B extends AbstractBuild> {
 	}
 
 	/**
+	 * Project identity of the context build.
+	 */
+	public ProjectIdentity identity() {
+		return ProjectIdentity.identity(build().getProject());
+	}
+
+	/**
+	 * Context launcher.
+	 */
+	public Launcher launcher() {
+		return launcher;
+	}
+
+	/**
 	 * Extract layout options from layout build wrapper.
 	 */
 	public LayoutOptions layoutOptions() {
@@ -55,6 +82,20 @@ public class BuildContext<B extends AbstractBuild> {
 		return wrapper.getLayoutOptions();
 	}
 
+	/**
+	 * Find layout project form any cascade family project.
+	 */
+	public MavenModuleSet layoutProject() {
+		final AbstractProject<?, ?> currentProject = build().getProject();
+		final ProjectIdentity property = ProjectIdentity
+				.identity(currentProject);
+		final MavenModuleSet layoutProject = property.layoutProject();
+		return layoutProject;
+	}
+
+	/**
+	 * Context listener.
+	 */
 	public BuildListener listener() {
 		return listener;
 	}
@@ -77,17 +118,6 @@ public class BuildContext<B extends AbstractBuild> {
 	/** Log text with plug-in prefix and a tab. */
 	public void logTab(final String text) {
 		log("\t" + text);
-	}
-
-	/**
-	 * Find layout project form any cascade family project.
-	 */
-	public MavenModuleSet layoutProject() {
-		final AbstractProject<?, ?> currentProject = build().getProject();
-		final ProjectIdentity property = ProjectIdentity
-				.identity(currentProject);
-		final MavenModuleSet layoutProject = property.layoutProject();
-		return layoutProject;
 	}
 
 }

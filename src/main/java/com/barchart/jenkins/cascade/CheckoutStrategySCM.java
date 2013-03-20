@@ -9,8 +9,6 @@ package com.barchart.jenkins.cascade;
 
 import hudson.Extension;
 import hudson.maven.MavenModuleSet;
-import hudson.model.BuildListener;
-import hudson.model.AbstractBuild;
 import hudson.model.AbstractBuild.AbstractBuildExecution;
 import hudson.model.AbstractProject;
 
@@ -57,16 +55,11 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 	public void checkout(final AbstractBuildExecution execution)
 			throws IOException, InterruptedException {
 
-		final BuildListener listener = execution.getListener();
-
-		final AbstractBuild build = (AbstractBuild) execution.getBuild();
-		final AbstractProject project = build.getProject();
-
-		final BuildContext context = new BuildContext(build, listener);
+		final BuildContext context = new BuildContext(execution);
 
 		context.log(META.getDisplayName());
 
-		final ProjectIdentity identity = ProjectIdentity.identity(project);
+		final ProjectIdentity identity = context.identity();
 
 		if (identity == null) {
 			context.log("Non-cascade project:");
@@ -77,7 +70,7 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 
 		context.log("Cascade family project.");
 
-		if (CheckoutSkipAction.hasAction(build)) {
+		if (CheckoutSkipAction.hasAction(context.build())) {
 			context.log("Found " + CheckoutSkipAction.class.getSimpleName());
 			context.log("Do not to perform checkout.");
 			return;

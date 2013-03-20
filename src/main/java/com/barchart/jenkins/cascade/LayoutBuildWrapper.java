@@ -188,7 +188,7 @@ public class LayoutBuildWrapper extends BuildWrapper {
 	) throws IOException {
 
 		final BuildContext<MavenModuleSetBuild> context = new BuildContext<MavenModuleSetBuild>(
-				build, listener);
+				build, launcher, listener);
 
 		if (LayoutBuildCause.hasCause(build)) {
 

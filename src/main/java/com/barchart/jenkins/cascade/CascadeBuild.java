@@ -29,22 +29,13 @@ public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
 	protected final static Logger log = Logger.getLogger(CascadeBuild.class
 			.getName());
 
-	protected class CascadeExecution extends RunExecution {
-
-		@Override
-		public void cleanUp(final BuildListener listener) throws Exception {
-		}
-
-		@Override
-		public void post(final BuildListener listener) throws Exception {
-
-		}
+	protected class CascadeExecution extends BuildExecution {
 
 		@Override
 		public Result run(final BuildListener listener) throws Exception {
 
 			final BuildContext<CascadeBuild> context = new BuildContext<CascadeBuild>(
-					CascadeBuild.this, listener);
+					CascadeBuild.this, getLauncher(), listener);
 
 			return CascadeLogic.process(context);
 		}
