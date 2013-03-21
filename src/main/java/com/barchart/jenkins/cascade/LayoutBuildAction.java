@@ -31,7 +31,8 @@ import org.kohsuke.stapler.StaplerResponse;
  * 
  * @author Andrei Pozolotin
  */
-public class LayoutBuildAction implements PermalinkProjectAction {
+public class LayoutBuildAction extends AbstractAction implements
+		PermalinkProjectAction {
 
 	public static final List<Permalink> PERMALINKS = Collections
 			.singletonList(LayoutPermalink.INSTANCE);
@@ -39,6 +40,7 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 	private final MavenModuleSet layoutProject;
 
 	public LayoutBuildAction(final MavenModuleSet layoutProject) {
+		super(LAYOUT_ACTION_NAME, LAYOUT_ACTION_ICON, LAYOUT_ACTION_URL);
 		this.layoutProject = layoutProject;
 	}
 
@@ -71,14 +73,6 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 
 	public CascadeOptions getCascadeOptions() {
 		return LayoutBuildWrapper.wrapper(layoutProject).getCascadeOptions();
-	}
-
-	public String getDisplayName() {
-		return PluginConstants.LAYOUT_ACTION_NAME;
-	}
-
-	public String getIconFileName() {
-		return PluginConstants.LAYOUT_ACTION_ICON;
 	}
 
 	public LayoutOptions getLayoutOptions() {
@@ -114,10 +108,6 @@ public class LayoutBuildAction implements PermalinkProjectAction {
 
 	public MavenModule getRootModule() {
 		return layoutProject.getRootModule();
-	}
-
-	public String getUrlName() {
-		return PluginConstants.LAYOUT_ACTION_URL;
 	}
 
 }

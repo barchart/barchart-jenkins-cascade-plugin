@@ -29,12 +29,13 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @author Andrei Pozolotin
  */
 @Extension
-public class CheckoutStrategySCM extends SCMCheckoutStrategy {
+public class CheckoutStrategySCM extends SCMCheckoutStrategy implements
+		PluginConstants {
 
 	public static class TheDescriptor extends SCMCheckoutStrategyDescriptor {
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.PLUGIN_NAME + " Checkout Strategy";
+			return PLUGIN_NAME + " Checkout Strategy";
 		}
 
 		@Override
@@ -104,4 +105,5 @@ public class CheckoutStrategySCM extends SCMCheckoutStrategy {
 	public TheDescriptor getDescriptor() {
 		return META;
 	}
+
 }

@@ -16,14 +16,12 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="help" value="${plugin}/help/LayoutOptions" />
-	<j:set var="images" value="${plugin}/images" />
+	<j:set var="help" value="${it.PLUGIN_HELP}/LayoutOptions" />
 
 	<f:section title="Layout Options" name="${it.NAME}">
 
 		<f:entry help="${help}/section.jelly">
-			<img src="${images}/32x32/monkey.png" alt="" />
+			<img src="${it.PLUGIN_IMAGES_32}/monkey.png" alt="" />
 		</f:entry>
 
 		<f:entry title="Validation Goals" field="mavenValidateGoals"
@@ -60,6 +58,12 @@
 			<f:checkbox id="layout-option-6" checked="${it.buildAfterLayout}" />
 		</f:entry>
 
+		<!-- Too magical. -->
+		<!-- 		<f:entry title="Sync Rlease Plugins" field="syncReleasePlugins" -->
+		<!-- 			help="${help}/syncReleasePlugins.jelly"> -->
+		<!-- 			<f:checkbox id="layout-option-7" checked="${it.syncReleasePlugins}" /> -->
+		<!-- 		</f:entry> -->
+
 		<j:if test="${disableLayoutOptions}">
 			<script type="text/javascript">
 				document.getElementById("layout-option-1").disabled = "true";
@@ -68,6 +72,7 @@
 				document.getElementById("layout-option-4").disabled = "true";
 				document.getElementById("layout-option-5").disabled = "true";
 				document.getElementById("layout-option-6").disabled = "true";
+				document.getElementById("layout-option-7").disabled = "true";
 			</script>
 		</j:if>
 

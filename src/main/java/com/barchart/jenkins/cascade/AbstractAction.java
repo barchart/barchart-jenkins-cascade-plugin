@@ -14,7 +14,7 @@ import hudson.model.Action;
  * 
  * @author Andrei Pozolotin
  */
-public class AbstractAction implements Action {
+public class AbstractAction implements Action, PluginConstants {
 
 	private String displayName;
 	private String iconFileName;
@@ -33,7 +33,11 @@ public class AbstractAction implements Action {
 	}
 
 	public String getIconFileName() {
-		return iconFileName;
+		if (iconFileName == null) {
+			return null;
+		} else {
+			return PLUGIN_IMAGES_48 + "/" + iconFileName;
+		}
 	}
 
 	public String getDisplayName() {

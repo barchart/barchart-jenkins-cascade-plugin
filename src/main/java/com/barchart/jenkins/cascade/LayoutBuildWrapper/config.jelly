@@ -18,15 +18,17 @@
 
 	<j:set var="plugin" value="/plugin/maven-release-cascade" />
 	<j:set var="help" value="${plugin}/help/LayoutBuildWrapper" />
-	<j:set var="images" value="${plugin}/images" />
+	<j:set var="images" value="${plugin}/images/32x32" />
 
 	<!-- Wrapper instance is not created by default. -->
 	<j:choose>
 
 		<j:when test="${instance != null}">
 
-			<f:entry title="Project Config" help="${help}/verify.jelly"
-				field="projectName">
+			<f:entry title="Project Config" help="${help}/verify.jelly">
+
+				<!-- Let wrapper know owning project name. -->
+				<input type="hidden" name="_.projectName" value="${it.name}" />
 
 				<j:set var="validateMessage"
 					value="${instance.validateConfig(it.name)}" />
@@ -51,7 +53,7 @@
 		<j:otherwise>
 
 			<f:entry>
-				<img src="${images}/32x32/red-matreshka-head.png" alt="" />
+				<img src="${images}/red-matreshka-head.png" alt="" />
 			</f:entry>
 
 			<f:entry title="Advanced Feature" help="${help}/advanced.jelly">

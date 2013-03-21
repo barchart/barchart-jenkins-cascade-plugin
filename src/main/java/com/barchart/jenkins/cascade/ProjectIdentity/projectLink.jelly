@@ -8,7 +8,7 @@
 
 -->
 <!--
-	Action failed due to cascade member projects being active. 
+	Show project link. 
 
 	@author Andrei Pozolotin
 -->
@@ -16,25 +16,11 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<l:layout>
-
-		<l:main-panel>
-
-			<f:section>
-
-				<img title="Cascade Release" width="48" height="48"
-					src="${it.PLUGIN_IMAGES_48}/dragon.png" />
-
-			</f:section>
-
-			<h1>Can not schedule cascade release.</h1>
-
-			<p />
-
-			<h2>Cascade is likely in progress.</h2>
-
-		</l:main-panel>
-
-	</l:layout>
+	<j:if test="${project != null}">
+		<img src="${imagesURL}/16x16/${project.buildStatusUrl}"
+			alt="${project.iconColor.description}"
+			title="${project.iconColor.description}" />
+		<a href="${rootURL}/${project.url}" class="model-link">${project.displayName}</a>
+	</j:if>
 
 </j:jelly>

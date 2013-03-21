@@ -7,21 +7,21 @@
  */
 package design.run_exclusion;
 
-import com.barchart.jenkins.cascade.PluginConstants;
-
 import hudson.model.queue.CauseOfBlockage;
+
+import com.barchart.jenkins.cascade.PluginConstants;
 
 /**
  * Description why a build is in a blocked state.
  * 
  * @author Andrei Pozolotin
  */
-public class RunBlockCause extends CauseOfBlockage {
+public class RunBlockCause extends CauseOfBlockage implements PluginConstants {
 
 	private final String descrpition;
 
 	public RunBlockCause(final String descrpition) {
-		this.descrpition = PluginConstants.LOGGER_PREFIX + " " + descrpition;
+		this.descrpition = LOGGER_PREFIX + " " + descrpition;
 	}
 
 	@Override

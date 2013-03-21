@@ -24,7 +24,8 @@ import java.util.logging.Logger;
  * 
  * @author Andrei Pozolotin
  */
-public class CascadeBuild extends Build<CascadeProject, CascadeBuild> {
+public class CascadeBuild extends Build<CascadeProject, CascadeBuild> implements
+		PluginConstants {
 
 	protected final static Logger log = Logger.getLogger(CascadeBuild.class
 			.getName());

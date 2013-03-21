@@ -38,13 +38,13 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @author Andrei Pozolotin
  */
 @Extension
-public class LayoutBuildWrapper extends BuildWrapper {
+public class LayoutBuildWrapper extends BuildWrapper implements PluginConstants {
 
 	public static class TheDescriptor extends BuildWrapperDescriptor {
 
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.PLUGIN_NAME;
+			return PLUGIN_NAME;
 		}
 
 		/**
@@ -79,8 +79,8 @@ public class LayoutBuildWrapper extends BuildWrapper {
 
 	}
 
-	protected final static Logger log = Logger
-			.getLogger(LayoutBuildWrapper.class.getName());
+	public final static Logger log = Logger.getLogger(LayoutBuildWrapper.class
+			.getName());
 
 	@Extension
 	public static final TheDescriptor META = new TheDescriptor();
@@ -149,9 +149,15 @@ public class LayoutBuildWrapper extends BuildWrapper {
 			final LayoutOptions layoutOptions, //
 			final String projectName//
 	) {
+
 		this.cascadeOptions = cascadeOptions;
 		this.layoutOptions = layoutOptions;
+
 		this.projectName = projectName;
+
+		// WrapperConfig.performConfig(projectName, getLayoutOptions(),
+		// getCascadeOptions());
+
 	}
 
 	public CascadeOptions getCascadeOptions() {

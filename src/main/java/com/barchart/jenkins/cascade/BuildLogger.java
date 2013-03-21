@@ -16,7 +16,7 @@ import java.io.Serializable;
  * 
  * @author Andrei Pozolotin
  */
-public class BuildLogger implements Serializable {
+public class BuildLogger implements Serializable, PluginConstants {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,13 +35,12 @@ public class BuildLogger implements Serializable {
 
 	/** Log text with plug-in prefix. */
 	public void log(final String text) {
-		listener().getLogger().println(
-				PluginConstants.LOGGER_PREFIX + " " + text);
+		listener().getLogger().println(LOGGER_PREFIX + " " + text);
 	}
 
 	/** Log error with plug-in prefix. */
 	public void logErr(final String text) {
-		listener().error(PluginConstants.LOGGER_PREFIX + " " + text);
+		listener().error(LOGGER_PREFIX + " " + text);
 	}
 
 	public void logExc(final Throwable e) {

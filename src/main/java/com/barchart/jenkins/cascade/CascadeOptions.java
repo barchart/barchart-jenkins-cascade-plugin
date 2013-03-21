@@ -24,7 +24,8 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Andrei Pozolotin
  */
 @Extension
-public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
+public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions>
+		implements PluginConstants {
 
 	public static class TheDescriptor extends Descriptor<CascadeOptions> {
 
@@ -122,8 +123,8 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 	private String mavenParentGoals = MAVEN_PARENT_GOALS;
 	private String mavenReleaseGoals = MAVEN_RELEASE_GOALS;
 	private String mavenValidateGoals = MAVEN_VALIDATE_GOALS;
-	private boolean shouldLogActions = false;
 
+	private boolean shouldLogActions = false;
 	private boolean shouldLogDependency = false;
 	private boolean shouldPushUpdates = false;
 
@@ -135,14 +136,17 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
 	 */
 	@DataBoundConstructor
 	public CascadeOptions(//
+			//
 			final String mavenValidateGoals, //
 			final String mavenParentGoals, //
 			final String mavenDependencyGoals, //
 			final String mavenCommitGoals, //
 			final String mavenReleaseGoals, //
+			//
 			final boolean shouldLogActions, //
 			final boolean shouldLogDependency, //
 			final boolean shouldPushUpdates //
+	//
 	) {
 
 		this.mavenValidateGoals = mavenValidateGoals;

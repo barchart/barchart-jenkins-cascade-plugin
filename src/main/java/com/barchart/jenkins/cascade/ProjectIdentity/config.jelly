@@ -16,10 +16,6 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="help" value="${plugin}/help/ProjectIdentity" />
-	<j:set var="images" value="${plugin}/images" />
-
 	<!-- "mainPage" is set on main page -->
 	<j:if test="${mainPage}">
 		<j:set var="identity" value="${it}" />
@@ -32,34 +28,27 @@
 
 	<j:if test="${identity.isValid()}">
 
+		<j:set var="help" value="${identity.PLUGIN_HELP}/ProjectIdentity" />
+
 		<f:section title="Cascade Identity">
 
 			<f:advanced>
 
-				<f:entry title="Role" help="${help}/projectRole.jelly" field="projectRole">
+				<f:entry title="Role" help="${help}/projectRole.jelly"
+					field="projectRole">
 					<f:textbox disabled="true" value="${identity.projectRole}" />
 				</f:entry>
-
-				<f:entry title="Family ID" help="${help}/familyID.jelly" field="familyID">
+				<f:entry title="Family ID" help="${help}/familyID.jelly"
+					field="familyID">
 					<f:textbox disabled="true" value="${identity.familyID}" />
 				</f:entry>
-
-				<f:entry title="Member ID" help="${help}/projectID.jelly" field="projectID">
+				<f:entry title="Member ID" help="${help}/projectID.jelly"
+					field="projectID">
 					<f:textbox disabled="true" value="${identity.projectID}" />
 				</f:entry>
 
-				<f:entry title="Layout Project" help="${help}/layoutName.jelly">
-					<f:textbox disabled="true" value="${identity.layoutProject().name}" />
-				</f:entry>
-
-				<f:entry title="Cascade Project" help="${help}/cascadeName.jelly">
-					<f:textbox disabled="true"
-						value="${identity.cascadeProject().name}" />
-				</f:entry>
-
-				<f:entry title="Member Project" help="${help}/memberName.jelly">
-					<f:textbox disabled="true" value="${identity.memberProject().name}" />
-				</f:entry>
+				<!-- See ProjectIdentity -->
+				<st:include it="${identity}" page="projects.jelly" />
 
 			</f:advanced>
 
