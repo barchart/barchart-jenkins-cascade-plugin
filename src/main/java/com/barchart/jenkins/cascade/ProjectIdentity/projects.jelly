@@ -1,0 +1,45 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<!--
+	Show identity projects. 
+
+	@author Andrei Pozolotin
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:set var="plugin" value="/plugin/maven-release-cascade" />
+	<j:set var="help" value="${plugin}/help/ProjectIdentity" />
+	<j:set var="images" value="${plugin}/images" />
+
+	<f:entry title="Layout Project" help="${help}/layoutProject.jelly">
+		<j:set var="layoutProject" value="${it.layoutProject()}" />
+		<j:if test="${layoutProject != null}">
+			<t:jobLink job="${layoutProject}" />
+		</j:if>
+	</f:entry>
+	<f:entry title="Cascade Project" help="${help}/cascadeProject.jelly">
+		<j:set var="cascadeProject" value="${it.cascadeProject()}" />
+		<j:if test="${cascadeProject != null}">
+			<t:jobLink job="${cascadeProject}" />
+		</j:if>
+	</f:entry>
+	<f:entry title="Member Project" help="${help}/memberProject.jelly">
+		<j:set var="memberProject" value="${it.memberProject()}" />
+		<j:if test="${memberProject != null}">
+			<img src="${imagesURL}/16x16/${memberProject.buildStatusUrl}"
+				alt="${memberProject.iconColor.description}"
+				title="${memberProject.iconColor.description}" />
+			<a href="${memberProject.absoluteUrl}" class="model-link">${memberProject.displayName}</a>
+		</j:if>
+	</f:entry>
+
+</j:jelly>

@@ -60,6 +60,12 @@
 			<f:checkbox id="layout-option-6" checked="${it.buildAfterLayout}" />
 		</f:entry>
 
+		<!-- Too magical. -->
+		<!-- 		<f:entry title="Sync Rlease Plugins" field="syncReleasePlugins" -->
+		<!-- 			help="${help}/syncReleasePlugins.jelly"> -->
+		<!-- 			<f:checkbox id="layout-option-7" checked="${it.syncReleasePlugins}" /> -->
+		<!-- 		</f:entry> -->
+
 		<j:if test="${disableLayoutOptions}">
 			<script type="text/javascript">
 				document.getElementById("layout-option-1").disabled = "true";
@@ -68,6 +74,7 @@
 				document.getElementById("layout-option-4").disabled = "true";
 				document.getElementById("layout-option-5").disabled = "true";
 				document.getElementById("layout-option-6").disabled = "true";
+				document.getElementById("layout-option-7").disabled = "true";
 			</script>
 		</j:if>
 

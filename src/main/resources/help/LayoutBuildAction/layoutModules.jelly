@@ -8,5 +8,5 @@
 
 -->
 <div>
-	Layout project name. 
+	List of discovered maven modules which will be used to construct layout member projects.
 </div>

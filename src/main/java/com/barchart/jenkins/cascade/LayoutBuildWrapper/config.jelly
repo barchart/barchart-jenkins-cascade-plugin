@@ -25,8 +25,10 @@
 
 		<j:when test="${instance != null}">
 
-			<f:entry title="Project Config" help="${help}/verify.jelly"
-				field="projectName">
+			<f:entry title="Project Config" help="${help}/verify.jelly">
+
+				<!-- Let wrapper know owning project name. -->
+				<input type="hidden" name="_.projectName" value="${it.name}" />
 
 				<j:set var="validateMessage"
 					value="${instance.validateConfig(it.name)}" />

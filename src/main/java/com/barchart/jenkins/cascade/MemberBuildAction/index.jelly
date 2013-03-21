@@ -36,22 +36,17 @@
 				<f:section title="Perform Maven Cascade Release" />
 
 				<f:advanced title="Cascade Options" align="left">
+				
+					<!-- See CascadeOptions -->
 					<j:set var="disableCascadeOptions" value="true" />
 					<st:include it="${it.cascadeOptions}" page="config.jelly" />
+					
 				</f:advanced>
 
 				<f:section title="" name="releaseProperties">
 
-					<f:entry title="Layout Project" help="${help}/layoutProject.jelly">
-						<f:textbox value="${it.layoutName}" disabled="true" />
-					</f:entry>
-					<f:entry title="Cascade Project"
-						help="${help}/cascadeProject.jelly">
-						<f:textbox value="${it.cascadeName}" disabled="true" />
-					</f:entry>
-					<f:entry title="Member Project" help="${help}/memberProject.jelly">
-						<f:textbox value="${it.memberName}" disabled="true" />
-					</f:entry>
+					<!-- See ProjectIdentity -->
+					<st:include it="${it.identity()}" page="projects.jelly" />
 
 					<p />
 

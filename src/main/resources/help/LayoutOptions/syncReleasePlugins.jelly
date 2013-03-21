@@ -1,0 +1,23 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<div>
+	There are 2 jenkins plugins performing related tasks:
+	<p />
+	<a target="_blank"
+		href="https://wiki.jenkins-ci.org/display/JENKINS/Maven+Cascade+Release+Plugin">
+		Maven Cascade Release Plugin </a>
+	<p />
+	<a target="_blank"
+		href="https://wiki.jenkins-ci.org/display/JENKINS/M2+Release+Plugin">
+		M2 Release Plugin </a>
+	<p />
+	Should cascade release plug-in settings be automatically applied to the
+	maven release pluign?
+</div>

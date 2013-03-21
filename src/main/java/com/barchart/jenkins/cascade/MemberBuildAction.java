@@ -79,14 +79,6 @@ public class MemberBuildAction implements Action {
 	}
 
 	/**
-	 * Report any cascade family projects are pending or building.
-	 */
-	@SuppressWarnings("rawtypes")
-	public Map<String, AbstractProject> reportActiveFamilyProjects() {
-		return RunDecider.reportActiveFamilyProjects(identity);
-	}
-
-	/**
 	 * Jelly form submit.
 	 * <p>
 	 * Start cascade build.
@@ -173,6 +165,18 @@ public class MemberBuildAction implements Action {
 
 	public String getUrlName() {
 		return PluginConstants.MEMBER_ACTION_URL;
+	}
+
+	public ProjectIdentity identity() {
+		return identity;
+	}
+
+	/**
+	 * Report any cascade family projects are pending or building.
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map<String, AbstractProject> reportActiveFamilyProjects() {
+		return RunDecider.reportActiveFamilyProjects(identity);
 	}
 
 }

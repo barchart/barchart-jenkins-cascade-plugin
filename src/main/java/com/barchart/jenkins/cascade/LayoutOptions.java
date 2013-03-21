@@ -95,6 +95,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	private String memberProjectName = MEMBER_PROJECT_NAME;
 
 	private boolean useSharedWorkspace = true;
+	private boolean syncReleasePlugins = true;
 
 	public LayoutOptions() {
 	}
@@ -104,19 +105,27 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	 */
 	@DataBoundConstructor
 	public LayoutOptions(//
+			//
 			final String mavenValidateGoals, //
 			final String memberProjectName, //
 			final String layoutViewName, //
 			final String cascadeProjectName, //
+			//
 			final boolean useSharedWorkspace, //
-			final boolean buildAfterLayout //
+			final boolean buildAfterLayout, //
+			final boolean syncReleasePlugins //
+	//
 	) {
+
 		this.mavenValidateGoals = mavenValidateGoals;
 		this.memberProjectName = memberProjectName;
 		this.layoutViewName = layoutViewName;
 		this.cascadeProjectName = cascadeProjectName;
+
 		this.useSharedWorkspace = useSharedWorkspace;
 		this.buildAfterLayout = buildAfterLayout;
+		this.syncReleasePlugins = syncReleasePlugins;
+
 	}
 
 	/**
@@ -165,6 +174,13 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
 	 */
 	public boolean getUseSharedWorkspace() {
 		return useSharedWorkspace;
+	}
+
+	/**
+	 * Copy cascade release settings into m2release plug-in.
+	 */
+	public boolean getSyncReleasePlugins() {
+		return syncReleasePlugins;
 	}
 
 }

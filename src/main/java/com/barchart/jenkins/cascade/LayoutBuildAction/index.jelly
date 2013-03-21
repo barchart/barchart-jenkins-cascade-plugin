@@ -40,8 +40,17 @@
 					<st:include it="${it.layoutOptions}" page="config.jelly" />
 				</f:advanced>
 
-				<f:section title="">
-					<f:entry title="Choose Action" field="configAction"
+				<f:advanced title="Layout Modules" align="left">
+					<f:section title="Layout Modules" />
+					<f:entry title="Discovered Maven Modules"
+						help="${help}/layoutModules.jelly">
+						<t:projectView jobBaseUrl="${rootURL}/" useFullName="true"
+							jobs="${it.modules}" />
+					</f:entry>
+				</f:advanced>
+
+				<f:section title="Choose Action">
+					<f:entry title="" field="configAction"
 						help="${help}/configAction.jelly">
 						<p />
 						<f:radio name="configAction" title="Create Projects"
