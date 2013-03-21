@@ -30,3 +30,9 @@ target/
 # Jenkins work folder.
 #
 work/
+
+#
+# Maven release metadata.
+#
+pom.xml.*
+release.properties
