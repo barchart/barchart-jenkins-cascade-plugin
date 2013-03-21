@@ -21,13 +21,13 @@ import hudson.model.Queue.FlyweightTask;
  * @author Andrei Pozolotin
  */
 public class CascadeProject extends Project<CascadeProject, CascadeBuild>
-		implements TopLevelItem, FlyweightTask {
+		implements TopLevelItem, FlyweightTask, PluginConstants {
 
 	public static class TheDescriptor extends AbstractProjectDescriptor {
 
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.CASCADE_PROJECT_NAME;
+			return CASCADE_PROJECT_NAME;
 		}
 
 		@Override
@@ -56,7 +56,7 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 
 	@Override
 	public String getPronoun() {
-		return PluginConstants.CASCADE_PROJECT_PRONOUN;
+		return CASCADE_PROJECT_PRONOUN;
 	}
 
 }

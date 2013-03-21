@@ -16,9 +16,7 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="help" value="${plugin}/help/LayoutBuildAction" />
-	<j:set var="images" value="${plugin}/images" />
+	<j:set var="help" value="${it.PLUGIN_HELP}/LayoutBuildAction" />
 
 	<l:layout norefresh="true">
 
@@ -27,7 +25,7 @@
 			<f:section>
 
 				<img title="Cascade Layout" width="48" height="48"
-					src="${images}/48x48/monkey.png" />
+					src="${it.PLUGIN_IMAGES_48}/monkey.png" />
 
 			</f:section>
 

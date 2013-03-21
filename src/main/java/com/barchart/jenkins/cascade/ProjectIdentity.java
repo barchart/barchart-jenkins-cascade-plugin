@@ -30,7 +30,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * 
  * @author Andrei Pozolotin
  */
-public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
+public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
+		implements PluginConstants {
 
 	public enum Mode {
 		ROLE() {
@@ -62,7 +63,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>> {
 
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.MEMBER_ACTION_NAME;
+			return MEMBER_ACTION_NAME;
 		}
 
 		@Override

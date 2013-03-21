@@ -16,10 +16,6 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="help" value="${plugin}/help/ProjectIdentity" />
-	<j:set var="images" value="${plugin}/images" />
-
 	<!-- "mainPage" is set on main page -->
 	<j:if test="${mainPage}">
 		<j:set var="identity" value="${it}" />
@@ -31,6 +27,8 @@
 	</j:if>
 
 	<j:if test="${identity.isValid()}">
+
+		<j:set var="help" value="${identity.PLUGIN_HELP}/ProjectIdentity" />
 
 		<f:section title="Cascade Identity">
 

@@ -25,7 +25,8 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Andrei Pozolotin
  */
 @Extension
-public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions> {
+public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
+		implements PluginConstants {
 
 	public static class TheDescriptor extends Descriptor<LayoutOptions> {
 

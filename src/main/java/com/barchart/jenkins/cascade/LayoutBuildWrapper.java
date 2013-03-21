@@ -38,13 +38,13 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @author Andrei Pozolotin
  */
 @Extension
-public class LayoutBuildWrapper extends BuildWrapper {
+public class LayoutBuildWrapper extends BuildWrapper implements PluginConstants {
 
 	public static class TheDescriptor extends BuildWrapperDescriptor {
 
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.PLUGIN_NAME;
+			return PLUGIN_NAME;
 		}
 
 		/**

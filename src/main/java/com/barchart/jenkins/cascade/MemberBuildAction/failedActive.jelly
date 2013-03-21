@@ -16,10 +16,6 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="help" value="${plugin}/help/MemberBuildAction" />
-	<j:set var="images" value="${plugin}/images" />
-
 	<l:layout>
 
 		<l:main-panel>
@@ -27,7 +23,7 @@
 			<f:section>
 
 				<img title="Cascade Release" width="48" height="48"
-					src="${images}/48x48/dragon.png" />
+					src="${it.PLUGIN_IMAGES_48}/dragon.png" />
 
 			</f:section>
 
@@ -38,15 +34,15 @@
 			<h2>Cascade family projects are active:</h2>
 
 			<ul style="list-style-type: none;">
-				<j:forEach var="entry" items="${it.reportActiveFamilyProjects().entrySet()}">
+				<j:forEach var="entry"
+					items="${it.reportActiveFamilyProjects().entrySet()}">
 
-					<li><img src="${images}/16x16/help.png" alt="" /> <a
+					<li><img src="${it.PLUGIN_IMAGES_16}/help.png" alt="" /> <a
 						href="${entry.value.projectUrl()}" class="model-link">
 							${entry.key} </a></li>
 
 				</j:forEach>
 			</ul>
-
 
 		</l:main-panel>
 

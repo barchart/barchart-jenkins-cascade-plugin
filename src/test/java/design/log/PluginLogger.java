@@ -16,7 +16,7 @@ import com.barchart.jenkins.cascade.PluginConstants;
  * 
  * @author Andrei Pozolotin
  */
-public class PluginLogger {
+public class PluginLogger implements PluginConstants {
 
 	private final TaskListener listener;
 
@@ -26,8 +26,7 @@ public class PluginLogger {
 
 	/** Log text with plug-in prefix. */
 	public void text(final String text) {
-		listener.getLogger()
-				.println(PluginConstants.LOGGER_PREFIX + " " + text);
+		listener.getLogger().println(LOGGER_PREFIX + " " + text);
 	}
 
 }

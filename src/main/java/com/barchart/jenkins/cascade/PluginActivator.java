@@ -20,12 +20,12 @@ import hudson.model.Hudson;
  */
 @Extension
 public class PluginActivator extends Plugin implements
-		Describable<PluginActivator> {
+		Describable<PluginActivator>, PluginConstants {
 
 	public static final class TheDescriptor extends Descriptor<PluginActivator> {
 		@Override
 		public String getDisplayName() {
-			return PluginConstants.PLUGIN_NAME;
+			return PLUGIN_NAME;
 		}
 	}
 

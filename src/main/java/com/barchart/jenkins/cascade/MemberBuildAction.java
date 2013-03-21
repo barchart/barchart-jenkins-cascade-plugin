@@ -9,7 +9,6 @@ package com.barchart.jenkins.cascade;
 
 import static com.barchart.jenkins.cascade.PluginUtilities.*;
 import hudson.maven.MavenModuleSet;
-import hudson.model.Action;
 import hudson.model.AbstractProject;
 
 import java.util.Map;
@@ -28,7 +27,7 @@ import org.kohsuke.stapler.StaplerResponse;
  * 
  * @author Andrei Pozolotin
  */
-public class MemberBuildAction implements Action {
+public class MemberBuildAction extends AbstractAction {
 
 	private static final Logger log = Logger.getLogger(MemberBuildAction.class
 			.getName());
@@ -42,6 +41,7 @@ public class MemberBuildAction implements Action {
 	public MemberBuildAction( //
 			final ProjectIdentity identity //
 	) {
+		super(MEMBER_ACTION_NAME, MEMBER_ACTION_ICON, MEMBER_ACTION_URL);
 		this.identity = identity;
 	}
 
@@ -130,14 +130,6 @@ public class MemberBuildAction implements Action {
 				.getCascadeOptions();
 	}
 
-	public String getDisplayName() {
-		return PluginConstants.MEMBER_ACTION_NAME;
-	}
-
-	public String getIconFileName() {
-		return PluginConstants.MEMBER_ACTION_ICON;
-	}
-
 	public ProjectIdentity getIdentity() {
 		return identity;
 	}
@@ -161,10 +153,6 @@ public class MemberBuildAction implements Action {
 
 	public String getSnapshotVersion() {
 		return snapshotVersion;
-	}
-
-	public String getUrlName() {
-		return PluginConstants.MEMBER_ACTION_URL;
 	}
 
 	public ProjectIdentity identity() {

@@ -20,8 +20,8 @@ import java.util.List;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import com.barchart.jenkins.cascade.AbstractAction;
 import com.barchart.jenkins.cascade.MemberPermalink;
-import com.barchart.jenkins.cascade.PluginConstants;
 
 /**
  * The action appears as the link in the side bar that users will click on in
@@ -29,7 +29,8 @@ import com.barchart.jenkins.cascade.PluginConstants;
  * 
  * @author Andrei Pozolotin
  */
-public class CascadeBuildAction implements PermalinkProjectAction {
+public class CascadeBuildAction extends AbstractAction implements
+		PermalinkProjectAction {
 
 	private static final List<Permalink> PERMALINKS = Collections
 			.singletonList(MemberPermalink.INSTANCE);
@@ -45,12 +46,14 @@ public class CascadeBuildAction implements PermalinkProjectAction {
 
 	}
 
+	@Override
 	public String getDisplayName() {
-		return PluginConstants.MEMBER_ACTION_NAME;
+		return MEMBER_ACTION_NAME;
 	}
 
+	@Override
 	public String getIconFileName() {
-		return PluginConstants.MEMBER_ACTION_ICON;
+		return MEMBER_ACTION_ICON;
 	}
 
 	public Collection<MavenModule> getModules() {
@@ -87,8 +90,9 @@ public class CascadeBuildAction implements PermalinkProjectAction {
 		return project.getRootModule();
 	}
 
+	@Override
 	public String getUrlName() {
-		return PluginConstants.MEMBER_ACTION_URL;
+		return MEMBER_ACTION_URL;
 	}
 
 }

@@ -33,13 +33,13 @@ import java.util.logging.Logger;
  * @author Andrei Pozolotin
  */
 @Extension
-public class RunDecider extends QueueDecisionHandler {
+public class RunDecider extends QueueDecisionHandler implements PluginConstants {
 
 	protected final static Logger log = Logger.getLogger(RunDecider.class
 			.getName());
 
 	public static void log(final String text) {
-		log.info(PluginConstants.LOGGER_PREFIX + " " + text);
+		log.info(LOGGER_PREFIX + " " + text);
 	}
 
 	/**

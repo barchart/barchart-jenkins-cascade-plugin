@@ -7,7 +7,6 @@
  */
 package com.barchart.jenkins.cascade;
 
-import static com.barchart.jenkins.cascade.PluginConstants.*;
 import hudson.Extension;
 import hudson.model.ManagementLink;
 import net.sf.json.JSONObject;
@@ -21,7 +20,8 @@ import org.kohsuke.stapler.StaplerResponse;
  * @author Andrei Pozolotin
  */
 @Extension
-public class PluginConfigurator extends ManagementLink {
+public class PluginConfigurator extends ManagementLink implements
+		PluginConstants {
 
 	/**
 	 * Jelly form submit.

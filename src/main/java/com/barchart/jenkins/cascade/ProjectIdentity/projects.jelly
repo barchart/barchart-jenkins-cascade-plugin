@@ -16,9 +16,7 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="help" value="${plugin}/help/ProjectIdentity" />
-	<j:set var="images" value="${plugin}/images" />
+	<j:set var="help" value="${it.PLUGIN_HELP}/ProjectIdentity" />
 
 	<f:entry title="Layout Project" help="${help}/layoutProject.jelly">
 		<j:set var="project" value="${it.layoutProject()}" />

@@ -16,14 +16,12 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="images" value="${plugin}/images" />
-	<j:set var="help" value="${plugin}/help/CascadeOptions" />
+	<j:set var="help" value="${it.PLUGIN_HELP}/CascadeOptions" />
 
 	<f:section title="Cascade Options" name="${it.NAME}">
 
 		<f:entry help="${help}/section.jelly">
-			<img src="${images}/32x32/dragon.png" alt="" />
+			<img src="${it.PLUGIN_IMAGES_32}/dragon.png" alt="" />
 		</f:entry>
 
 		<!-- Validation is now performed by layout. -->

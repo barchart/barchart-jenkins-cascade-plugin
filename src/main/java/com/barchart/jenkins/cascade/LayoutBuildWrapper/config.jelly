@@ -18,7 +18,7 @@
 
 	<j:set var="plugin" value="/plugin/maven-release-cascade" />
 	<j:set var="help" value="${plugin}/help/LayoutBuildWrapper" />
-	<j:set var="images" value="${plugin}/images" />
+	<j:set var="images" value="${plugin}/images/32x32" />
 
 	<!-- Wrapper instance is not created by default. -->
 	<j:choose>
@@ -53,7 +53,7 @@
 		<j:otherwise>
 
 			<f:entry>
-				<img src="${images}/32x32/red-matreshka-head.png" alt="" />
+				<img src="${images}/red-matreshka-head.png" alt="" />
 			</f:entry>
 
 			<f:entry title="Advanced Feature" help="${help}/advanced.jelly">

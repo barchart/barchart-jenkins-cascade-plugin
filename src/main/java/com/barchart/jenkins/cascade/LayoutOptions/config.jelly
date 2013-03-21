@@ -16,14 +16,12 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="help" value="${plugin}/help/LayoutOptions" />
-	<j:set var="images" value="${plugin}/images" />
+	<j:set var="help" value="${it.PLUGIN_HELP}/LayoutOptions" />
 
 	<f:section title="Layout Options" name="${it.NAME}">
 
 		<f:entry help="${help}/section.jelly">
-			<img src="${images}/32x32/monkey.png" alt="" />
+			<img src="${it.PLUGIN_IMAGES_32}/monkey.png" alt="" />
 		</f:entry>
 
 		<f:entry title="Validation Goals" field="mavenValidateGoals"

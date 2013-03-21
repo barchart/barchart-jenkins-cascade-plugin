@@ -14,10 +14,7 @@
 -->
 <j:jelly xmlns:j="jelly:core">
 
-	<j:set var="plugin" value="/plugin/maven-release-cascade" />
-	<j:set var="images" value="${plugin}/images" />
-
 	<img title="${it.displayName}" width="16" height="16"
-		src="${images}/16x16/${it.iconFileName}" />
+		src="${it.iconFileName}" />
 
 </j:jelly>

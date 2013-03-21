@@ -24,7 +24,8 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Andrei Pozolotin
  */
 @Extension
-public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions> {
+public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions>
+		implements PluginConstants {
 
 	public static class TheDescriptor extends Descriptor<CascadeOptions> {
 
