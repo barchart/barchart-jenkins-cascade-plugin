@@ -110,4 +110,8 @@ public class LayoutBuildAction extends AbstractAction implements
 		return layoutProject.getRootModule();
 	}
 
+	public MavenModuleSet getLayoutProject() {
+		return layoutProject;
+	}
+
 }

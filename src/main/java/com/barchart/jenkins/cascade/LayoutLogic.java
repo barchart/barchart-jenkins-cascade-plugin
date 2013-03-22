@@ -28,6 +28,7 @@ import hudson.scm.SubversionSCM;
 import hudson.tasks.BuildWrapper;
 import hudson.util.DescribableList;
 import hudson.util.VariableResolver;
+import hudson.views.ListViewColumn;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import jenkins.scm.SCMCheckoutStrategy;
 import org.apache.maven.model.Model;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.joda.time.DateTime;
+import org.jvnet.hudson.plugins.m2release.LastReleaseListViewColumn;
 
 import com.barchart.jenkins.cascade.PluginUtilities.JenkinsTask;
 import com.barchart.jenkins.cascade.ProjectIdentity.Mode;
@@ -149,7 +151,29 @@ public class LayoutLogic {
 
 		view.add(project);
 
+		ensureProjectViewColumns(view);
+
 		context.logTab("Project view: " + view.getAbsoluteUrl());
+
+	}
+
+	/**
+	 * Activate last release column from m2release plugin.
+	 */
+	public static void ensureProjectViewColumns(final ListView view)
+			throws IOException {
+
+		final DescribableList<ListViewColumn, Descriptor<ListViewColumn>> columnList = view
+				.getColumns();
+
+		final LastReleaseListViewColumn column = columnList
+				.get(LastReleaseListViewColumn.class);
+
+		if (column != null) {
+			return;
+		}
+
+		columnList.add(new LastReleaseListViewColumn());
 
 	}
 

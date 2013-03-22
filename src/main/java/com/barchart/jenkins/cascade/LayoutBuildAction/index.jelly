@@ -20,12 +20,16 @@
 
 	<l:layout norefresh="true">
 
+		<st:include it="${it.layoutProject}" page="sidepanel.jelly" />
+
 		<l:main-panel>
 
 			<f:section>
 
-				<img title="Cascade Layout" width="48" height="48"
-					src="${it.PLUGIN_IMAGES_48}/monkey.png" />
+				<h1>
+					<img title="Cascade Layout" width="48" height="48"
+						src="${it.iconFileName}" /> ${it.displayName}
+				</h1>
 
 			</f:section>
 

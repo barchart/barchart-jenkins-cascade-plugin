@@ -16,12 +16,14 @@ import hudson.plugins.depgraph_view.model.graph.DependencyGraph;
 import hudson.plugins.depgraph_view.model.graph.GraphCalculator;
 import hudson.plugins.depgraph_view.model.graph.ProjectNode;
 import hudson.plugins.depgraph_view.model.graph.SubprojectCalculator;
+import hudson.views.ListViewColumn;
 
 import java.util.List;
 import java.util.logging.Logger;
 
 import jenkins.model.Jenkins;
 
+import org.jvnet.hudson.plugins.m2release.LastReleaseListViewColumn;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -67,11 +69,21 @@ public class MemberViewAction extends AbstractAction {
 
 	}
 
+	@JellyField
+	public List<ListViewColumn> getColumnList() {
+		final List<ListViewColumn> columnList = ListViewColumn
+				.createDefaultInitialColumnList();
+		columnList.add(new LastReleaseListViewColumn());
+		return columnList;
+	}
+
+	@JellyField
 	public ProjectIdentity getIdentity() {
 		return identity;
 	}
 
-	public List<MavenModuleSet> projectList() {
+	@JellyField
+	public List<MavenModuleSet> getProjectList() {
 		return identity.memberProjectList();
 	}
 
@@ -85,7 +97,7 @@ public class MemberViewAction extends AbstractAction {
 				.getInstance(GraphCalculator.class);
 
 		final Iterable<ProjectNode> projectNodeSet = GraphCalculator
-				.abstractProjectSetToProjectNodeSet(projectList());
+				.abstractProjectSetToProjectNodeSet(getProjectList());
 
 		final DependencyGraph graph = graphCalculator
 				.generateGraph(projectNodeSet);
