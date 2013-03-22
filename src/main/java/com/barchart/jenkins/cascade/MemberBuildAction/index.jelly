@@ -20,31 +20,26 @@
 
 	<l:layout norefresh="true">
 
+		<st:include it="${it.identity.memberProject()}" page="sidepanel.jelly" />
+
 		<l:main-panel>
 
 			<f:section>
 
-				<img title="Cascade Release" width="48" height="48"
-					src="${it.PLUGIN_IMAGES_48}/dragon.png" />
+				<h1>
+					<img title="Cascade Release" width="48" height="48"
+						src="${it.iconFileName}" /> ${it.displayName}
+				</h1>
 
 			</f:section>
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Perform Maven Cascade Release" />
-
-				<f:advanced title="Cascade Options" align="left">
-				
-					<!-- See CascadeOptions -->
-					<j:set var="disableCascadeOptions" value="true" />
-					<st:include it="${it.cascadeOptions}" page="config.jelly" />
-					
-				</f:advanced>
-
-				<f:section title="" name="releaseProperties">
+				<f:section title="Perform Maven Cascade Release"
+					name="releaseProperties">
 
 					<!-- See ProjectIdentity -->
-					<st:include it="${it.identity()}" page="projects.jelly" />
+					<st:include it="${it.identity}" page="projects.jelly" />
 
 					<p />
 
@@ -60,6 +55,14 @@
 					</f:entry>
 
 				</f:section>
+
+				<f:advanced title="Cascade Options" align="left">
+
+					<!-- See CascadeOptions -->
+					<j:set var="disableCascadeOptions" value="true" />
+					<st:include it="${it.cascadeOptions}" page="config.jelly" />
+
+				</f:advanced>
 
 				<tr>
 					<td colspan="4" align="left"><f:submit value="Submit" /></td>

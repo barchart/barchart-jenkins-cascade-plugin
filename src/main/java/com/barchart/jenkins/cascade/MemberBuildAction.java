@@ -23,7 +23,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 /**
- * Cascade build action link on member project page.
+ * Cascade build link on member project page.
  * 
  * @author Andrei Pozolotin
  */
@@ -121,10 +121,6 @@ public class MemberBuildAction extends AbstractAction {
 
 	}
 
-	public String getCascadeName() {
-		return identity.cascadeProject().getName();
-	}
-
 	public CascadeOptions getCascadeOptions() {
 		return LayoutBuildWrapper.wrapper(identity.layoutProject())
 				.getCascadeOptions();
@@ -134,17 +130,9 @@ public class MemberBuildAction extends AbstractAction {
 		return identity;
 	}
 
-	public String getLayoutName() {
-		return identity.layoutProject().getName();
-	}
-
 	public LayoutOptions getLayoutOptions() {
 		return LayoutBuildWrapper.wrapper(identity.layoutProject())
 				.getLayoutOptions();
-	}
-
-	public String getMemberName() {
-		return identity.memberProject().getName();
 	}
 
 	public String getReleaseVersion() {
@@ -153,10 +141,6 @@ public class MemberBuildAction extends AbstractAction {
 
 	public String getSnapshotVersion() {
 		return snapshotVersion;
-	}
-
-	public ProjectIdentity identity() {
-		return identity;
 	}
 
 	/**

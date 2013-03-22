@@ -34,6 +34,9 @@
 
 			<f:advanced>
 
+				<!-- See ProjectIdentity -->
+				<st:include it="${identity}" page="projects.jelly" />
+
 				<f:entry title="Role" help="${help}/projectRole.jelly"
 					field="projectRole">
 					<f:textbox disabled="true" value="${identity.projectRole}" />
@@ -46,9 +49,6 @@
 					field="projectID">
 					<f:textbox disabled="true" value="${identity.projectID}" />
 				</f:entry>
-
-				<!-- See ProjectIdentity -->
-				<st:include it="${identity}" page="projects.jelly" />
 
 			</f:advanced>
 

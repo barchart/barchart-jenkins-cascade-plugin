@@ -49,6 +49,18 @@ public interface PluginConstants {
 	String MEMBER_ACTION_ICON = "dragon.png";
 	String MEMBER_ACTION_URL = "cascade-release";
 
+	/* Member view. */
+
+	String MEMBER_VIEW_NAME = "Cascade View";
+	String MEMBER_VIEW_ICON = "monkey.png";
+	String MEMBER_VIEW_URL = "cascade-view";
+
+	/* Member graph. */
+
+	String MEMBER_GRAPH_NAME = "Cascade Graph";
+
+	/* Cascade Logger. */
+
 	String LOGGER_PREFIX = "[CASCADE]";
 
 }
