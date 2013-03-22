@@ -54,7 +54,7 @@ public class GraphEdgeProvider implements EdgeProvider {
 			}
 
 			/** Interested in member projects only. */
-			if (!(project instanceof MavenModuleSet)) {
+			if (identity.role() != ProjectRole.MEMBER) {
 				return edgeList;
 			}
 
