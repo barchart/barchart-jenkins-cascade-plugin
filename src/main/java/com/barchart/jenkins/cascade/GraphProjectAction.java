@@ -38,7 +38,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import com.google.common.collect.ListMultimap;
 
 /**
- * Show cascade view link for member projects.
+ * Show cascade graph link for member projects.
  * 
  * @author Stefan Wolf
  * @author Andrei Pozolotin
