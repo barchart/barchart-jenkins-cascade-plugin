@@ -8,6 +8,8 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.Extension;
+import hudson.maven.ModuleName;
+import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
 import hudson.model.JobProperty;
@@ -15,6 +17,8 @@ import hudson.model.JobPropertyDescriptor;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractProject;
 import hudson.model.Job;
+import hudson.model.ListView;
+import hudson.model.View;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,11 +26,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import jenkins.model.Jenkins;
+
 import org.joda.time.DateTime;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Project identity property for cascade member projects.
+ * <p>
+ * Persists role, family id, member id.
  * 
  * @author Andrei Pozolotin
  */
@@ -215,6 +223,45 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	}
 
 	/**
+	 * Find cascade family view.
+	 */
+	public static ListView familyView(final ProjectIdentity identity) {
+		final String viewName = familyViewName(identity);
+		final View view = Jenkins.getInstance().getView(viewName);
+		if (view instanceof ListView) {
+			return (ListView) view;
+		}
+		return null;
+	}
+
+	/**
+	 * Find cascade family view.
+	 */
+	public static String familyViewName(final ProjectIdentity identity) {
+
+		final MavenModuleSet layoutProject = identity.layoutProject();
+
+		if (layoutProject == null) {
+			return "invalid-project";
+		}
+
+		final LayoutBuildWrapper wrpapper = LayoutBuildWrapper
+				.wrapper(layoutProject);
+
+		if (wrpapper == null) {
+			return "invalid-wrapper";
+		}
+
+		final String viewName = wrpapper.getLayoutOptions().getLayoutViewName();
+
+		if (viewName == null) {
+			return "invalid-view";
+		}
+
+		return viewName;
+	}
+
+	/**
 	 * Verify a project has this property with all component fields.
 	 */
 	public static boolean hasIdentity(final AbstractProject project) {
@@ -295,7 +342,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 		this(role.code(), familyID, projectID);
 	}
 
-	/** Jelly injected. */
+	/**
+	 * @jelly
+	 */
 	@DataBoundConstructor
 	public ProjectIdentity( //
 			final String projectRole, //
@@ -377,6 +426,20 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	@SuppressWarnings("rawtypes")
 	public List<AbstractProject> familyProjectList() {
 		return familyProjectList(this.getFamilyID());
+	}
+
+	/**
+	 * Find cascade family view.
+	 */
+	public ListView familyView() {
+		return familyView(this);
+	}
+
+	/**
+	 * Find cascade family view.
+	 */
+	public String familyViewName() {
+		return familyViewName(this);
 	}
 
 	@Override
@@ -471,6 +534,29 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	 */
 	public MavenModuleSet memberProject() {
 		return memberProject(this);
+	}
+
+	/**
+	 * Find member project with module name.
+	 */
+	public MavenModuleSet memberProject(final ModuleName moduleName) {
+
+		final List<MavenModuleSet> memberProjectList = memberProjectList();
+
+		for (final MavenModuleSet memberProject : memberProjectList) {
+
+			final MavenModule memberModule = memberProject.getRootModule();
+
+			final ModuleName memberName = memberModule.getModuleName();
+
+			if (moduleName.equals(memberName)) {
+				return memberProject;
+			}
+
+		}
+
+		return null;
+
 	}
 
 	public List<MavenModuleSet> memberProjectList() {

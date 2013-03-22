@@ -67,14 +67,20 @@ public class PluginUtilities {
 	}
 
 	/**
+	 * Any dependency matcher.
+	 */
+	public static final DependencyMatcher MATCH_ANY = new DependencyMatcher() {
+		public boolean isMatch(final Dependency dependency) {
+			return true;
+		}
+	};
+	/**
 	 * Snapshot dependency matcher.
 	 */
 	public static final DependencyMatcher MATCH_SNAPSHOT = new DependencyMatcher() {
-
 		public boolean isMatch(final Dependency dependency) {
 			return isSnapshot(dependency);
 		}
-
 	};
 
 	public static final String SNAPSHOT = "-SNAPSHOT";

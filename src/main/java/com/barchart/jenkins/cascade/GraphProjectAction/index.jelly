@@ -1,0 +1,48 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout"
+	xmlns:sv="/lib/sectioned_view" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+
+	<j:choose>
+
+		<j:when test="${it.isGraphvizEnabled()}">
+
+			<l:layout title="${it.title}">
+
+				<st:include it="${it.parentObject}" page="sidepanel.jelly" />
+
+				<l:main-panel>
+
+					<h1>
+						<img src="${it.iconFileName}" alt="" /> ${it.title}
+					</h1>
+
+					<a href="legend.png">Legend</a>
+
+					<p />
+
+					<img src="graph.png" lazymap="graph.map" />
+
+				</l:main-panel>
+
+			</l:layout>
+
+		</j:when>
+
+		<j:otherwise>
+
+			<h1>Graphviz is not Enabled.</h1>
+
+		</j:otherwise>
+
+	</j:choose>
+
+</j:jelly>

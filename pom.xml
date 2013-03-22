@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com />
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
 
     All rights reserved. Licensed under the OSI BSD License.
 
@@ -99,11 +99,18 @@
 		<!-- <version>1.5</version> -->
 		<!-- </dependency> -->
 
-		<!-- https://wiki.jenkins-ci.org/display/JENKINS/GitHub+Plugin -->
+		<!-- https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin -->
 		<dependency>
 			<groupId>org.jenkins-ci.plugins</groupId>
 			<artifactId>git</artifactId>
 			<version>1.3.0</version>
+		</dependency>
+		
+		<!-- https://wiki.jenkins-ci.org/display/JENKINS/Git+Client+Plugin -->
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>git-client</artifactId>
+			<version>1.0.4</version>
 		</dependency>
 
 		<!-- https://wiki.jenkins-ci.org/display/JENKINS/Subversion+Plugin -->
@@ -120,18 +127,18 @@
 			<version>1.6</version>
 		</dependency>
 
+		<!-- https://wiki.jenkins-ci.org/display/JENKINS/Dependency+Graph+View+Plugin -->
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>depgraph-view</artifactId>
+			<version>0.11</version>
+		</dependency>
+
 		<!-- https://code.google.com/p/cloning/ -->
 		<dependency>
 			<groupId>uk.com.robust-it</groupId>
 			<artifactId>cloning</artifactId>
 			<version>1.9.0</version>
-		</dependency>
-
-		<!-- https://wiki.jenkins-ci.org/display/JENKINS/Git+Client+Plugin -->
-		<dependency>
-			<groupId>org.jenkins-ci.plugins</groupId>
-			<artifactId>git-client</artifactId>
-			<version>1.0.4</version>
 		</dependency>
 
 	</dependencies>

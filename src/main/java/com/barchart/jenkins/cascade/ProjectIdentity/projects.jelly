@@ -16,7 +16,15 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
+	<!-- ${it} is ProjectIdentity -->
+
 	<j:set var="help" value="${it.PLUGIN_HELP}/ProjectIdentity" />
+	<j:set var="images" value="${it.PLUGIN_IMAGES_48}" />
+
+	<f:entry title="Family View" help="${help}/familyView.jelly">
+		<j:set var="view" value="${it.familyView()}" />
+		<st:include page="viewLink.jelly" />
+	</f:entry>
 
 	<f:entry title="Layout Project" help="${help}/layoutProject.jelly">
 		<j:set var="project" value="${it.layoutProject()}" />
