@@ -20,7 +20,7 @@
 
 	<l:layout norefresh="true">
 
-		<st:include it="${it.identity.memberProject()}" page="sidepanel.jelly" />
+		<st:include it="${it.identity.memberProject()}" page="sidepanel.jelly" optional="true" />
 
 		<l:main-panel>
 

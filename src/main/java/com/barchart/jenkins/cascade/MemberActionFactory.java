@@ -49,11 +49,13 @@ public class MemberActionFactory extends TransientProjectActionFactory {
 		final ProjectRole role = ProjectRole.from(identity.getProjectRole());
 
 		switch (role) {
+		case CASCADE:
+			break;
 		case MEMBER:
 			actionList.add(new MemberBuildAction(identity));
-		case LAYOUT:
-		case CASCADE:
 			actionList.add(new MemberViewAction(identity));
+			break;
+		case LAYOUT:
 			break;
 		}
 
