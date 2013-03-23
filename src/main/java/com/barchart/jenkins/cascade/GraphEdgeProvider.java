@@ -78,7 +78,7 @@ public class GraphEdgeProvider implements EdgeProvider {
 					if (isSnapshot(parent)) {
 						edge.setColor("red");
 					} else {
-						edge.setColor("red4");
+						edge.setColor("chocolate");
 					}
 
 					edgeList.add(edge);
@@ -108,7 +108,7 @@ public class GraphEdgeProvider implements EdgeProvider {
 				if (isSnapshot(dependency)) {
 					edge.setColor("blue");
 				} else {
-					edge.setColor("blue4");
+					edge.setColor("forestgreen");
 				}
 
 				edgeList.add(edge);

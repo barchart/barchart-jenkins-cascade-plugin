@@ -60,10 +60,10 @@ public class GraphGeneratorForLegend extends AbstractDotStringGenerator {
 				.append("c [label=\"\"]")
 				.append("d [label=\"\"]")
 
-				.append("a -> \"Released Parent\" [color=red4 style=bold minlen=2 ]\n")
-				.append("b -> \"Snapshot Parent\" [color=red style=bold  minlen=2] \n")
-				.append("c -> \"Released Dependency\" [color=blue4 style=bold  minlen=2 ]\n")
 				.append("d -> \"Snapshot Dependency\" [color=blue style=bold  minlen=2 ]\n")
+				.append("c -> \"Released Dependency\" [color=forestgreen style=bold  minlen=2 ]\n")
+				.append("b -> \"Snapshot Parent\" [color=red style=bold  minlen=2] \n")
+				.append("a -> \"Released Parent\" [color=chocolate style=bold minlen=2 ]\n")
 
 		;
 
