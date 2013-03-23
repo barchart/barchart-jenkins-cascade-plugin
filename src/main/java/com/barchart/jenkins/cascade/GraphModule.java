@@ -31,7 +31,7 @@ public class GraphModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
-		log.info("## GraphModule");
+		log.info("### GraphModule");
 
 		final Multibinder<EdgeProvider> edgeProviderMultibinder = Multibinder
 				.newSetBinder(binder(), EdgeProvider.class);

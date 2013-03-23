@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 
 import org.jvnet.hudson.plugins.m2release.LastReleaseListViewColumn;
+import org.jvnet.hudson.plugins.m2release.M2ReleaseBadgeAction;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -39,6 +40,14 @@ public class MemberViewAction extends AbstractAction {
 
 	private static final Logger log = Logger.getLogger(MemberViewAction.class
 			.getName());
+
+	/**
+	 * Force closs-plugin deterministic class loading.
+	 */
+	public static void init() {
+		M2ReleaseBadgeAction.class.toString();
+		LastReleaseListViewColumn.class.toString();
+	}
 
 	private final ProjectIdentity identity;
 

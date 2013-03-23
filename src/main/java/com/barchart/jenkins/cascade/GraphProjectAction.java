@@ -49,41 +49,19 @@ public class GraphProjectAction extends AbstractDependencyGraphAction implements
 	protected final static Logger log = Logger
 			.getLogger(GraphProjectAction.class.getName());
 
+	/**
+	 * Force closs-plugin deterministic class loading.
+	 */
+	public static void init() {
+		DependencyGraph.class.toString();
+		GraphCalculator.class.toString();
+		SubprojectCalculator.class.toString();
+	}
+
 	private final AbstractProject<?, ?> project;
 
 	public GraphProjectAction(final AbstractProject<?, ?> project) {
 		this.project = project;
-	}
-
-	@Override
-	protected Collection<? extends AbstractProject<?, ?>> getProjectsForDepgraph() {
-		return Collections.singletonList(project);
-	}
-
-	@Override
-	public String getTitle() {
-		return MEMBER_GRAPH_NAME;
-	}
-
-	@Override
-	public AbstractModelObject getParentObject() {
-		return project;
-	}
-
-	@Override
-	public String getDisplayName() {
-		return getTitle();
-	}
-
-	@Override
-	public String getIconFileName() {
-		/** Must use absolute path. */
-		return PLUGIN_ICON;
-	}
-
-	@Override
-	public String getUrlName() {
-		return PLUGIN_ID + "-" + super.getUrlName();
 	}
 
 	@Override
@@ -150,6 +128,37 @@ public class GraphProjectAction extends AbstractDependencyGraphAction implements
 			rsp.getWriter().append(graphString).close();
 		}
 
+	}
+
+	@Override
+	public String getDisplayName() {
+		return getTitle();
+	}
+
+	@Override
+	public String getIconFileName() {
+		/** Must use absolute path. */
+		return PLUGIN_ICON;
+	}
+
+	@Override
+	public AbstractModelObject getParentObject() {
+		return project;
+	}
+
+	@Override
+	protected Collection<? extends AbstractProject<?, ?>> getProjectsForDepgraph() {
+		return Collections.singletonList(project);
+	}
+
+	@Override
+	public String getTitle() {
+		return MEMBER_GRAPH_NAME;
+	}
+
+	@Override
+	public String getUrlName() {
+		return PLUGIN_ID + "-" + super.getUrlName();
 	}
 
 }
