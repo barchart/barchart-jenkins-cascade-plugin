@@ -8,7 +8,9 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.Extension;
+import hudson.PluginWrapper;
 import hudson.model.ManagementLink;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
@@ -76,6 +78,14 @@ public class PluginConfigurator extends ManagementLink implements
 	@Override
 	public String getUrlName() {
 		return PLUGIN_ID;
+	}
+
+	/**
+	 * Plugin management wrapper.
+	 */
+	@JellyField
+	public PluginWrapper getWrapper() {
+		return Jenkins.getInstance().getPlugin(PLUGIN_ID).getWrapper();
 	}
 
 }

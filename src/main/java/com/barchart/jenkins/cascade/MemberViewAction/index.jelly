@@ -29,6 +29,7 @@
 				<img title="${it.displayName}" src="${it.iconFileName}" width="48"
 					height="48" /> ${it.displayName}
 			</h1>
+				<h2>${it.identity.memberProject().name}</h2>
 
 			<f:form method="post" action="submit">
 

@@ -42,21 +42,31 @@ public class GraphGeneratorForLegend extends AbstractDotStringGenerator {
 	}
 
 	private String legend() {
+
 		final StringBuilder stringBuilder = new StringBuilder();
+
 		stringBuilder
-				.append("label=\"Legend:\" labelloc=t centered=false color=black node [shape=plaintext]")
-				.append("\"Dependency Graph\"\n")
-				.append("\"Copy Artifact\"\n")
-				.append("\"Sub-Project\"\n")
+
+				.append("label=\"Legend:\" labelloc=t centered=false color=black node [shape=plaintext] fontsize=10")
+
+				.append("\"Released Parent\" [fontsize=10] \n")
+				.append("\"Snapshot Parent\" [fontsize=10] \n")
+				.append("\"Released Dependency\" [fontsize=10] \n")
+				.append("\"Snapshot Dependency\" [fontsize=10] \n")
+
 				.append("node [style=invis]\n")
-				.append("a [label=\"\"] b [label=\"\"]")
-				.append(" c [fillcolor=" + escapeString(subProjectColor)
-						+ " style=filled fontcolor="
-						+ escapeString(subProjectColor) + "]\n")
-				.append("a -> b [style=invis]\n")
-				.append("{rank=same a -> \"Dependency Graph\" [color=black style=bold minlen=2]}\n")
-				.append("{rank=same b -> \"Copy Artifact\" [color=lightblue minlen=2]}\n")
-				.append("{rank=same c -> \"Sub-Project\" [ style=invis]}\n");
+				.append("a [label=\"\"]")
+				.append("b [label=\"\"]")
+				.append("c [label=\"\"]")
+				.append("d [label=\"\"]")
+
+				.append("{rank=same a -> \"Released Parent\" [color=red4 style=bold minlen=2 ]}\n")
+				.append("{rank=same b -> \"Snapshot Parent\" [color=red style=bold  minlen=2] }\n")
+				.append("{rank=same c -> \"Released Dependency\" [color=blue4 style=bold  minlen=2 ]}\n")
+				.append("{rank=same d -> \"Snapshot Dependency\" [color=blue style=bold  minlen=2 ]}\n")
+
+		;
+
 		return stringBuilder.toString();
 	}
 

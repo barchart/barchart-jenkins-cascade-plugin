@@ -30,6 +30,7 @@
 					<img title="Cascade Layout" width="48" height="48"
 						src="${it.iconFileName}" /> ${it.displayName}
 				</h1>
+				<h2>${it.layoutProject.name}</h2>
 
 			</f:section>
 

@@ -56,6 +56,8 @@ public class GraphGeneratorForGraph extends AbstractDotStringGenerator {
 
 		builder.append("digraph {\n");
 		builder.append("node [shape=box, style=rounded];\n");
+		builder.append("rankdir=TB;\n");
+		builder.append("aspect=1;\n");
 
 		/**** First define all the objects and clusters ****/
 
@@ -135,7 +137,8 @@ public class GraphGeneratorForGraph extends AbstractDotStringGenerator {
 			}
 		}
 
-		return name + " [ " + " label=" + label + " href=" + url + " ] ";
+		return name + " [ " + " label=" + label + " href=" + url
+				+ " fontsize=10 ] ";
 	}
 
 	private String projectToNodeString(final ProjectNode proj,

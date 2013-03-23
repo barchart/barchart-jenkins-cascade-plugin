@@ -32,8 +32,22 @@
 			</h3>
 
 			<f:form method="post" action="submit">
-
 				<table>
+
+					<tr>
+						<f:section title="Plugin Information">
+							<f:entry title="Plugin Wiki">
+								<a target="_blank" href="${it.wrapper.url}" class="model-link">${it.wrapper.url}</a>
+							</f:entry>
+							<f:entry title="Current Version">
+								<f:textbox value="${it.wrapper.version}" disabled="true" />
+							</f:entry>
+							<f:entry title="Update Available">
+								<f:textbox value="${it.wrapper.hasUpdate()}" disabled="true" />
+							</f:entry>
+						</f:section>
+					</tr>
+
 					<tr>
 						<st:include it="${it.layoutOptions}" page="config.jelly" />
 					</tr>
