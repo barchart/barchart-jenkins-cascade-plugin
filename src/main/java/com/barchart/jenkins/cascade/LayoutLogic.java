@@ -158,7 +158,7 @@ public class LayoutLogic {
 	}
 
 	/**
-	 * Activate last release column from m2release plugin.
+	 * Activate additional columns for the cascade view.
 	 */
 	public static void ensureProjectViewColumns(final ListView view)
 			throws IOException {
@@ -166,14 +166,19 @@ public class LayoutLogic {
 		final DescribableList<ListViewColumn, Descriptor<ListViewColumn>> columnList = view
 				.getColumns();
 
-		final LastReleaseListViewColumn column = columnList
-				.get(LastReleaseListViewColumn.class);
+		final GraphViewColumn graphColumn = columnList
+				.get(GraphViewColumn.class);
 
-		if (column != null) {
-			return;
+		if (graphColumn == null) {
+			columnList.add(new GraphViewColumn());
 		}
 
-		columnList.add(new LastReleaseListViewColumn());
+		final LastReleaseListViewColumn releaseColumn = columnList
+				.get(LastReleaseListViewColumn.class);
+
+		if (releaseColumn == null) {
+			columnList.add(new LastReleaseListViewColumn());
+		}
 
 	}
 

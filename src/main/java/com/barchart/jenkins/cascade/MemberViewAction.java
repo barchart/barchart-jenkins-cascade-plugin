@@ -78,10 +78,14 @@ public class MemberViewAction extends AbstractAction {
 
 	}
 
+	/**
+	 * Standard and custom columns for the view.
+	 */
 	@JellyField
 	public List<ListViewColumn> getColumnList() {
 		final List<ListViewColumn> columnList = ListViewColumn
 				.createDefaultInitialColumnList();
+		columnList.add(new GraphViewColumn());
 		columnList.add(new LastReleaseListViewColumn());
 		return columnList;
 	}

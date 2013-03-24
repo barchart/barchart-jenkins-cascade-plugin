@@ -36,11 +36,12 @@
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Perform Maven Cascade Release"
-					name="releaseProperties">
-
+				<f:section title="Cascade Identity">
 					<!-- See ProjectIdentity -->
 					<st:include it="${it.identity}" page="projects.jelly" />
+				</f:section>
+
+				<f:section title="Perform Maven Cascade Release" name="releaseProperties">
 
 					<p />
 
