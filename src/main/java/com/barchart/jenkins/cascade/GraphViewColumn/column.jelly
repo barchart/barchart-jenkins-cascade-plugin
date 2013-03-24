@@ -18,7 +18,7 @@
 
 	<td><a href="${it.graphViewUrl(job)}"> <img width="16"
 			height="16" src="${it.PLUGIN_IMAGES_48}/red-matreshka-head.png"
-			alt="" />
+			alt="Cascade Graph" />
 	</a></td>
 
 </j:jelly>
