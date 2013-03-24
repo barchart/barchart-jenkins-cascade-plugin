@@ -25,7 +25,8 @@
 		<l:main-panel>
 
 			<h1>
-				<img src="${it.PLUGIN_IMAGES_48}/dragon.png" /> ${it.pronoun}
+				<img src="${it.PLUGIN_IMAGES_48}/${it.META.iconFileName}" width="48"
+					height="48" /> ${it.pronoun}
 			</h1>
 			<h2>${it.displayName}</h2>
 

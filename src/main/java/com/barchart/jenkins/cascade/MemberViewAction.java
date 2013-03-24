@@ -9,27 +9,15 @@ package com.barchart.jenkins.cascade;
 
 import hudson.maven.MavenModuleSet;
 import hudson.model.ListView;
-import hudson.plugins.depgraph_view.model.display.AbstractGraphStringGenerator;
-import hudson.plugins.depgraph_view.model.display.DotGeneratorFactory;
-import hudson.plugins.depgraph_view.model.display.GeneratorFactory;
-import hudson.plugins.depgraph_view.model.graph.DependencyGraph;
-import hudson.plugins.depgraph_view.model.graph.GraphCalculator;
-import hudson.plugins.depgraph_view.model.graph.ProjectNode;
-import hudson.plugins.depgraph_view.model.graph.SubprojectCalculator;
 import hudson.views.ListViewColumn;
 
 import java.util.List;
 import java.util.logging.Logger;
 
-import jenkins.model.Jenkins;
-
 import org.jvnet.hudson.plugins.m2release.LastReleaseListViewColumn;
 import org.jvnet.hudson.plugins.m2release.M2ReleaseBadgeAction;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import com.google.common.collect.ListMultimap;
-import com.google.inject.Injector;
 
 /**
  * Show cascade family view link for a cascade member project.
@@ -42,7 +30,7 @@ public class MemberViewAction extends AbstractAction {
 			.getName());
 
 	/**
-	 * Force closs-plugin deterministic class loading.
+	 * Force cross-plugin deterministic class loading.
 	 */
 	public static void init() {
 		M2ReleaseBadgeAction.class.toString();
@@ -63,8 +51,9 @@ public class MemberViewAction extends AbstractAction {
 	}
 
 	/**
-	 * @jelly
+	 * Show view page.
 	 */
+	@Jelly
 	public void doSubmit(final StaplerRequest request,
 			final StaplerResponse response) throws Exception {
 
@@ -81,7 +70,7 @@ public class MemberViewAction extends AbstractAction {
 	/**
 	 * Standard and custom columns for the view.
 	 */
-	@JellyField
+	@Jelly
 	public List<ListViewColumn> getColumnList() {
 		final List<ListViewColumn> columnList = ListViewColumn
 				.createDefaultInitialColumnList();
@@ -90,48 +79,14 @@ public class MemberViewAction extends AbstractAction {
 		return columnList;
 	}
 
-	@JellyField
+	@Jelly
 	public ProjectIdentity getIdentity() {
 		return identity;
 	}
 
-	@JellyField
+	@Jelly
 	public List<MavenModuleSet> getProjectList() {
 		return identity.memberProjectList();
-	}
-
-	public void projectGraph() {
-
-		final GeneratorFactory generatorFactory = new DotGeneratorFactory();
-
-		final Injector injector = Jenkins.lookup(Injector.class);
-
-		final GraphCalculator graphCalculator = injector
-				.getInstance(GraphCalculator.class);
-
-		final Iterable<ProjectNode> projectNodeSet = GraphCalculator
-				.abstractProjectSetToProjectNodeSet(getProjectList());
-
-		final DependencyGraph graph = graphCalculator
-				.generateGraph(projectNodeSet);
-
-		final ListMultimap<ProjectNode, ProjectNode> projects2Subprojects = injector
-				.getInstance(SubprojectCalculator.class).generate(graph);
-
-		final AbstractGraphStringGenerator generator = generatorFactory
-				.newGenerator(graph, projects2Subprojects);
-
-		final String graphText = generator.generate();
-
-		// rsp.setContentType(imageType.contentType);
-		// if (imageType.requiresProcessing) {
-		// runDot(rsp.getOutputStream(), new
-		// ByteArrayInputStream(graphString.getBytes(Charset.forName("UTF-8"))),
-		// imageType.dotType);
-		// } else {
-		// rsp.getWriter().append(graphString).close();
-		// }
-
 	}
 
 }

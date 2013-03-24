@@ -18,6 +18,9 @@ import com.google.inject.multibindings.Multibinder;
 
 /**
  * Provide cascade project graph wiring.
+ * <p>
+ * Not used, since we need remove default providers contributed by depgraph-view
+ * plugin.
  * 
  * @author Stefan Wolf
  * @author Andrei Pozolotin

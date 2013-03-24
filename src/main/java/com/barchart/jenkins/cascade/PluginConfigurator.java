@@ -26,8 +26,9 @@ public class PluginConfigurator extends ManagementLink implements
 		PluginConstants {
 
 	/**
-	 * Jelly form submit.
+	 * Save plugin settings.
 	 */
+	@Jelly
 	public void doSubmit(//
 			final StaplerRequest request, //
 			final StaplerResponse response //
@@ -50,6 +51,7 @@ public class PluginConfigurator extends ManagementLink implements
 	/**
 	 * Global cascade options.
 	 */
+	@Jelly
 	public CascadeOptions getCascadeOptions() {
 		return CascadeOptions.META.global();
 	}
@@ -71,6 +73,7 @@ public class PluginConfigurator extends ManagementLink implements
 	/**
 	 * Global layout options.
 	 */
+	@Jelly
 	public LayoutOptions getLayoutOptions() {
 		return LayoutOptions.META.global();
 	}
@@ -83,7 +86,7 @@ public class PluginConfigurator extends ManagementLink implements
 	/**
 	 * Plugin management wrapper.
 	 */
-	@JellyField
+	@Jelly
 	public PluginWrapper getWrapper() {
 		return Jenkins.getInstance().getPlugin(PLUGIN_ID).getWrapper();
 	}

@@ -43,7 +43,7 @@ public class GraphViewColumn extends ListViewColumn implements PluginConstants {
 	/**
 	 * Find graph view link for a project.
 	 */
-	@JellyField
+	@Jelly
 	public String graphViewUrl(final AbstractProject<?, ?> project) {
 
 		final GraphProjectAction action = project

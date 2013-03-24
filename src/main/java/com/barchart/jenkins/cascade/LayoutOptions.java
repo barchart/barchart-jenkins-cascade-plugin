@@ -101,9 +101,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
 	public LayoutOptions() {
 	}
 
-	/**
-	 * Jelly form submit.
-	 */
+	@Jelly
 	@DataBoundConstructor
 	public LayoutOptions(//
 			//
@@ -132,6 +130,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
 	/**
 	 * Build new member projects after layout.
 	 */
+	@Jelly
 	public boolean getBuildAfterLayout() {
 		return buildAfterLayout;
 	}
@@ -139,6 +138,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
 	/**
 	 * Cascade project naming convention.
 	 */
+	@Jelly
 	public String getCascadeProjectName() {
 		return cascadeProjectName;
 	}
@@ -152,6 +152,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
 	 * Jenkins view name for the cascade layout. This view will contain
 	 * generated cascade and member projects.
 	 */
+	@Jelly
 	public String getLayoutViewName() {
 		return layoutViewName;
 	}
@@ -159,6 +160,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
 	/**
 	 * Maven goals to use for layout validation.
 	 */
+	@Jelly
 	public String getMavenValidateGoals() {
 		return mavenValidateGoals;
 	}
@@ -166,6 +168,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
 	/**
 	 * Member project naming convention.
 	 */
+	@Jelly
 	public String getMemberProjectName() {
 		return memberProjectName;
 	}
@@ -173,6 +176,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
 	/**
 	 * Layout and member projects share work space.
 	 */
+	@Jelly
 	public boolean getUseSharedWorkspace() {
 		return useSharedWorkspace;
 	}
@@ -180,6 +184,7 @@ public class LayoutOptions extends AbstractDescribableImpl<LayoutOptions>
 	/**
 	 * Copy cascade release settings into m2release plug-in.
 	 */
+	@Jelly
 	public boolean getSyncReleasePlugins() {
 		return syncReleasePlugins;
 	}

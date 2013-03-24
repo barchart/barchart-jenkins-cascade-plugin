@@ -14,7 +14,7 @@ import hudson.plugins.depgraph_view.model.graph.ProjectNode;
 import com.google.common.collect.ArrayListMultimap;
 
 /**
- * Generates the legend in dot format.
+ * Generates the legend graph in dot format.
  * 
  * @author Stefan Wolf
  * @author Andrei Pozolotin

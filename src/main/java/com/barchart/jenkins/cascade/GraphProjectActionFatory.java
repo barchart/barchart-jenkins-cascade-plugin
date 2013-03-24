@@ -25,6 +25,9 @@ import java.util.Collections;
 public class GraphProjectActionFatory extends
 		DependencyGraphProjectActionFactory {
 
+	/**
+	 * Interested in cascade member projects only.
+	 */
 	@Override
 	public Collection<? extends Action> createFor(final AbstractProject project) {
 

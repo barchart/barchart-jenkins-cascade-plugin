@@ -72,7 +72,7 @@
 				document.getElementById("layout-option-4").disabled = "true";
 				document.getElementById("layout-option-5").disabled = "true";
 				document.getElementById("layout-option-6").disabled = "true";
-				document.getElementById("layout-option-7").disabled = "true";
+				// document.getElementById("layout-option-7").disabled = "true";
 			</script>
 		</j:if>
 

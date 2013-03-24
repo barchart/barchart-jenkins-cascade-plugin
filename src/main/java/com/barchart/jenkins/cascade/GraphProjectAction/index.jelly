@@ -7,6 +7,11 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
+<!--
+	Show cascade graph page.
+	
+	@author Andrei Pozolotin
+-->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout"
 	xmlns:sv="/lib/sectioned_view" xmlns:f="/lib/form" xmlns:i="jelly:fmt">

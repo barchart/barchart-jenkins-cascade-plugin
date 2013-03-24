@@ -27,7 +27,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 /**
- * Action to display on project page to start layout build.
+ * Show link on a project page to start layout build.
  * 
  * @author Andrei Pozolotin
  */
@@ -45,10 +45,9 @@ public class LayoutBuildAction extends AbstractAction implements
 	}
 
 	/**
-	 * Jelly form submit.
-	 * <p>
 	 * Start layout build.
 	 */
+	@Jelly
 	public void doSubmit(final StaplerRequest request,
 			final StaplerResponse response) throws Exception {
 
@@ -71,10 +70,12 @@ public class LayoutBuildAction extends AbstractAction implements
 
 	}
 
+	@Jelly
 	public CascadeOptions getCascadeOptions() {
 		return LayoutBuildWrapper.wrapper(layoutProject).getCascadeOptions();
 	}
 
+	@Jelly
 	public LayoutOptions getLayoutOptions() {
 		return LayoutBuildWrapper.wrapper(layoutProject).getLayoutOptions();
 	}

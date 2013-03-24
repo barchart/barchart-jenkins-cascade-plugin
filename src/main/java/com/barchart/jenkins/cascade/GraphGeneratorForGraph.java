@@ -26,7 +26,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ListMultimap;
 
 /**
- * Generates a dot string representation of the graph
+ * Generates the main graph in dot format.
  * 
  * @author Stefan Wolf
  * @author Andrei Pozolotin

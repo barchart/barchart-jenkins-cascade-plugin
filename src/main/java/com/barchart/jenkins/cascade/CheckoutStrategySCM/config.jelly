@@ -10,9 +10,9 @@
 <!--
 	Required SCM strategy component page.
 	
-	Nothing to configure.
-
 	@author Andrei Pozolotin
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" />
+<j:jelly xmlns:j="jelly:core">
+
+</j:jelly>

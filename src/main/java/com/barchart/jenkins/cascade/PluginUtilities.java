@@ -83,6 +83,9 @@ public class PluginUtilities {
 		}
 	};
 
+	/**
+	 * Maven snapshot version wildcard suffix.
+	 */
 	public static final String SNAPSHOT = "-SNAPSHOT";
 
 	/**
@@ -134,6 +137,9 @@ public class PluginUtilities {
 		}
 	}
 
+	/**
+	 * Ensure jenkins list view with given name exists.
+	 */
 	public static ListView ensureListView(final String viewName)
 			throws IOException {
 
@@ -322,6 +328,9 @@ public class PluginUtilities {
 		);
 	}
 
+	/**
+	 * Build maven artifact from maven parent.
+	 */
 	public static Artifact mavenArtifact(final Parent parent) {
 		return new DefaultArtifact( //
 				parent.getGroupId(), //
@@ -340,16 +349,16 @@ public class PluginUtilities {
 	public static List<Dependency> mavenDependencies(final FilePath pomFile,
 			final DependencyMatcher matcher) throws Exception {
 
-		final List<Dependency> snapshotList = new ArrayList<Dependency>();
+		final List<Dependency> resultList = new ArrayList<Dependency>();
 
 		final Model model = mavenModel(pomFile);
 
-		final List<Dependency> managementList = model.getDependencyManagement()
-				.getDependencies();
+		final List<Dependency> dependencyManagementList = model
+				.getDependencyManagement().getDependencies();
 
-		for (final Dependency dependency : managementList) {
+		for (final Dependency dependency : dependencyManagementList) {
 			if (matcher.isMatch(dependency)) {
-				snapshotList.add(dependency);
+				resultList.add(dependency);
 			}
 		}
 
@@ -357,11 +366,11 @@ public class PluginUtilities {
 
 		for (final Dependency dependency : dependencyList) {
 			if (matcher.isMatch(dependency)) {
-				snapshotList.add(dependency);
+				resultList.add(dependency);
 			}
 		}
 
-		return snapshotList;
+		return resultList;
 
 	}
 

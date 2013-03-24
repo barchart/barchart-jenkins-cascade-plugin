@@ -50,7 +50,7 @@ public class GraphProjectAction extends AbstractDependencyGraphAction implements
 			.getLogger(GraphProjectAction.class.getName());
 
 	/**
-	 * Force closs-plugin deterministic class loading.
+	 * Force cross-plugin deterministic class loading.
 	 */
 	public static void init() {
 		DependencyGraph.class.toString();
@@ -64,6 +64,7 @@ public class GraphProjectAction extends AbstractDependencyGraphAction implements
 		this.project = project;
 	}
 
+	@Jelly
 	@Override
 	public void doDynamic(final StaplerRequest req, final StaplerResponse rsp)
 			throws IOException, ServletException, InterruptedException {
@@ -94,11 +95,11 @@ public class GraphProjectAction extends AbstractDependencyGraphAction implements
 					.generateGraph(GraphCalculator
 							.abstractProjectSetToProjectNodeSet(getProjectsForDepgraph()));
 
-			final Set<SubProjectProvider> subprojectProiveerSet = new HashSet<SubProjectProvider>();
-			subprojectProiveerSet.add(new GraphSubProjectProvider());
+			final Set<SubProjectProvider> subprojectProviderSet = new HashSet<SubProjectProvider>();
+			subprojectProviderSet.add(new GraphSubProjectProvider());
 
 			final SubprojectCalculator subprojCalculator = new SubprojectCalculator(
-					subprojectProiveerSet);
+					subprojectProviderSet);
 
 			final ListMultimap<ProjectNode, ProjectNode> projects2Subprojects = subprojCalculator
 					.generate(graph);

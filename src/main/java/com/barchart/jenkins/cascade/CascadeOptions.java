@@ -131,9 +131,6 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions>
 	public CascadeOptions() {
 	}
 
-	/**
-	 * Jelly form submit.
-	 */
 	@DataBoundConstructor
 	public CascadeOptions(//
 			//
@@ -166,34 +163,42 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions>
 		return META;
 	}
 
+	@Jelly
 	public String getMavenCommitGoals() {
 		return mavenCommitGoals;
 	}
 
+	@Jelly
 	public String getMavenDependencyGoals() {
 		return mavenDependencyGoals;
 	}
 
+	@Jelly
 	public String getMavenParentGoals() {
 		return mavenParentGoals;
 	}
 
+	@Jelly
 	public String getMavenReleaseGoals() {
 		return mavenReleaseGoals;
 	}
 
+	@Jelly
 	public String getMavenValidateGoals() {
 		return mavenValidateGoals;
 	}
 
+	@Jelly
 	public boolean getShouldLogActions() {
 		return shouldLogActions;
 	}
 
+	@Jelly
 	public boolean getShouldLogDependency() {
 		return shouldLogDependency;
 	}
 
+	@Jelly
 	public boolean getShouldPushUpdates() {
 		return shouldPushUpdates;
 	}

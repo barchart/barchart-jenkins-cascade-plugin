@@ -28,6 +28,7 @@ public class CascadeResult implements Comparable<CascadeResult> {
 	/**
 	 * Artifact which was released.
 	 */
+	@Jelly
 	public Artifact getArtifact() {
 		return artifact;
 	}
@@ -35,6 +36,7 @@ public class CascadeResult implements Comparable<CascadeResult> {
 	/**
 	 * Member project build URL which released this artifact.
 	 */
+	@Jelly
 	public String getBuildURL() {
 		return buildURL;
 	}

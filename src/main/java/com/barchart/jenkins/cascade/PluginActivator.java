@@ -47,18 +47,28 @@ public class PluginActivator extends Plugin implements
 
 	@Override
 	public void start() throws Exception {
-		log.info("### Start");
+
+		log.info("### Start.");
 		super.start();
 		load();
-		MemberViewAction.init();
-		GraphProjectAction.init();
+
+		/**
+		 * Force cross-plugin deterministic class loading.
+		 */
+		{
+			MemberViewAction.init();
+			GraphProjectAction.init();
+		}
+
 	}
 
 	@Override
 	public void stop() throws Exception {
+
 		save();
 		super.stop();
-		log.info("### Stop");
+		log.info("### Stop.");
+
 	}
 
 }

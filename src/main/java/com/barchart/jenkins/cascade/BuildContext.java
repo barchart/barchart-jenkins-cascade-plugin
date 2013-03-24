@@ -19,15 +19,15 @@ import hudson.model.AbstractProject;
  * 
  * @author Andrei Pozolotin
  */
-public class BuildContext<B extends AbstractBuild> extends BuildLogger {
+public class BuildContext<B extends AbstractBuild<?, ?>> extends BuildLogger {
 
 	private static final long serialVersionUID = 1L;
 
-	private final AbstractBuild build;
+	private final AbstractBuild<?, ?> build;
 	private final Launcher launcher;
 
 	public BuildContext(//
-			final AbstractBuild build, //
+			final AbstractBuild<?, ?> build, //
 			final Launcher launcher, //
 			final BuildListener listener //
 	) {
@@ -38,7 +38,7 @@ public class BuildContext<B extends AbstractBuild> extends BuildLogger {
 
 	public BuildContext(final AbstractBuildExecution execution) {
 		super(execution.getListener());
-		this.build = (AbstractBuild) execution.getBuild();
+		this.build = (AbstractBuild<?, ?>) execution.getBuild();
 		this.launcher = execution.getLauncher();
 	}
 
