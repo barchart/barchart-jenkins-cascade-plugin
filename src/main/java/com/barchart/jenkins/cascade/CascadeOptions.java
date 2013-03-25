@@ -70,6 +70,7 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions>
 	 */
 	public static final String MAVEN_COMMIT_GOALS = //
 	"scm:update scm:checkin \n" //
+			+ "--non-recursive \n" //
 			+ "--define includes=pom.xml \n" //
 			+ "--define message=[cascade-update] \n" //
 	;
@@ -79,6 +80,7 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions>
 	 */
 	public static final String MAVEN_DEPENDENCY_GOALS = //
 	"versions:use-latest-versions \n" //
+			+ "--non-recursive \n" //
 			+ "--define excludeReactor=false \n" //
 			+ "--define generateBackupPoms=false \n" //
 			+ "--define allowMajorUpdates=false \n" //
@@ -91,13 +93,15 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions>
 	 */
 	public static final String MAVEN_PARENT_GOALS = //
 	"versions:update-parent \n" //
+			+ "--non-recursive \n" //
 			+ "--define generateBackupPoms=false \n";
 
 	/**
 	 * Perform maven release.
 	 */
 	public static final String MAVEN_RELEASE_GOALS = //
-	"release:clean release:prepare release:perform \n"
+	"release:clean release:prepare release:perform \n" //
+			+ "--non-recursive \n" //
 			+ "--define localCheckout=true \n" //
 			+ "--define arguments=-DskipTests \n" //
 	;
@@ -107,6 +111,7 @@ public class CascadeOptions extends AbstractDescribableImpl<CascadeOptions>
 	 */
 	public static final String MAVEN_VALIDATE_GOALS = //
 	"validate \n" //
+			+ "--non-recursive \n" //
 	;
 
 	@Extension
