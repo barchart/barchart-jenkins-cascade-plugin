@@ -568,6 +568,23 @@ public class PluginUtilities {
 	}
 
 	/**
+	 * Build jenkins module name from jenkins project.
+	 * 
+	 * @throws IOException
+	 */
+	public static ModuleName moduleName(final MavenModuleSet project)
+			throws IOException {
+		return moduleName(mavenModel(project));
+	}
+
+	/**
+	 * Build jenkins module name from maven model.
+	 */
+	public static ModuleName moduleName(final Model model) {
+		return new ModuleName(model.getGroupId(), model.getArtifactId());
+	}
+
+	/**
 	 * Build jenkins module name from maven parent.
 	 */
 	public static ModuleName moduleName(final Parent parent) {

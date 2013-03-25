@@ -153,6 +153,10 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 			final AbstractProject<?, ?> layoutProject,
 			final AbstractProject<?, ?> cascadeProject) throws IOException {
 
+		if (hasIdentity(cascadeProject)) {
+			return identity(cascadeProject);
+		}
+
 		final ProjectRole role = ProjectRole.CASCADE;
 		final String familyID = familyID(layoutProject);
 		final String projectID = UUID.randomUUID().toString();
@@ -195,6 +199,10 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	public static ProjectIdentity ensureMemberIdentity(
 			final AbstractProject<?, ?> layoutProject,
 			final AbstractProject<?, ?> memberProject) throws IOException {
+
+		if (hasIdentity(memberProject)) {
+			return identity(memberProject);
+		}
 
 		final ProjectRole role = ProjectRole.MEMBER;
 		final String familyID = familyID(layoutProject);
