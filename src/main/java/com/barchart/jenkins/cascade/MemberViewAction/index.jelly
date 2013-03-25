@@ -8,7 +8,7 @@
 
 -->
 <!--
-	Cascade member project view. 
+	Cascade member project view page. 
 
 	@author Andrei Pozolotin
 -->
@@ -20,7 +20,8 @@
 
 	<l:layout norefresh="true">
 
-		<st:include it="${it.identity.memberProject()}" page="sidepanel.jelly" optional="true" />
+		<st:include it="${it.identity.memberProject()}" page="sidepanel.jelly"
+			optional="true" />
 
 		<l:main-panel>
 
@@ -28,6 +29,7 @@
 				<img title="${it.displayName}" src="${it.iconFileName}" width="48"
 					height="48" /> ${it.displayName}
 			</h1>
+				<h2>${it.identity.memberProject().name}</h2>
 
 			<f:form method="post" action="submit">
 
@@ -38,8 +40,10 @@
 
 				<f:section title="Cascade Members" />
 
-				<f:entry title="" help="${help}/cascadeMembers.jelly">
-					<t:projectView jobBaseUrl="${rootURL}/" jobs="${it.projectList()}" />
+				<f:entry title="Members (${it.projectList.size()})"
+					help="${help}/cascadeMembers.jelly">
+					<t:projectView jobBaseUrl="${rootURL}/" jobs="${it.projectList}"
+						columnExtensions="${it.columnList}" />
 				</f:entry>
 
 			</f:form>

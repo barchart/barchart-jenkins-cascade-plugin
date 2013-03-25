@@ -5,5 +5,8 @@
  *
  * http://www.opensource.org/licenses/bsd-license.php
  */
+/**
+ * Maven Cascade Release Plugin.
+ */
 package com.barchart.jenkins.cascade;
 

@@ -36,6 +36,7 @@ public interface PluginConstants {
 
 	String CASCADE_PROJECT_PRONOUN = "Cascade";
 	String CASCADE_PROJECT_NAME = "Cascade Project";
+	String CASCADE_PROJECT_ICON = "dragon.png";
 
 	/* Layout project. */
 

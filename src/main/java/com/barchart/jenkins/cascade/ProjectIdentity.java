@@ -41,7 +41,13 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 		implements PluginConstants {
 
+	/**
+	 * Identity equality mode.
+	 */
 	public enum Mode {
+		/**
+		 * Compare by role only.
+		 */
 		ROLE() {
 			@Override
 			public boolean equals(final ProjectIdentity one,
@@ -49,6 +55,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 				return one.equalsRole(two);
 			}
 		}, //
+		/**
+		 * Compare by role and family id.
+		 */
 		ROLE_FAMILY() {
 			@Override
 			public boolean equals(final ProjectIdentity one,
@@ -56,6 +65,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 				return one.equalsRoleFamily(two);
 			}
 		}, //
+		/**
+		 * Compare by role, family id, project id.
+		 */
 		ROLE_FAMILY_PROJECT() {
 			@Override
 			public boolean equals(final ProjectIdentity one,
@@ -74,6 +86,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 			return MEMBER_ACTION_NAME;
 		}
 
+		/**
+		 * Display this property for maven and cascade projects.
+		 */
 		@Override
 		public boolean isApplicable(final Class<? extends Job> projectClass) {
 			if (MavenModuleSet.class.isAssignableFrom(projectClass)) {
@@ -135,8 +150,12 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	 * Generate unique identity for cascade project.
 	 */
 	public static ProjectIdentity ensureCascadeIdentity(
-			final AbstractProject layoutProject,
-			final AbstractProject cascadeProject) throws IOException {
+			final AbstractProject<?, ?> layoutProject,
+			final AbstractProject<?, ?> cascadeProject) throws IOException {
+
+		if (hasIdentity(cascadeProject)) {
+			return identity(cascadeProject);
+		}
 
 		final ProjectRole role = ProjectRole.CASCADE;
 		final String familyID = familyID(layoutProject);
@@ -155,7 +174,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	 * Generate unique identity for layout project.
 	 */
 	public static ProjectIdentity ensureLayoutIdentity(
-			final AbstractProject layoutProject) throws IOException {
+			final AbstractProject<?, ?> layoutProject) throws IOException {
 
 		if (hasIdentity(layoutProject)) {
 			return identity(layoutProject);
@@ -178,8 +197,12 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	 * Generate unique identity for member project.
 	 */
 	public static ProjectIdentity ensureMemberIdentity(
-			final AbstractProject layoutProject,
-			final AbstractProject memberProject) throws IOException {
+			final AbstractProject<?, ?> layoutProject,
+			final AbstractProject<?, ?> memberProject) throws IOException {
+
+		if (hasIdentity(memberProject)) {
+			return identity(memberProject);
+		}
 
 		final ProjectRole role = ProjectRole.MEMBER;
 		final String familyID = familyID(layoutProject);
@@ -342,9 +365,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 		this(role.code(), familyID, projectID);
 	}
 
-	/**
-	 * @jelly
-	 */
+	@Jelly
 	@DataBoundConstructor
 	public ProjectIdentity( //
 			final String projectRole, //
@@ -363,6 +384,9 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 		return cascadeProject(this);
 	}
 
+	/**
+	 * Equality by role, family id, project id.
+	 */
 	@Override
 	public boolean equals(final Object other) {
 		return equalsRoleFamilyProject(other);
@@ -450,6 +474,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	/**
 	 * Cascade project family id.
 	 */
+	@Jelly
 	public String getFamilyID() {
 		return familyID;
 	}
@@ -466,6 +491,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	/**
 	 * ID of a member project.
 	 */
+	@Jelly
 	public String getProjectID() {
 		return projectID;
 	}
@@ -473,6 +499,7 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 	/**
 	 * Project role in the family.
 	 */
+	@Jelly
 	public String getProjectRole() {
 		return projectRole;
 	}
@@ -521,10 +548,16 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 		return layoutProject(this);
 	}
 
+	/**
+	 * Cascade event log.
+	 */
 	public String log() {
 		return log;
 	}
 
+	/**
+	 * Append to cascade event log.
+	 */
 	public void log(final String text) {
 		log = log + "\n" + new DateTime() + " " + text;
 	}
@@ -559,14 +592,23 @@ public class ProjectIdentity extends JobProperty<AbstractProject<?, ?>>
 
 	}
 
+	/**
+	 * Find member projects in a family.
+	 */
 	public List<MavenModuleSet> memberProjectList() {
 		return memberProjectList(getFamilyID());
 	}
 
+	/**
+	 * Find project role.
+	 */
 	public ProjectRole role() {
 		return ProjectRole.from(projectRole);
 	}
 
+	/**
+	 * Render project identity as unique string.
+	 */
 	@Override
 	public String toString() {
 		return identityRoleFamilyProject();

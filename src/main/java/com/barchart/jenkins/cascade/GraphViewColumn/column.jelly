@@ -1,0 +1,31 @@
+<!--
+
+    Copyright (C) 2013 Barchart, Inc. <http://www.barchart.com/>
+
+    All rights reserved. Licensed under the OSI BSD License.
+
+    http://www.opensource.org/licenses/bsd-license.php
+
+-->
+<!--
+	Graph column row cell.
+
+	@author Andrei Pozolotin
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+
+	<!-- "job" variable is set by parent view -->
+	<j:set var="graphViewUrl" value="${it.graphViewUrl(job)}" />
+
+	<td><j:if test="${graphViewUrl != null}">
+
+			<a href="${graphViewUrl}"> <img width="16" height="16"
+				src="${it.PLUGIN_IMAGES_48}/red-matreshka-head.png"
+				title="Cascade Graph" alt="Cascade Graph" />
+			</a>
+
+		</j:if></td>
+
+</j:jelly>

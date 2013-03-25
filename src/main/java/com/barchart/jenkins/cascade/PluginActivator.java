@@ -13,6 +13,8 @@ import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 
+import java.util.logging.Logger;
+
 /**
  * Plug-in life cycle manager.
  * 
@@ -21,6 +23,9 @@ import hudson.model.Hudson;
 @Extension
 public class PluginActivator extends Plugin implements
 		Describable<PluginActivator>, PluginConstants {
+
+	protected final static Logger log = Logger.getLogger(PluginActivator.class
+			.getName());
 
 	public static final class TheDescriptor extends Descriptor<PluginActivator> {
 		@Override
@@ -42,14 +47,28 @@ public class PluginActivator extends Plugin implements
 
 	@Override
 	public void start() throws Exception {
+
+		log.info("### Start.");
 		super.start();
 		load();
+
+		/**
+		 * Force cross-plugin deterministic class loading.
+		 */
+		{
+			MemberViewAction.init();
+			GraphProjectAction.init();
+		}
+
 	}
 
 	@Override
 	public void stop() throws Exception {
+
 		save();
 		super.stop();
+		log.info("### Stop.");
+
 	}
 
 }

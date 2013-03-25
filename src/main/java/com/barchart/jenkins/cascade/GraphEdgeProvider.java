@@ -54,7 +54,7 @@ public class GraphEdgeProvider implements EdgeProvider {
 			}
 
 			/** Interested in member projects only. */
-			if (!(project instanceof MavenModuleSet)) {
+			if (identity.role() != ProjectRole.MEMBER) {
 				return edgeList;
 			}
 
@@ -77,6 +77,8 @@ public class GraphEdgeProvider implements EdgeProvider {
 
 					if (isSnapshot(parent)) {
 						edge.setColor("red");
+					} else {
+						edge.setColor("chocolate");
 					}
 
 					edgeList.add(edge);
@@ -105,6 +107,8 @@ public class GraphEdgeProvider implements EdgeProvider {
 
 				if (isSnapshot(dependency)) {
 					edge.setColor("blue");
+				} else {
+					edge.setColor("forestgreen");
 				}
 
 				edgeList.add(edge);

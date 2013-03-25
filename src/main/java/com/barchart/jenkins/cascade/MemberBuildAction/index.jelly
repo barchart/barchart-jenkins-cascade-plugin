@@ -30,16 +30,18 @@
 					<img title="Cascade Release" width="48" height="48"
 						src="${it.iconFileName}" /> ${it.displayName}
 				</h1>
+				<h2>${it.identity.memberProject().name}</h2>
 
 			</f:section>
 
 			<f:form method="post" action="submit">
 
-				<f:section title="Perform Maven Cascade Release"
-					name="releaseProperties">
-
+				<f:section title="Cascade Identity">
 					<!-- See ProjectIdentity -->
 					<st:include it="${it.identity}" page="projects.jelly" />
+				</f:section>
+
+				<f:section title="Perform Maven Cascade Release" name="releaseProperties">
 
 					<p />
 

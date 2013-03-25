@@ -15,6 +15,8 @@ import hudson.plugins.depgraph_view.model.graph.ProjectNode;
 import com.google.common.collect.ListMultimap;
 
 /**
+ * Provide graph generators.
+ * 
  * @author Stefan Wolf
  * @author Andrei Pozolotin
  */

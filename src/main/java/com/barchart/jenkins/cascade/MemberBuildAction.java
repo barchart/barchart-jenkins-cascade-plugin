@@ -48,6 +48,7 @@ public class MemberBuildAction extends AbstractAction {
 	/**
 	 * Calculate current release.
 	 */
+	@Jelly
 	public String defaultReleaseVersion() {
 		try {
 			final MavenModuleSet project = identity.memberProject();
@@ -64,6 +65,7 @@ public class MemberBuildAction extends AbstractAction {
 	/**
 	 * Calculate future snapshot.
 	 */
+	@Jelly
 	public String defaultSnapshotVersion() {
 		try {
 			final MavenModuleSet project = identity.memberProject();
@@ -79,11 +81,9 @@ public class MemberBuildAction extends AbstractAction {
 	}
 
 	/**
-	 * Jelly form submit.
-	 * <p>
 	 * Start cascade build.
 	 */
-	@SuppressWarnings("rawtypes")
+	@Jelly
 	public void doSubmit(final StaplerRequest request,
 			final StaplerResponse response) throws Exception {
 
@@ -121,30 +121,35 @@ public class MemberBuildAction extends AbstractAction {
 
 	}
 
+	@Jelly
 	public CascadeOptions getCascadeOptions() {
 		return LayoutBuildWrapper.wrapper(identity.layoutProject())
 				.getCascadeOptions();
 	}
 
+	@Jelly
 	public ProjectIdentity getIdentity() {
 		return identity;
 	}
 
+	@Jelly
 	public LayoutOptions getLayoutOptions() {
 		return LayoutBuildWrapper.wrapper(identity.layoutProject())
 				.getLayoutOptions();
 	}
 
+	@Jelly
 	public String getReleaseVersion() {
 		return releaseVersion;
 	}
 
+	@Jelly
 	public String getSnapshotVersion() {
 		return snapshotVersion;
 	}
 
 	/**
-	 * Report any cascade family projects are pending or building.
+	 * Report any cascade family projects that are pending or building.
 	 */
 	@SuppressWarnings("rawtypes")
 	public Map<String, AbstractProject> reportActiveFamilyProjects() {

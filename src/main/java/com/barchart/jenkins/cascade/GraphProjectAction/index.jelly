@@ -7,6 +7,11 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
+<!--
+	Show cascade graph page.
+	
+	@author Andrei Pozolotin
+-->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
 	xmlns:d="jelly:define" xmlns:l="/lib/layout"
 	xmlns:sv="/lib/sectioned_view" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
@@ -24,12 +29,15 @@
 					<h1>
 						<img src="${it.iconFileName}" alt="" /> ${it.title}
 					</h1>
-
-					<a href="legend.png">Legend</a>
+					<h2>${it.parentObject.name}</h2>
 
 					<p />
 
 					<img src="graph.png" lazymap="graph.map" />
+
+					<p />
+
+					<img src="legend.png" />
 
 				</l:main-panel>
 

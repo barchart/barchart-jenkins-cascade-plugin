@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
+import org.jvnet.hudson.plugins.m2release.M2ReleaseBadgeAction;
 
 /**
  * Release build logic.
@@ -695,6 +696,12 @@ public class CascadeLogic {
 		final CascadeResult result = new CascadeResult(artifact, buildURL);
 
 		context.build().getResultSet().add(result);
+
+		/** Provide compatibility with m2release plugin. */
+		final String version = artifact.getVersion();
+		final Action m2ReleaseBadge = new M2ReleaseBadgeAction(version, false);
+		build.addAction(m2ReleaseBadge);
+		build.keepLog(true);
 
 	}
 

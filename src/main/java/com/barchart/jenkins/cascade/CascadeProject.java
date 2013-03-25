@@ -30,6 +30,11 @@ public class CascadeProject extends Project<CascadeProject, CascadeBuild>
 			return CASCADE_PROJECT_NAME;
 		}
 
+		@Jelly
+		public String getIconFileName() {
+			return CASCADE_PROJECT_ICON;
+		}
+
 		@Override
 		public TopLevelItem newInstance(final ItemGroup parent,
 				final String name) {

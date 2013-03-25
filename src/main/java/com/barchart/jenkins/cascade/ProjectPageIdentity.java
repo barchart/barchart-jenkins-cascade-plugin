@@ -8,7 +8,7 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Show project identity on project page.
+ * Show project identity on a member project page.
  * 
  * @author Andrei Pozolotin
  */
@@ -20,6 +20,7 @@ public class ProjectPageIdentity extends AbstractAction {
 		this.identity = identity;
 	}
 
+	@Jelly
 	public ProjectIdentity identity() {
 		return identity;
 	}

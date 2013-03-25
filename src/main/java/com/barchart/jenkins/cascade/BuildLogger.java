@@ -13,6 +13,8 @@ import java.io.Serializable;
 
 /**
  * Convenience build logger.
+ * <p>
+ * Use for remote operations.
  * 
  * @author Andrei Pozolotin
  */

@@ -25,6 +25,8 @@ import org.apache.maven.model.Dependency;
 
 /**
  * Provide cascade project graph dependency selector.
+ * <p>
+ * Not used yet.
  * 
  * @author Stefan Wolf
  * @author Andrei Pozolotin

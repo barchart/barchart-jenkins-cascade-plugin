@@ -7,8 +7,13 @@
     http://www.opensource.org/licenses/bsd-license.php
 
 -->
-<div>
-	List of currently discovered cascade member projects.
-	<p/>
-	This view is supposed to be simple, hence no customization.
-</div>
+<!--
+	Graph column header.
+
+	@author Andrei Pozolotin
+-->
+<j:jelly xmlns:j="jelly:core">
+
+	<th></th>
+
+</j:jelly>

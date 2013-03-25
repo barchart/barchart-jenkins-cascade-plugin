@@ -38,7 +38,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import com.google.common.collect.ListMultimap;
 
 /**
- * Show cascade view link for member projects.
+ * Show cascade graph link for member projects.
  * 
  * @author Stefan Wolf
  * @author Andrei Pozolotin
@@ -49,43 +49,22 @@ public class GraphProjectAction extends AbstractDependencyGraphAction implements
 	protected final static Logger log = Logger
 			.getLogger(GraphProjectAction.class.getName());
 
+	/**
+	 * Force cross-plugin deterministic class loading.
+	 */
+	public static void init() {
+		DependencyGraph.class.toString();
+		GraphCalculator.class.toString();
+		SubprojectCalculator.class.toString();
+	}
+
 	private final AbstractProject<?, ?> project;
 
 	public GraphProjectAction(final AbstractProject<?, ?> project) {
 		this.project = project;
 	}
 
-	@Override
-	protected Collection<? extends AbstractProject<?, ?>> getProjectsForDepgraph() {
-		return Collections.singletonList(project);
-	}
-
-	@Override
-	public String getTitle() {
-		return MEMBER_GRAPH_NAME;
-	}
-
-	@Override
-	public AbstractModelObject getParentObject() {
-		return project;
-	}
-
-	@Override
-	public String getDisplayName() {
-		return getTitle();
-	}
-
-	@Override
-	public String getIconFileName() {
-		/** Must use absolute path. */
-		return PLUGIN_ICON;
-	}
-
-	@Override
-	public String getUrlName() {
-		return PLUGIN_ID + "-" + super.getUrlName();
-	}
-
+	@Jelly
 	@Override
 	public void doDynamic(final StaplerRequest req, final StaplerResponse rsp)
 			throws IOException, ServletException, InterruptedException {
@@ -116,11 +95,11 @@ public class GraphProjectAction extends AbstractDependencyGraphAction implements
 					.generateGraph(GraphCalculator
 							.abstractProjectSetToProjectNodeSet(getProjectsForDepgraph()));
 
-			final Set<SubProjectProvider> subprojectProiveerSet = new HashSet<SubProjectProvider>();
-			subprojectProiveerSet.add(new GraphSubProjectProvider());
+			final Set<SubProjectProvider> subprojectProviderSet = new HashSet<SubProjectProvider>();
+			subprojectProviderSet.add(new GraphSubProjectProvider());
 
 			final SubprojectCalculator subprojCalculator = new SubprojectCalculator(
-					subprojectProiveerSet);
+					subprojectProviderSet);
 
 			final ListMultimap<ProjectNode, ProjectNode> projects2Subprojects = subprojCalculator
 					.generate(graph);
@@ -150,6 +129,37 @@ public class GraphProjectAction extends AbstractDependencyGraphAction implements
 			rsp.getWriter().append(graphString).close();
 		}
 
+	}
+
+	@Override
+	public String getDisplayName() {
+		return getTitle();
+	}
+
+	@Override
+	public String getIconFileName() {
+		/** Must use absolute path. */
+		return PLUGIN_ICON;
+	}
+
+	@Override
+	public AbstractModelObject getParentObject() {
+		return project;
+	}
+
+	@Override
+	protected Collection<? extends AbstractProject<?, ?>> getProjectsForDepgraph() {
+		return Collections.singletonList(project);
+	}
+
+	@Override
+	public String getTitle() {
+		return MEMBER_GRAPH_NAME;
+	}
+
+	@Override
+	public String getUrlName() {
+		return PLUGIN_ID + "-" + super.getUrlName();
 	}
 
 }

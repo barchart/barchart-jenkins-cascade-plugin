@@ -8,13 +8,19 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.Extension;
+import hudson.plugins.depgraph_view.model.graph.EdgeProvider;
+import hudson.plugins.depgraph_view.model.graph.SubProjectProvider;
 
 import java.util.logging.Logger;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
 
 /**
  * Provide cascade project graph wiring.
+ * <p>
+ * Not used, since we need remove default providers contributed by depgraph-view
+ * plugin.
  * 
  * @author Stefan Wolf
  * @author Andrei Pozolotin
@@ -28,16 +34,15 @@ public class GraphModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
-		log.info("## GraphModule");
+		log.info("### GraphModule");
 
-		// final Multibinder<EdgeProvider> edgeProviderMultibinder = Multibinder
-		// .newSetBinder(binder(), EdgeProvider.class);
+		final Multibinder<EdgeProvider> edgeProviderMultibinder = Multibinder
+				.newSetBinder(binder(), EdgeProvider.class);
 
 		// edgeProviderMultibinder.addBinding().to(GraphEdgeProvider.class);
 
-		// final Multibinder<SubProjectProvider> subProjectProviderMultibinder =
-		// Multibinder
-		// .newSetBinder(binder(), SubProjectProvider.class);
+		final Multibinder<SubProjectProvider> subProjectProviderMultibinder = Multibinder
+				.newSetBinder(binder(), SubProjectProvider.class);
 
 		// subProjectProviderMultibinder.addBinding().to(
 		// GraphSubProjectProvider.class);

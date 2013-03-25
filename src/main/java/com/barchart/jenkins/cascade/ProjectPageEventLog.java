@@ -8,7 +8,7 @@
 package com.barchart.jenkins.cascade;
 
 /**
- * Show cascade event log on project page.
+ * Show cascade event log on a member project page.
  * 
  * @author Andrei Pozolotin
  */
@@ -20,6 +20,7 @@ public class ProjectPageEventLog extends AbstractAction {
 		this.identity = identity;
 	}
 
+	@Jelly
 	public ProjectIdentity identity() {
 		return identity;
 	}

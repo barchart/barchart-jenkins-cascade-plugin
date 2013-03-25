@@ -8,5 +8,7 @@
 
 -->
 <div>
-	Cascade family view, contains layout project, cascade project and membember projects. 
+	Cascade family view, contains layout project, cascade project and member projects.
+	<p/>
+	This a standard jenkins list view and supports customizations. 
 </div>

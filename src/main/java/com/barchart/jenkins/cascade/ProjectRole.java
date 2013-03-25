@@ -32,7 +32,7 @@ public enum ProjectRole {
 	private final String code;
 
 	/**
-	 * Role code stored in config.xml
+	 * Role serialized code stored in job/config.xml
 	 */
 	public String code() {
 		return code;
@@ -42,6 +42,9 @@ public enum ProjectRole {
 		this.code = code;
 	}
 
+	/**
+	 * Restore enum from serialized code.
+	 */
 	public static ProjectRole from(final String code) {
 		if (code == null || code.isEmpty()) {
 			return UNKNOWN;

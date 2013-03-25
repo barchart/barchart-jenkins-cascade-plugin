@@ -10,12 +10,23 @@
 <div>
 	Choose layout configuration action and start layout build.
 	<p />
-	<b>Create</b> - Create new cascade project family, including cascade
-	manager and member projects. Existing projects are not affected.
-	<p />
-	<b>Delete</b> - Delete cascade manager and all member projects. Layout
-	project is not affected.
-	<p />
-	<b>Update</b> - Delete and Create cascade project family. Layout
-	project is not affected.
+	<ul>
+		<li><b>Create</b> - Create new cascade project family, including
+			cascade manager and member projects. <br /> Existing projects are
+			not affected. <br /> Update family view.
+			<p /></li>
+
+		<li><b>Delete</b> - Delete cascade manager and all member
+			projects. <br />Layout project is not affected. <br /> Update
+			family view.
+			<p /></li>
+
+		<li><b>Update</b> - Update cascade project and member projects
+			configuration from layout project configuration. <br />Layout
+			project is not affected. <br />Cascade build history is not
+			affected. <br />Member build history is not affected. <br /> Update
+			family view.
+			<p /></li>
+
+	</ul>
 </div>

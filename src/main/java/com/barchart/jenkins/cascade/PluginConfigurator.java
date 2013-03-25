@@ -8,7 +8,9 @@
 package com.barchart.jenkins.cascade;
 
 import hudson.Extension;
+import hudson.PluginWrapper;
 import hudson.model.ManagementLink;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
@@ -24,8 +26,9 @@ public class PluginConfigurator extends ManagementLink implements
 		PluginConstants {
 
 	/**
-	 * Jelly form submit.
+	 * Save plugin settings.
 	 */
+	@Jelly
 	public void doSubmit(//
 			final StaplerRequest request, //
 			final StaplerResponse response //
@@ -48,6 +51,7 @@ public class PluginConfigurator extends ManagementLink implements
 	/**
 	 * Global cascade options.
 	 */
+	@Jelly
 	public CascadeOptions getCascadeOptions() {
 		return CascadeOptions.META.global();
 	}
@@ -69,6 +73,7 @@ public class PluginConfigurator extends ManagementLink implements
 	/**
 	 * Global layout options.
 	 */
+	@Jelly
 	public LayoutOptions getLayoutOptions() {
 		return LayoutOptions.META.global();
 	}
@@ -76,6 +81,14 @@ public class PluginConfigurator extends ManagementLink implements
 	@Override
 	public String getUrlName() {
 		return PLUGIN_ID;
+	}
+
+	/**
+	 * Plugin management wrapper.
+	 */
+	@Jelly
+	public PluginWrapper getWrapper() {
+		return Jenkins.getInstance().getPlugin(PLUGIN_ID).getWrapper();
 	}
 
 }

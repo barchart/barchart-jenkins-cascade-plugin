@@ -153,6 +153,9 @@ public class RunDecider extends QueueDecisionHandler implements PluginConstants 
 		return map;
 	}
 
+	/**
+	 * Concurrent execution mutual exclusion logic.
+	 */
 	@Override
 	public boolean shouldSchedule(final Task task, final List<Action> actionList) {
 
