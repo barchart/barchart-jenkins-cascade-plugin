@@ -23,7 +23,7 @@
 
 			<a href="${graphViewUrl}"> <img width="16" height="16"
 				src="${it.PLUGIN_IMAGES_48}/red-matreshka-head.png"
-				alt="Cascade Graph" />
+				title="Cascade Graph" alt="Cascade Graph" />
 			</a>
 
 		</j:if></td>
