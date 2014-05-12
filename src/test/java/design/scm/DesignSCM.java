@@ -59,8 +59,8 @@ public class DesignSCM {
 
 			private static final long serialVersionUID = 1L;
 
-			public Boolean invoke(final File file, final VirtualChannel channel)
-					throws IOException, InterruptedException {
+			public Boolean invoke(final File file, final VirtualChannel channel) throws IOException,
+					InterruptedException {
 
 				final BuildListener listener = null;
 				final FilePath workspacePath = null;
@@ -70,8 +70,7 @@ public class DesignSCM {
 
 				final String gitExe = "";
 
-				final GitClient git = Git.with(listener, environment)
-						.in(workspace).using(gitExe).getClient();
+				final GitClient git = Git.with(listener, environment).in(workspace).using(gitExe).getClient();
 
 				return null;
 			}
@@ -90,8 +89,7 @@ public class DesignSCM {
 
 		final String gitExe = "";
 
-		final GitClient git = Git.with(listener, environment).in(workspace)
-				.using(gitExe).getClient();
+		final GitClient git = Git.with(listener, environment).in(workspace).using(gitExe).getClient();
 
 		final String remoteName = "";
 		final RefSpec refspec = null;
@@ -104,8 +102,7 @@ public class DesignSCM {
 
 	}
 
-	public static boolean checkin(final BuildContext context,
-			final MavenModuleSet project) throws Exception {
+	public static boolean checkin(final BuildContext context, final MavenModuleSet project) throws Exception {
 
 		final SCM scm = project.getScm();
 
@@ -113,16 +110,14 @@ public class DesignSCM {
 
 			final GitSCM gitScm = (GitSCM) scm;
 
-			final String gitExe = gitScm.getGitExe(
-					context.build().getBuiltOn(), context.listener());
+			final String gitExe = gitScm.getGitExe(context.build().getBuiltOn(), context.listener());
 
 		}
 
 		return false;
 	}
 
-	public static boolean checkout(final BuildContext context,
-			final MavenModuleSet project) throws Exception {
+	public static boolean checkout(final BuildContext context, final MavenModuleSet project) throws Exception {
 
 		final AbstractBuild<?, ?> build = context.build();
 		final Launcher launcher = new Launcher.LocalLauncher(context.listener());
@@ -132,13 +127,11 @@ public class DesignSCM {
 
 		final SCM scm = project.getScm();
 
-		return scm
-				.checkout(build, launcher, workspace, listener, changelogFile);
+		return scm.checkout(build, launcher, workspace, listener, changelogFile);
 
 	}
 
-	public static Result scmCommit1(final BuildContext<?> context,
-			final MavenModuleSet project) throws IOException,
+	public static Result scmCommit1(final BuildContext<?> context, final MavenModuleSet project) throws IOException,
 			InterruptedException {
 		final SCM scm = project.getScm();
 		if (scm instanceof GitSCM) {
@@ -149,8 +142,7 @@ public class DesignSCM {
 		throw new IllegalStateException("Unsupported SCM");
 	}
 
-	public static Result scmUpdate1(final BuildContext<?> context,
-			final MavenModuleSet project) throws IOException,
+	public static Result scmUpdate1(final BuildContext<?> context, final MavenModuleSet project) throws IOException,
 			InterruptedException {
 		final SCM scm = project.getScm();
 		context.logTab("### scm:" + scm);
@@ -162,8 +154,7 @@ public class DesignSCM {
 		throw new IllegalStateException("Unsupported SCM");
 	}
 
-	public static String gitPull(final BuildContext<?> context,
-			final MavenModuleSet project) throws IOException,
+	public static String gitPull(final BuildContext<?> context, final MavenModuleSet project) throws IOException,
 			InterruptedException {
 		final String git = DesignSCM.gitExe(context, project);
 		final File workDir = DesignSCM.gitDir(context, project);
@@ -171,8 +162,7 @@ public class DesignSCM {
 		return result;
 	}
 
-	public static String gitPush(final BuildContext<?> context,
-			final MavenModuleSet project) throws IOException,
+	public static String gitPush(final BuildContext<?> context, final MavenModuleSet project) throws IOException,
 			InterruptedException {
 		final String git = DesignSCM.gitExe(context, project);
 		final File workDir = DesignSCM.gitDir(context, project);
@@ -180,8 +170,8 @@ public class DesignSCM {
 		return result;
 	}
 
-	public static GitClient gitClient(final BuildContext<?> context,
-			final MavenModuleSet project) {
+	public static GitClient gitClient(final BuildContext<?> context, final MavenModuleSet project) throws IOException,
+			InterruptedException {
 
 		final String gitExe = gitExe(context, project);
 
@@ -189,21 +179,18 @@ public class DesignSCM {
 
 		final EnvVars environment = new EnvVars();
 
-		final GitClient gitClient = Git.with(context.listener(), environment)
-				.in(workspace).using(gitExe).getClient();
+		final GitClient gitClient = Git.with(context.listener(), environment).in(workspace).using(gitExe).getClient();
 
 		return gitClient;
 
 	}
 
-	public static File gitDir(final BuildContext<?> context,
-			final MavenModuleSet project) {
+	public static File gitDir(final BuildContext<?> context, final MavenModuleSet project) {
 		final File workDir = new File(project.getWorkspace().getRemote());
 		return workDir;
 	}
 
-	public static String gitExe(final BuildContext<?> context,
-			final MavenModuleSet project) {
+	public static String gitExe(final BuildContext<?> context, final MavenModuleSet project) {
 		final SCM scm = project.getScm();
 		final GitSCM gitScm = (GitSCM) scm;
 		final Node builtOn = context.build().getBuiltOn();
@@ -211,8 +198,7 @@ public class DesignSCM {
 		return gitScm.getGitExe(builtOn, listener);
 	}
 
-	public static void log(final String title, final BuildContext<?> context,
-			final Collection<?> list) {
+	public static void log(final String title, final BuildContext<?> context, final Collection<?> list) {
 		if (title != null) {
 			context.logTab("### " + title);
 		}

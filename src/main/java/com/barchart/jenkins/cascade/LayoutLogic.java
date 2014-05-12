@@ -26,6 +26,7 @@ import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.ListView;
 import hudson.plugins.git.GitSCM;
+import hudson.plugins.git.extensions.impl.PathRestriction;
 import hudson.scm.SCM;
 import hudson.scm.SubversionSCM;
 import hudson.tasks.BuildWrapper;
@@ -59,20 +60,16 @@ public class LayoutLogic implements PluginConstants {
 	/**
 	 * Generate cascade project name.
 	 */
-	public static String cascadeName(
-			final BuildContext<MavenModuleSetBuild> context,
-			final MavenModuleSet layoutProject) throws IOException {
+	public static String cascadeName(final BuildContext<MavenModuleSetBuild> context, final MavenModuleSet layoutProject)
+			throws IOException {
 
-		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList()
-				.get(LayoutBuildWrapper.class);
+		final LayoutBuildWrapper wrapper = layoutProject.getBuildWrappersList().get(LayoutBuildWrapper.class);
 
-		final String cascadePattern = wrapper.getLayoutOptions()
-				.getCascadeProjectName();
+		final String cascadePattern = wrapper.getLayoutOptions().getCascadeProjectName();
 
 		try {
 
-			final String cascadeName = TokenMacro.expandAll(context.build(),
-					context.listener(), cascadePattern);
+			final String cascadeName = TokenMacro.expandAll(context.build(), context.listener(), cascadePattern);
 
 			return cascadeName;
 
@@ -89,8 +86,7 @@ public class LayoutLogic implements PluginConstants {
 	 * <p>
 	 * 2) Do not permit modules for member projects.
 	 */
-	public static boolean checkModuleNesting(
-			final BuildContext<MavenModuleSetBuild> context,
+	public static boolean checkModuleNesting(final BuildContext<MavenModuleSetBuild> context,
 			final MavenModuleSet layoutProject) throws IOException {
 
 		final Model layoutModel = mavenModel(layoutProject);
@@ -107,8 +103,7 @@ public class LayoutLogic implements PluginConstants {
 		final MavenModule layoutModule = layoutProject.getRootModule();
 
 		/** Topologically sorted list of modules. */
-		final List<MavenModule> moduleList = layoutProject
-				.getDisabledModules(false);
+		final List<MavenModule> moduleList = layoutProject.getDisabledModules(false);
 
 		for (final MavenModule module : moduleList) {
 			if (isSameModuleName(layoutModule, module)) {
@@ -143,12 +138,11 @@ public class LayoutLogic implements PluginConstants {
 	/**
 	 * Copy configuration from layout into member via XML, run post load hook.
 	 */
-	public static void cloneConfig(final MavenModuleSet layoutProject,
-			final MavenModuleSet memberProject) throws IOException {
+	public static void cloneConfig(final MavenModuleSet layoutProject, final MavenModuleSet memberProject)
+			throws IOException {
 
 		/** Original parent. */
-		final ItemGroup<? extends Item> memberParent = memberProject
-				.getParent();
+		final ItemGroup<? extends Item> memberParent = memberProject.getParent();
 
 		/** Original name. */
 		final String memberName = memberProject.getName();
@@ -170,9 +164,8 @@ public class LayoutLogic implements PluginConstants {
 	/**
 	 * Create view if missing and add project to the view.
 	 */
-	public static void ensureProjectView(
-			final BuildContext<MavenModuleSetBuild> context,
-			final TopLevelItem project) throws IOException {
+	public static void ensureProjectView(final BuildContext<MavenModuleSetBuild> context, final TopLevelItem project)
+			throws IOException {
 
 		final String viewName = context.layoutOptions().getLayoutViewName();
 
@@ -189,21 +182,17 @@ public class LayoutLogic implements PluginConstants {
 	/**
 	 * Activate additional columns for the cascade view.
 	 */
-	public static void ensureProjectViewColumns(final ListView view)
-			throws IOException {
+	public static void ensureProjectViewColumns(final ListView view) throws IOException {
 
-		final DescribableList<ListViewColumn, Descriptor<ListViewColumn>> columnList = view
-				.getColumns();
+		final DescribableList<ListViewColumn, Descriptor<ListViewColumn>> columnList = view.getColumns();
 
-		final GraphViewColumn graphColumn = columnList
-				.get(GraphViewColumn.class);
+		final GraphViewColumn graphColumn = columnList.get(GraphViewColumn.class);
 
 		if (graphColumn == null) {
 			columnList.add(new GraphViewColumn());
 		}
 
-		final LastReleaseListViewColumn releaseColumn = columnList
-				.get(LastReleaseListViewColumn.class);
+		final LastReleaseListViewColumn releaseColumn = columnList.get(LastReleaseListViewColumn.class);
 
 		if (releaseColumn == null) {
 			columnList.add(new LastReleaseListViewColumn());
@@ -214,8 +203,7 @@ public class LayoutLogic implements PluginConstants {
 	/**
 	 * Update maven and jenkins metadata.
 	 */
-	public static List<Action> mavenValidateGoals(
-			final BuildContext<MavenModuleSetBuild> context,
+	public static List<Action> mavenValidateGoals(final BuildContext<MavenModuleSetBuild> context,
 			final String... options) {
 		final LayoutOptions layoutOptions = new LayoutOptions();
 		final MavenGoalsIntercept goals = new MavenGoalsIntercept();
@@ -231,10 +219,8 @@ public class LayoutLogic implements PluginConstants {
 	/**
 	 * Generate member project name.
 	 */
-	public static String memberName(
-			final BuildContext<MavenModuleSetBuild> context,
-			final MavenModuleSet layoutProject, final MavenModule module)
-			throws IOException {
+	public static String memberName(final BuildContext<MavenModuleSetBuild> context,
+			final MavenModuleSet layoutProject, final MavenModule module) throws IOException {
 
 		final ModuleName moduleName = module.getModuleName();
 
@@ -243,18 +229,14 @@ public class LayoutLogic implements PluginConstants {
 		moduleTokens.put(TOKEN_GROUP_ID, moduleName.groupId);
 		moduleTokens.put(TOKEN_ARTIFACT_ID, moduleName.artifactId);
 
-		final VariableResolver<String> moduleResolver = new VariableResolver.ByMap<String>(
-				moduleTokens);
+		final VariableResolver<String> moduleResolver = new VariableResolver.ByMap<String>(moduleTokens);
 
-		final VariableResolver<String> buildResolver = context.build()
-				.getBuildVariableResolver();
+		final VariableResolver<String> buildResolver = context.build().getBuildVariableResolver();
 
 		@SuppressWarnings("unchecked")
-		final VariableResolver<String> resolver = new VariableResolver.Union<String>(
-				moduleResolver, buildResolver);
+		final VariableResolver<String> resolver = new VariableResolver.Union<String>(moduleResolver, buildResolver);
 
-		final String memberPattern = context.layoutOptions()
-				.getMemberProjectName();
+		final String memberPattern = context.layoutOptions().getMemberProjectName();
 
 		final String memberName = Util.replaceMacro(memberPattern, resolver);
 
@@ -265,16 +247,13 @@ public class LayoutLogic implements PluginConstants {
 	/**
 	 * Layout build entry point.
 	 */
-	public static boolean process(
-			final BuildContext<MavenModuleSetBuild> context) throws IOException {
+	public static boolean process(final BuildContext<MavenModuleSetBuild> context) throws IOException {
 
 		final MavenModuleSet layoutProject = mavenProject(context.build());
 
-		final LayoutArgumentsAction action = context.build().getAction(
-				LayoutArgumentsAction.class);
+		final LayoutArgumentsAction action = context.build().getAction(LayoutArgumentsAction.class);
 
-		final ProjectIdentity layoutIdentity = ProjectIdentity
-				.ensureLayoutIdentity(layoutProject);
+		final ProjectIdentity layoutIdentity = ProjectIdentity.ensureLayoutIdentity(layoutProject);
 
 		final String layoutName = layoutProject.getName();
 
@@ -329,12 +308,10 @@ public class LayoutLogic implements PluginConstants {
 
 					context.logTab("Creating cascade project.");
 
-					final CascadeProject cascadeProject = jenkins
-							.createProject(CascadeProject.class, cascadeName);
+					final CascadeProject cascadeProject = jenkins.createProject(CascadeProject.class, cascadeName);
 
-					final ProjectIdentity cascadeIdentity = ProjectIdentity
-							.ensureCascadeIdentity(layoutProject,
-									cascadeProject);
+					final ProjectIdentity cascadeIdentity = ProjectIdentity.ensureCascadeIdentity(layoutProject,
+							cascadeProject);
 
 					context.logTab("Project identity: " + cascadeIdentity);
 
@@ -369,8 +346,7 @@ public class LayoutLogic implements PluginConstants {
 		final JenkinsTask projectDelete = new JenkinsTask() {
 			public void run() throws IOException {
 
-				final CascadeProject cascadeProject = ProjectIdentity.identity(
-						layoutProject).cascadeProject();
+				final CascadeProject cascadeProject = ProjectIdentity.identity(layoutProject).cascadeProject();
 
 				if (cascadeProject == null) {
 
@@ -378,8 +354,7 @@ public class LayoutLogic implements PluginConstants {
 
 				} else {
 
-					context.logTab("Project identity: "
-							+ ProjectIdentity.identity(cascadeProject));
+					context.logTab("Project identity: " + ProjectIdentity.identity(cascadeProject));
 
 					context.logTab("Deleting cascade project.");
 
@@ -401,8 +376,7 @@ public class LayoutLogic implements PluginConstants {
 		final JenkinsTask projectUpdate = new JenkinsTask() {
 			public void run() throws IOException {
 
-				final CascadeProject cascadeProject = ProjectIdentity.identity(
-						layoutProject).cascadeProject();
+				final CascadeProject cascadeProject = ProjectIdentity.identity(layoutProject).cascadeProject();
 
 				if (cascadeProject == null) {
 
@@ -410,8 +384,7 @@ public class LayoutLogic implements PluginConstants {
 
 				} else {
 
-					context.logTab("Project identity: "
-							+ ProjectIdentity.identity(cascadeProject));
+					context.logTab("Project identity: " + ProjectIdentity.identity(cascadeProject));
 
 					context.logTab("Updating cascade project.");
 
@@ -431,8 +404,7 @@ public class LayoutLogic implements PluginConstants {
 
 		switch (action.getConfigAction()) {
 		default:
-			context.logErr("Unexpected config action, ignore: "
-					+ action.getConfigAction());
+			context.logErr("Unexpected config action, ignore: " + action.getConfigAction());
 			break;
 		case CREATE:
 			projectCreate.run();
@@ -441,8 +413,7 @@ public class LayoutLogic implements PluginConstants {
 			projectDelete.run();
 			break;
 		case UPDATE:
-			final CascadeProject cascadeProject = ProjectIdentity.identity(
-					layoutProject).cascadeProject();
+			final CascadeProject cascadeProject = ProjectIdentity.identity(layoutProject).cascadeProject();
 			if (cascadeProject == null) {
 				context.logTab("Project missing, creating now.");
 				projectCreate.run();
@@ -460,9 +431,8 @@ public class LayoutLogic implements PluginConstants {
 	 * 
 	 * @throws IOException
 	 */
-	public static void processLayout(
-			final BuildContext<MavenModuleSetBuild> context,
-			final MavenModuleSet layoutProject) throws IOException {
+	public static void processLayout(final BuildContext<MavenModuleSetBuild> context, final MavenModuleSet layoutProject)
+			throws IOException {
 
 		context.logTab("Update SCM settings.");
 		SCM: {
@@ -475,7 +445,17 @@ public class LayoutLogic implements PluginConstants {
 
 				final String includedRegions = "disabled-by" + "_" + PLUGIN_ID;
 
-				changeField(gitScm, "includedRegions", includedRegions);
+				// busted
+
+				// changeField(gitScm, "includedRegions", includedRegions);
+
+				// testing new API
+
+				gitScm.getExtensions().removeAll(PathRestriction.class);
+
+				gitScm.getExtensions().add(new PathRestriction(includedRegions, ""));
+
+				//
 
 				break SCM;
 
@@ -512,8 +492,7 @@ public class LayoutLogic implements PluginConstants {
 
 		switch (action.getConfigAction()) {
 		default:
-			context.logErr("Unexpected config action, ignore: "
-					+ action.getConfigAction());
+			context.logErr("Unexpected config action, ignore: " + action.getConfigAction());
 			break;
 		case CREATE:
 			processMemberListCreate(context, layoutProject);
@@ -540,8 +519,7 @@ public class LayoutLogic implements PluginConstants {
 
 		final Jenkins jenkins = Jenkins.getInstance();
 
-		final List<MavenModule> moduleList = layoutProject
-				.getDisabledModules(false);
+		final List<MavenModule> moduleList = layoutProject.getDisabledModules(false);
 
 		for (final MavenModule module : moduleList) {
 
@@ -570,13 +548,11 @@ public class LayoutLogic implements PluginConstants {
 				context.logTab("Creating project: " + memberName);
 
 				/** Clone project via XML. */
-				final TopLevelItem item = jenkins.copy(
-						(TopLevelItem) layoutProject, memberName);
+				final TopLevelItem item = jenkins.copy((TopLevelItem) layoutProject, memberName);
 
 				final MavenModuleSet memberProject = (MavenModuleSet) item;
 
-				processMemberUpdate(context, module, memberProject,
-						layoutProject);
+				processMemberUpdate(context, module, memberProject, layoutProject);
 
 				processMemberValidate(context, memberProject);
 
@@ -601,8 +577,7 @@ public class LayoutLogic implements PluginConstants {
 
 		final String familyID = ProjectIdentity.familyID(layoutProject);
 
-		final List<MavenModuleSet> memberProjectList = ProjectIdentity
-				.memberProjectList(familyID);
+		final List<MavenModuleSet> memberProjectList = ProjectIdentity.memberProjectList(familyID);
 
 		if (memberProjectList.isEmpty()) {
 			context.logErr("No member projects in the family: " + familyID);
@@ -614,8 +589,7 @@ public class LayoutLogic implements PluginConstants {
 			context.log("");
 			context.log("Member project: " + memberProject.getName());
 
-			context.logTab("Project identity: "
-					+ ProjectIdentity.identity(memberProject));
+			context.logTab("Project identity: " + ProjectIdentity.identity(memberProject));
 
 			context.logTab("Deleting project.");
 
@@ -643,8 +617,7 @@ public class LayoutLogic implements PluginConstants {
 
 		final String familyID = ProjectIdentity.familyID(layoutProject);
 
-		final List<MavenModuleSet> memberProjectList = ProjectIdentity
-				.memberProjectList(familyID);
+		final List<MavenModuleSet> memberProjectList = ProjectIdentity.memberProjectList(familyID);
 
 		if (memberProjectList.isEmpty()) {
 			context.logErr("No member projects in the family: " + familyID);
@@ -656,24 +629,20 @@ public class LayoutLogic implements PluginConstants {
 			context.log("");
 			context.log("Member project: " + memberProject.getName());
 
-			context.logTab("Project identity: "
-					+ ProjectIdentity.identity(memberProject));
+			context.logTab("Project identity: " + ProjectIdentity.identity(memberProject));
 
 			context.logTab("Updating project.");
 
 			final ModuleName memberName = moduleName(memberProject);
 
-			final MavenModule memberModule = layoutProject.getItem(memberName
-					.toString());
+			final MavenModule memberModule = layoutProject.getItem(memberName.toString());
 
 			if (memberModule == null) {
-				context.logErr("Missing layout module, skip update: "
-						+ memberName);
+				context.logErr("Missing layout module, skip update: " + memberName);
 				continue;
 			}
 
-			processMemberUpdate(context, memberModule, memberProject,
-					layoutProject);
+			processMemberUpdate(context, memberModule, memberProject, layoutProject);
 
 			processMemberValidate(context, memberProject);
 
@@ -713,10 +682,19 @@ public class LayoutLogic implements PluginConstants {
 
 				final GitSCM gitScm = (GitSCM) scm;
 
-				final String includedRegions = memberModule.getRelativePath()
-						+ "/.*";
+				final String includedRegions = memberModule.getRelativePath() + "/.*";
 
-				changeField(gitScm, "includedRegions", includedRegions);
+				// this is busted in latest Jenkins git-plugin
+
+				// changeField(gitScm, "includedRegions", includedRegions);
+
+				// testing new API
+
+				gitScm.getExtensions().removeAll(PathRestriction.class);
+
+				gitScm.getExtensions().add(new PathRestriction(includedRegions, ""));
+
+				//
 
 				break SCM;
 
@@ -742,13 +720,11 @@ public class LayoutLogic implements PluginConstants {
 
 			if (context.layoutOptions().getUseSharedWorkspace()) {
 
-				final FilePath nodeRoot = Computer.currentComputer().getNode()
-						.getRootPath();
+				final FilePath nodeRoot = Computer.currentComputer().getNode().getRootPath();
 
 				final FilePath layoutWorkspace = context.build().getWorkspace();
 
-				final String memberWorkspace = relativePath(
-						nodeRoot.getRemote(), layoutWorkspace.getRemote());
+				final String memberWorkspace = relativePath(nodeRoot.getRemote(), layoutWorkspace.getRemote());
 
 				memberProject.setCustomWorkspace(memberWorkspace);
 
@@ -774,8 +750,7 @@ public class LayoutLogic implements PluginConstants {
 
 		context.logTab("Ensure member project identity.");
 		{
-			final ProjectIdentity memberdentity = ProjectIdentity
-					.ensureMemberIdentity(layoutProject, memberProject);
+			final ProjectIdentity memberdentity = ProjectIdentity.ensureMemberIdentity(layoutProject, memberProject);
 
 			context.logTab("Identity: " + memberdentity);
 		}
